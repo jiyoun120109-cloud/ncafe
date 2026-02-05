@@ -1,0 +1,41 @@
+# NCafe Project Rules
+
+## 1. Tech Stack
+- Framework: Next.js 15+ (App Router)
+- Language: TypeScript
+- Styling: CSS Modules (`.module.css`) + CSS Variables
+- State Management: Zustand
+- Form: react-hook-form
+
+## 2. Directory Structure & Colocation
+- **Pages**: `frontend/app/`
+- **Global Components**: `frontend/components/`
+- **Local Components**: Colocate inside `_components/` folder distinct to the page/route.
+  - Example: `frontend/app/admin/menus/_components/MenuCard`
+- **Private Folders**: Use `_` prefix for folders that should not be routed (e.g. `_components`, `_utils`).
+
+## 3. Component Architecture
+Follow the **Component Folder Pattern** for every component:
+```
+ComponentName/
+├── ComponentName.tsx        # Logic & View
+├── ComponentName.module.css # Styles (CSS Modules)
+└── index.ts                 # Export (export { default } from './ComponentName')
+```
+
+## 4. Naming Conventions
+- Components: PascalCase (e.g. `MenuCard`)
+- Folders: PascalCase (e.g. `MenuCard/`)
+- CSS Modules: `ComponentName.module.css`
+- Props Interface: `ComponentNameProps`
+
+## 5. Coding Standards
+- **Imports**: Use cleaner imports via `index.ts`.
+  - Good: `import MenuCard from './_components/MenuCard';`
+  - Bad: `import MenuCard from './_components/MenuCard/MenuCard';`
+- **Semantic HTML**: Use semantic tags (`main`, `header`, `nav`, `section`, etc.) instead of generic `div`.
+- **Absolute Paths**: Always use absolute paths for file operations.
+
+## 6. Development Workflow
+- Follow the plan in `FRONTEND_BLUEPRINT.md`.
+- Check off items in the blueprint checklist when completed.

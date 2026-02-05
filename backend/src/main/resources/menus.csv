@@ -1,0 +1,34 @@
+id,kor_name,eng_name,category_id,price
+1,아메리카노,Americano,1,4500
+2,카페라떼,Cafe Latte,1,5000
+3,카푸치노,Cappuccino,1,5500
+4,바닐라 라떼,Vanilla Latte,1,6000
+5,초콜릿 라떼,Chocolate Latte,2,6500
+6,녹차 라떼,Green Tea Latte,2,6500
+7,딸기 스무디,Strawberry Smoothie,3,7000
+8,블루베리 스무디,Blueberry Smoothie,3,7000
+9,망고 스무디,Mango Smoothie,3,7000
+10,자몽 에이드,Grapefruit Ade,4,6000
+11,레몬 에이드,Lemon Ade,4,6000
+12,자바 칩 프라푸치노,Java Chip Frappuccino,3,7000
+13,카라멜 마끼아또,Caramel Macchiato,1,6500
+14,화이트 초콜릿 모카,White Chocolate Mocha,1,7000
+15,민트 초콜릿 칩 프라푸치노,Mint Chocolate Chip Frappuccino,3,7500
+16,체리 블라썸 그린 티 프라푸치노,Cherry Blossom Green Tea Frappuccino,3,7500
+17,스트로베리 크림 프라푸치노,Strawberry Cream Frappuccino,3,7000
+18,블루베리 크림 프라푸치노,Blueberry Cream Frappuccino,3,7000
+19,망고 크림 프라푸치노,Mango Cream Frappuccino,3,7000
+20,자몽 허니 블랙 티,Grapefruit Honey Black Tea,5,6500
+21,레몬 진저 티,Lemon Ginger Tea,5,6000
+22,캐모마일 티,Chamomile Tea,5,5500
+23,페퍼민트 티,Peppermint Tea,5,5500
+24,얼그레이 티,Earl Grey Tea,5,5500
+25,로즈마리 허브 티,Rosemary Herb Tea,5,6000
+26,레몬 마카롱,Lemon Macaron,6,3000
+27,초콜릿 마카롱,Chocolate Macaron,6,3000
+28,바닐라 마카롱,Vanilla Macaron,6,3000
+29,딸기 마카롱,Strawberry Macaron,6,3000
+30,블루베리 마카롱,Blueberry Macaron,6,3000
+31,초콜릿 크루아상,Chocolate Croissant,6,4500
+32,아몬드 크루아상,Almond Croissant,6,5000
+33,플레인 스콘,Plain Scone,6,4000
