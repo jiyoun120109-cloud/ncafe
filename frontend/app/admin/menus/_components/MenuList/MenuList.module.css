@@ -1,0 +1,130 @@
+.container {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-6, 24px);
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--color-gray-400, #9ca3af);
+    background: var(--bg-primary, #fff);
+    border-radius: 16px;
+    border: 2px dashed var(--color-gray-200, #e5e7eb);
+}
+
+.emptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 16px 0 8px;
+    color: var(--color-gray-600, #4b5563);
+}
+
+.loadingState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    gap: 16px;
+    color: var(--color-gray-500, #6b7280);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 48px;
+    padding: 24px 0;
+}
+
+.pageNumbers {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--color-gray-100, #f3f4f6);
+    padding: 4px;
+    border-radius: 12px;
+}
+
+.pageBtn {
+    min-width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-gray-600, #4b5563);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.pageBtn:hover {
+    background: var(--color-gray-200, #e5e7eb);
+}
+
+.pageBtn.active {
+    background: #fff;
+    color: var(--color-primary, #3b82f6);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.arrowBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--color-gray-200, #e5e7eb);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--color-gray-500, #6b7280);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.arrowBtn:hover:not(:disabled) {
+    border-color: var(--color-gray-300, #d1d5db);
+    color: var(--color-gray-700, #374151);
+    background: var(--color-gray-50, #f9fafb);
+}
+
+.arrowBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.overlayItem {
+    width: 320px;
+    pointer-events: none;
+    z-index: 1000;
+}

@@ -1,0 +1,114 @@
+.header {
+    height: var(--header-height);
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--color-gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-6);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.menuButton {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    color: var(--color-gray-600);
+    transition: background-color var(--transition-fast);
+}
+
+.menuButton:hover {
+    background-color: var(--color-gray-100);
+}
+
+.pageTitle {
+    font-size: var(--text-xl);
+    font-weight: var(--font-semibold);
+    color: var(--color-gray-900);
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.iconButton {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    color: var(--color-gray-600);
+    position: relative;
+    transition: background-color var(--transition-fast);
+}
+
+.iconButton:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
+}
+
+.notificationBadge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-error);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.profile:hover {
+    background-color: var(--color-gray-100);
+}
+
+.profileAvatar {
+    width: 32px;
+    height: 32px;
+    background-color: var(--color-primary-100);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+}
+
+.profileName {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-gray-700);
+}
+
+@media (max-width: 1023px) {
+    .menuButton {
+        display: flex;
+    }
+
+    .profileName {
+        display: none;
+    }
+}
