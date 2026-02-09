@@ -66,11 +66,7 @@ public class NewMenuRepository implements MenuRepository {
     @Override
     public List<Menu> findAllByCategoryId(Integer categoryId) {
         List<Menu> menus = new ArrayList<>();
-        String sql = "SELECT * FROM menus";
-
-        if (categoryId != null) {
-            sql += " WHERE category_id = " + categoryId;
-        }
+        String sql = "SELECT * FROM menus WHERE category_id = " + categoryId;
 
         try (Connection conn = dataSource.getConnection();
                 Statement stmt = conn.createStatement();
@@ -98,31 +94,29 @@ public class NewMenuRepository implements MenuRepository {
     }
 
     @Override
-    public List<Menu> findAllByName(String name) {
-        List<Menu> menus = new ArrayList<>();
-        String sql = "SELECT * FROM menus WHERE kor_name LIKE '%" + name + "%'";
+    public Menu findById(Long id) {
+        String sql = "SELECT * FROM menus WHERE id = " + id;
 
         try (Connection conn = dataSource.getConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                menus.add(Menu.builder()
+
+            if (rs.next()) {
+                return Menu.builder()
                         .id(rs.getLong("id"))
                         .korName(rs.getString("kor_name"))
                         .engName(rs.getString("eng_name"))
                         .price(rs.getInt("price"))
-                        .categoryId(
-                                rs.getObject("category_id") != null ? ((Number) rs.getObject("category_id")).longValue()
-                                        : null)
                         .description(rs.getString("description"))
                         .isAvailable(rs.getBoolean("is_available"))
+                        .categoryId(rs.getLong("category_id"))
                         .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                         .updatedAt(rs.getTimestamp("updated_at").toLocalDateTime())
-                        .build());
+                        .build();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return menus;
+        return null;
     }
 }

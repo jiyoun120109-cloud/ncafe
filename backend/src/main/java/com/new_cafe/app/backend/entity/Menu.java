@@ -20,5 +20,4 @@ public class Menu {
     private Boolean isAvailable;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Category category;
 }

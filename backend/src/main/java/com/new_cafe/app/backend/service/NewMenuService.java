@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.new_cafe.app.backend.dto.MenuCreateRequest;
 import com.new_cafe.app.backend.dto.MenuCreateResponse;
 import com.new_cafe.app.backend.dto.MenuDetailResponse;
+import com.new_cafe.app.backend.dto.MenuImageResponse;
+import com.new_cafe.app.backend.dto.MenuImageListResponse;
 import com.new_cafe.app.backend.dto.MenuListRequest;
 import com.new_cafe.app.backend.dto.MenuListResponse;
 import com.new_cafe.app.backend.dto.MenuUpdateRequest;
@@ -77,7 +79,25 @@ public class NewMenuService implements MenuService {
 
     @Override
     public MenuDetailResponse getMenu(long id) {
-        return null;
+        Menu menu = repository.findById(id);
+
+        if (menu == null) {
+            return null;
+        }
+
+        String categoryName = categoryRepository.findById(menu.getCategoryId()).getName();
+
+        return MenuDetailResponse.builder()
+                .id(menu.getId())
+                .korName(menu.getKorName())
+                .engName(menu.getEngName())
+                .categoryName(categoryName)
+                .price(menu.getPrice())
+                .isAvailable(menu.getIsAvailable())
+                .createdAt(menu.getCreatedAt())
+                .updatedAt(menu.getUpdatedAt())
+                .description(menu.getDescription())
+                .build();
     }
 
     @Override
@@ -92,6 +112,30 @@ public class NewMenuService implements MenuService {
 
     @Override
     public void deleteMenu(long id) {
+    }
+
+    @Override
+    public MenuImageListResponse getMenuImageList(long menuId) {
+
+        List<MenuImage> images = menuImageRepository.findAllByMenuId(menuId);
+
+        Menu menu = repository.findById(menuId);
+        String altText = (menu != null) ? menu.getKorName() : "";
+
+        List<MenuImageResponse> imageDtos = images
+                .stream()
+                .map(image -> MenuImageResponse.builder()
+                        .id(image.getId())
+                        .imageUrl(image.getImageSrc())
+                        .menuId(image.getMenuId())
+                        .sortOrder(image.getSortOrder())
+                        .build())
+                .toList();
+
+        return MenuImageListResponse.builder()
+                .menuImages(imageDtos)
+                .altText(altText)
+                .build();
     }
 
 }

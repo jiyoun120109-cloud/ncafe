@@ -6,7 +6,7 @@ export interface Menu {
   engName: string;
   description: string;
   price: number;
-  category: string;
+  category: number;
   images: MenuImage[];
   isAvailable: boolean;
   isSoldOut: boolean;
