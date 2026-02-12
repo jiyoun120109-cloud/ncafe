@@ -2,6 +2,7 @@
 
 import { useMenus } from './useMenus';
 import { Coffee } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import MenuCard from '../MenuCard';
 import styles from './MenuList.module.css';
 
@@ -11,6 +12,7 @@ interface MenuListProps {
 }
 
 export default function MenuList({ selectedCategory, searchQuery }: MenuListProps) {
+    const router = useRouter();
 
     //GET: /admin/menus?categoryId=1&searchQuery=coffee&page=0&size=10
     const { menus, setMenus } = useMenus({ categoryId: selectedCategory, searchQuery });
@@ -20,7 +22,11 @@ export default function MenuList({ selectedCategory, searchQuery }: MenuListProp
             {menus.length > 0 ? (
                 <div className={styles.grid}>
                     {menus.map((menu) => (
-                        <MenuCard key={menu.id} menu={menu} />
+                        <MenuCard
+                            key={menu.id}
+                            menu={menu}
+                            onClick={() => router.push(`/admin/menus/${menu.id}`)}
+                        />
                     ))}
                 </div>
             ) : (

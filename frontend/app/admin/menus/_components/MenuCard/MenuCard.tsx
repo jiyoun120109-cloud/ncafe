@@ -9,9 +9,10 @@ import { MenuResponse } from '../MenuList/useMenus';
 
 interface MenuCardProps {
     menu: MenuResponse;
+    onClick?: () => void;
 }
 
-export default function MenuCard({ menu }: MenuCardProps) {
+export default function MenuCard({ menu, onClick }: MenuCardProps) {
 
     return (
         <div
@@ -19,6 +20,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
         >
             <motion.div
                 className={styles.card}
+                onClick={onClick}
             >
                 <div
                     className={styles.dragHandle}
