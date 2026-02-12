@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
                 },
                 {
                     source: '/images/:path*',
-                    destination: 'http://localhost:8080/upload/:path*',
+                    destination: 'http://localhost:8080/:path*',
                 }
             ]
         } return []
