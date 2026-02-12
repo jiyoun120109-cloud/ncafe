@@ -20,7 +20,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
             <div className={styles.mainImageWrapper}>
                 {selectedImage ? (
                     <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL || 'http://localhost:8080/upload'}/${selectedImage}`}
+                        src={`/images/${selectedImage}`}
                         alt={`${altText || 'Menu'} Main Image`}
                         fill
                         className={styles.mainImage}
@@ -42,7 +42,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
                             onClick={() => setSelectedImage(image.imageUrl)}
                         >
                             <Image
-                                src={`${process.env.NEXT_PUBLIC_IMAGE_URL || 'http://localhost:8080/upload'}/${image.imageUrl}`}
+                                src={`/images/${image.imageUrl}`}
                                 alt={`${altText || 'Menu'} Thumbnail ${image.sortOrder}`}
                                 fill
                                 sizes="(max-width: 768px) 20vw, 10vw"

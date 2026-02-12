@@ -23,7 +23,7 @@ export function useMenuDetail(id: number) {
         const fetchMenuDetail = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/v1/admin/menus/${id}`);
+                const response = await fetch(`/api/admin/menus/${id}`);
 
                 if (!response.ok) {
                     throw new Error('메뉴를 불러오는데 실패했습니다.');
