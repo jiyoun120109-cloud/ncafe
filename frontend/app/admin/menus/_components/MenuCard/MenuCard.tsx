@@ -31,7 +31,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
                 <div className={styles.imageContainer}>
                     {menu.imageSrc ? (
                         <Image
-                            src={`http://localhost:8080/upload/${menu.imageSrc}`}
+                            src={`/images/${menu.imageSrc}`}
                             alt={menu.korName}
                             fill
                             className={styles.image}

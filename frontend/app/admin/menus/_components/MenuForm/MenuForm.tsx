@@ -118,7 +118,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => appendOption({ id: Date.now().toString(), name: '', type: 'radio', required: false, items: [] })}
+                        onClick={() => appendOption({ id: Date.now(), name: '', type: 'radio', required: false, items: [] })}
                         leftIcon={<Plus size={16} />}
                     >
                         옵션 추가

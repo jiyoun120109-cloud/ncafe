@@ -20,7 +20,7 @@ export default function EditMenuPage() {
     const { success } = useToast();
     const [menu, setMenu] = useState<Menu | null>(null);
 
-    const id = params?.id as string;
+    const id = Number(params?.id);
 
     useEffect(() => {
         const foundMenu = menus.find(m => m.id === id);

@@ -24,7 +24,7 @@ export default function NewMenuPage() {
     const handleSubmit = (data: any) => {
         const newMenu = {
             ...data,
-            id: Date.now().toString(),
+            id: Date.now(),
             images: [], // 임시
             isAvailable: true,
             sortOrder: 1,

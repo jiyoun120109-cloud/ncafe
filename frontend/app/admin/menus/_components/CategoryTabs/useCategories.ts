@@ -23,8 +23,8 @@ export const useCategories = () => {
             try {
                 // 1. 카테고리와 메뉴 동시 가져오기
                 const [catRes, menusRes] = await Promise.all([
-                    fetch('http://localhost:8080/admin/categories'),
-                    fetch('http://localhost:8080/admin/menus')
+                    fetch('/api/admin/categories'),
+                    fetch('/api/admin/menus')
                 ])
 
                 if (!catRes.ok || !menusRes.ok) throw new Error('데이터 로드 실패');

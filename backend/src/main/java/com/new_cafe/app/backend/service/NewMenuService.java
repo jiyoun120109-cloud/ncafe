@@ -48,7 +48,7 @@ public class NewMenuService implements MenuService {
                     String categoryName = categoryRepository.findById(menu.getCategoryId()).getName();
 
                     List<MenuImage> images = menuImageRepository.findAllByMenuId(menu.getId());
-                    String imageSrc = "";
+                    String imageSrc = "blank.png";
                     if (images.size() > 0) {
                         imageSrc = images.get(0).getImageSrc();
                     }
