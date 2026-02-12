@@ -23,16 +23,15 @@ export function useMenuDetailImages(menuId: number) {
 
         const fetchImages = async () => {
             try {
-                const response = await fetch(`/api/${menuId}/menu-images`);
+                const response = await fetch(`/api/admin/menus/${menuId}/menu-images`);
                 if (response.ok) {
                     const data: MenuDetailImagesResponse = await response.json();
                     setMenuImages(data.menuImages);
                     setAltText(data.altText);
                 } else {
-                    console.error('Failed to fetch menu images');
                 }
             } catch (error) {
-                console.error('Error fetching menu images:', error);
+
             }
         };
 
