@@ -18,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/**")
+        registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:/home/yun/dist/ncafe/backend/upload/");
     }
 }
