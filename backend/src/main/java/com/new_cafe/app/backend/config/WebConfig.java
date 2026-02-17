@@ -15,5 +15,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true); // credentials 허용
 
     }
-
 }
