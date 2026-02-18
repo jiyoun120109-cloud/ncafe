@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 import { motion, useInView, type Variants } from "framer-motion";
 import {
   Coffee,
@@ -214,10 +215,10 @@ export default function Home() {
             variants={fadeUp}
             custom={3}
           >
-            <a href="#menu" className={styles.btnPrimary}>
+            <Link href="/admin/menus" className={styles.btnPrimary}>
               Explore Menu
               <ArrowRight size={16} />
-            </a>
+            </Link>
             <a href="#about" className={styles.btnSecondary}>
               Our Story
             </a>

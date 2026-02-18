@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useRouter } from 'next/navigation';
 import { Edit2, Trash2, MoreVertical, Image as ImageIcon, GripVertical, AlertTriangle } from 'lucide-react';
 import styles from './MenuCard.module.css';
 import { MenuResponse } from '../MenuList/useMenus';
@@ -12,6 +13,11 @@ interface MenuCardProps {
 }
 
 export default function MenuCard({ menu }: MenuCardProps) {
+    const router = useRouter();
+
+    const handleCardClick = () => {
+        router.push(`/admin/menus/${menu.id}`);
+    };
 
     return (
         <div
@@ -19,6 +25,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
         >
             <motion.div
                 className={styles.card}
+                onClick={handleCardClick}
             >
                 <div
                     className={styles.dragHandle}
