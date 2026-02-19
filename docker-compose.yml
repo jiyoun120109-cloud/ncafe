@@ -17,11 +17,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=http://localhost:8011
+        - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
     ports:
       - "3011:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8011
+      - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
       - PORT=3000
     depends_on:
       - backend
