@@ -4,7 +4,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8011:8011"
+      - "8011:8080"
     volumes:
       - /home/yun/workspace/ncafe/backend/upload:/app/upload
     environment:
@@ -19,7 +19,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=http://localhost:8011
     ports:
-      - "3011:3011"
+      - "3011:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8011
     depends_on:
