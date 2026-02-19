@@ -20,4 +20,5 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/next.config.ts ./
 
 EXPOSE 3011
+ENV PORT=3011
 CMD ["npm", "run", "start"]

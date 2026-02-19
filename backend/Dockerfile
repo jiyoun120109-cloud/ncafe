@@ -14,4 +14,5 @@ EXPOSE 8011
 # Create upload directory
 RUN mkdir -p /app/upload
 VOLUME /app/upload
+ENV SERVER_PORT=8011
 ENTRYPOINT ["java", "-jar", "app.jar"]
