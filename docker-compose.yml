@@ -1,3 +1,4 @@
+name: ncafe-yun
 services:
   backend:
     build:
