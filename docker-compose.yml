@@ -4,10 +4,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8011:8011"
+      - "8011:8080"
     volumes:
       - /home/yun/workspace/ncafe/backend/upload:/app/upload
     environment:
+      - SERVER_PORT=8011
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db.newlecture.com:5432/ncafedb?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=ncafe
       - SPRING_DATASOURCE_PASSWORD=new_ibm2
@@ -22,6 +23,7 @@ services:
       - "3011:3000"
     environment:
       - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
+      - BACKEND_URL=http://backend:8080
       - PORT=3000
     depends_on:
       - backend
