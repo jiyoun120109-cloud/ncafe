@@ -37,7 +37,7 @@ services:
 
   db:
     image: postgres:17
-    container_name: ${USER_ID:-ncafe}-db
+    container_name: ${USER_ID:-yun}-db
     environment:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe

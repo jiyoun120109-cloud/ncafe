@@ -10,6 +10,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
  * Spring Security 설정
@@ -30,6 +31,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(requestHandler)
+                .ignoringRequestMatchers(
+                    (RequestMatcher) request -> "/api/csrf".equals(request.getRequestURI()) || "/api/auth/login".equals(request.getRequestURI())
+                )
             )
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
