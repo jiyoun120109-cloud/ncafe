@@ -13,11 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
     private String uploadPath;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 모든 URL에 대해 CORS 허용
-                .allowedOrigins("http://localhost:3000", "http://localhost:3011") // 허용된 origin
-                .allowedMethods("GET", "POST", "PUT", "DELETE") // 허용된 HTTP 메소드
-                .allowedHeaders("*") // 모든 header 허용
-                .allowCredentials(true); // credentials 허용
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*") // 로컬 + 배포 도메인(nginx가 Origin 전달). allowCredentials 사용 시 allowedOrigins("*") 불가하므로 pattern 사용
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 
     @Override
