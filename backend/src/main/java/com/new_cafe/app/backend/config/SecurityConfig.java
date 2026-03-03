@@ -34,8 +34,9 @@ public class SecurityConfig {
                 .ignoringRequestMatchers(
                     (RequestMatcher) request -> {
                         String uri = request.getRequestURI();
-                        return "/api/csrf".equals(uri) || "/csrf".equals(uri)
-                            || "/api/auth/login".equals(uri) || "/auth/login".equals(uri);
+                        if (uri == null) return false;
+                        String path = uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
+                        return path.endsWith("/csrf") || path.endsWith("/auth/login");
                     }
                 )
             )
