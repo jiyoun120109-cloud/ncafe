@@ -85,7 +85,7 @@ backend/
 
 ### 📋 Base URL
 ```
-개발: http://localhost:8080/api
+개발: http://localhost:8011/api
 ```
 
 ### 3.1 메뉴 API (`/api/admin/menus`)

@@ -1,76 +1,76 @@
+/* ================================================================
+   Admin CategoryTabs
+   ================================================================ */
+
 .tabs {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-6);
-    padding-bottom: var(--space-2);
+    gap: 0;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-}
-
-/* Hide scrollbar but keep functionality */
-.tabs::-webkit-scrollbar {
-    display: none;
-}
-
-.tabs {
-    -ms-overflow-style: none;
     scrollbar-width: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    flex-wrap: wrap;
 }
 
+.tabs::-webkit-scrollbar { display: none; }
 
 .tab {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    background-color: var(--bg-primary);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-full);
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--color-gray-600);
+    gap: 0.45rem;
+    padding: 0.7rem 1.1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: rgba(0, 0, 0, 0.42);
     white-space: nowrap;
-    transition: all var(--transition-fast);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.tab:hover {
-    border-color: var(--color-primary-400);
-    color: var(--color-primary-600);
-}
+.tab:hover { color: rgba(0, 0, 0, 0.72); }
 
 .tab.active {
-    background-color: var(--color-primary-600);
-    border-color: var(--color-primary-600);
-    color: white;
+    color: #1c1917;
+    border-bottom-color: #1c1917;
 }
 
 .count {
-    font-size: var(--text-xs);
-    opacity: 0.8;
-    background-color: rgba(0, 0, 0, 0.1);
+    font-size: 0.68rem;
     padding: 1px 6px;
-    border-radius: var(--radius-full);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
 }
 
 .tab.active .count {
-    background-color: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.09);
 }
 
+/* 카테고리 추가 버튼 */
 .addCategoryBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-600);
-    transition: all var(--transition-fast);
-    margin-left: var(--space-2);
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    color: rgba(0, 0, 0, 0.38);
+    cursor: pointer;
+    margin-left: 0.75rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
 .addCategoryBtn:hover {
-    background-color: var(--color-gray-200);
-    color: var(--color-gray-900);
+    background: #1c1917;
+    border-color: #1c1917;
+    color: #fff;
 }

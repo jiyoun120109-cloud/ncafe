@@ -10,7 +10,7 @@ import {
     Settings,
     ShoppingCart,
     Megaphone,
-    MessageCircle
+    MessageCircle,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -20,16 +20,16 @@ interface AdminSidebarProps {
 }
 
 const mainNavItems = [
-    { href: '/admin', label: '대시보드', icon: LayoutDashboard },
-    { href: '/admin/menus', label: '메뉴 관리', icon: ClipboardList },
-    { href: '/admin/categories', label: '카테고리', icon: FolderOpen },
-    { href: '/admin/orders', label: '주문 관리', icon: Package, badge: 3 },
-    { href: '/admin/settings', label: '설정', icon: Settings },
+    { href: '/admin',            label: '대시보드',  icon: LayoutDashboard },
+    { href: '/admin/menus',      label: '메뉴 관리', icon: ClipboardList },
+    { href: '/admin/categories', label: '카테고리',  icon: FolderOpen },
+    { href: '/admin/orders',     label: '주문 관리', icon: Package, badge: 3 },
+    { href: '/admin/settings',   label: '설정',      icon: Settings },
 ];
 
 const platformNavItems = [
     { href: '#', label: '공동구매', icon: ShoppingCart, disabled: true },
-    { href: '#', label: '마케팅', icon: Megaphone, disabled: true },
+    { href: '#', label: '마케팅',   icon: Megaphone,    disabled: true },
     { href: '#', label: '커뮤니티', icon: MessageCircle, disabled: true },
 ];
 
@@ -37,34 +37,24 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) => {
-        if (href === '/admin') {
-            return pathname === '/admin';
-        }
+        if (href === '/admin') return pathname === '/admin';
         return pathname.startsWith(href);
     };
 
     return (
         <>
             <aside className={`${styles.sidebar} ${isOpen ? styles.open : ''}`}>
-                {/* Logo */}
-                <div className={styles.logo}>
-                    <span className={styles.logoIcon}>☕</span>
-                    <span className={styles.logoText}>CafeConnect</span>
-                </div>
+                {/* 브랜드 로고 */}
+                <Link href="/" className={styles.logo}>
+                    <span className={styles.logoMark}>N</span>
+                    <span className={styles.logoText}>Cafe</span>
+                </Link>
+                <p className={styles.logoSub}>Admin Console</p>
 
-                {/* Cafe Info */}
-                <div className={styles.cafeInfo}>
-                    <div className={styles.cafeAvatar}>🏠</div>
-                    <div className={styles.cafeDetails}>
-                        <span className={styles.cafeName}>모먼트 카페</span>
-                        <span className={styles.cafeStatus}>영업중</span>
-                    </div>
-                </div>
-
-                {/* Navigation */}
+                {/* 네비게이션 */}
                 <nav className={styles.nav}>
                     <div className={styles.navSection}>
-                        <p className={styles.navSectionTitle}>메뉴</p>
+                        <p className={styles.navSectionTitle}>관리</p>
                         {mainNavItems.map((item) => (
                             <Link
                                 key={item.href}
@@ -72,9 +62,11 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                                 className={`${styles.navItem} ${isActive(item.href) ? styles.active : ''}`}
                                 onClick={onClose}
                             >
-                                <item.icon className={styles.navIcon} size={20} />
+                                <item.icon className={styles.navIcon} size={16} />
                                 <span>{item.label}</span>
-                                {item.badge && <span className={styles.navBadge}>{item.badge}</span>}
+                                {item.badge && (
+                                    <span className={styles.navBadge}>{item.badge}</span>
+                                )}
                             </Link>
                         ))}
                     </div>
@@ -86,16 +78,20 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                                 key={item.label}
                                 className={`${styles.navItem} ${item.disabled ? styles.disabled : ''}`}
                             >
-                                <item.icon className={styles.navIcon} size={20} />
+                                <item.icon className={styles.navIcon} size={16} />
                                 <span>{item.label}</span>
-                                {item.disabled && <span className={styles.comingSoon}>준비중</span>}
+                                {item.disabled && (
+                                    <span className={styles.comingSoon}>준비중</span>
+                                )}
                             </div>
                         ))}
                     </div>
                 </nav>
+
+                <div className={styles.sidebarFooter}>© 2024 NCafe</div>
             </aside>
 
-            {/* Mobile Overlay */}
+            {/* 모바일 오버레이 */}
             <div
                 className={`${styles.overlay} ${isOpen ? styles.open : ''}`}
                 onClick={onClose}

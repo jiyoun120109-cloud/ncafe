@@ -10,35 +10,39 @@ import styles from './page.module.css';
 
 export default function AdminMenusPage() {
     const { setTitle } = useUIStore();
-
-    //Lifting State Up
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => { setTitle('메뉴 관리'); }, [setTitle]);
 
-    // const handleCategoryChange = (id: number | null) => {
-    //     setSelectedCategory(id);
-    // };
-
     return (
-        <main className={styles.container}>
+        <div className={styles.page}>
+            {/* 페이지 헤더 — 대시보드와 동일한 패턴 */}
+            <div className={styles.pageHeader}>
+                <p className={styles.pageLabel}>Menu Management</p>
+                <h2 className={styles.pageTitle}>메뉴 관리</h2>
+            </div>
+
+            {/* 구분선 */}
+            <div className={styles.divider} />
+
+            {/* 툴바 */}
             <MenuToolbar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
             />
-            {/* callback property 사용 */}
+
+            {/* 카테고리 탭 */}
             <CategoryTabs
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
             />
 
-            {/* 메뉴 그리드 (데이터 로딩 및 관리는 내부에서 수행) */}
+            {/* 메뉴 그리드 */}
             <MenuList
                 selectedCategory={selectedCategory}
                 searchQuery={searchQuery}
             />
-        </main>
+        </div>
     );
 }
-

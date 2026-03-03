@@ -1,0 +1,32 @@
+package com.new_cafe.app.backend.auth.application.port.out;
+
+import com.new_cafe.app.backend.auth.domain.model.Member;
+
+import java.util.Optional;
+
+/**
+ * 회원 저장소 포트 (Outbound Port)
+ * 
+ * 애플리케이션 서비스가 데이터를 조회/저장할 때 사용하는 인터페이스입니다.
+ * 실제 구현은 adapter.out 패키지의 Repository에서 담당합니다.
+ * 
+ * DB가 바뀌더라도(PostgreSQL → MySQL, JPA → MyBatis 등)
+ * 이 인터페이스만 구현하면 되므로 도메인 로직에는 영향이 없습니다.
+ */
+public interface MemberRepositoryPort {
+
+    /**
+     * username으로 회원을 조회합니다.
+     */
+    Optional<Member> findByUsername(String username);
+
+    /**
+     * 회원 정보를 저장합니다.
+     */
+    Member save(Member member);
+
+    /**
+     * ID로 회원을 조회합니다.
+     */
+    Optional<Member> findById(Long id);
+}

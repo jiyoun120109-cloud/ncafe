@@ -25,14 +25,14 @@ export default function NewMenuPage() {
         const newMenu = {
             ...data,
             id: Date.now(),
-            images: [], // 임시
+            images: [],
             isAvailable: true,
             sortOrder: 1,
             createdAt: new Date(),
             updatedAt: new Date(),
         };
         addMenu(newMenu);
-        success('새로운 메뉴가 성실하게 등록되었습니다! ✨');
+        success('새로운 메뉴가 등록되었습니다.');
         router.push('/admin/menus');
     };
 
@@ -42,13 +42,15 @@ export default function NewMenuPage() {
 
     return (
         <main className={styles.container}>
-            <div className={styles.header}>
-                <Link href="/admin/menus" className={styles.backBtn}>
-                    <ChevronLeft size={18} />
-                    <span>목록으로 돌아가기</span>
-                </Link>
+            <div className={styles.pageHeader}>
+                <p className={styles.pageLabel}>Menu Management</p>
+                <h2 className={styles.pageTitle}>새 메뉴 등록</h2>
             </div>
-
+            <div className={styles.divider} />
+            <Link href="/admin/menus" className={styles.backBtn}>
+                <ChevronLeft size={14} />
+                <span>목록으로</span>
+            </Link>
             <div className={styles.formCard}>
                 <MenuForm
                     categories={mockCategories}

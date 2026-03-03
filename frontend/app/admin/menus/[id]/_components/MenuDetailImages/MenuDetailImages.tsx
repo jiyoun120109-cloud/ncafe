@@ -8,23 +8,28 @@ import { useMenuDetailImages } from './useMenuDetailImages';
 export default function MenuDetailImages({ menuId }: { menuId: number }) {
     const { menuImages, altText } = useMenuDetailImages(menuId);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [mainImgError, setMainImgError] = useState(false);
 
     useEffect(() => {
         if (menuImages.length > 0 && !selectedImage) {
             setSelectedImage(menuImages[0].imageUrl);
+            setMainImgError(false);
         }
     }, [menuImages, selectedImage]);
+
+    const showMainPlaceholder = !selectedImage || mainImgError;
 
     return (
         <section className={styles.imageSection}>
             <div className={styles.mainImageWrapper}>
-                {selectedImage ? (
+                {!showMainPlaceholder ? (
                     <Image
                         src={`/images/${selectedImage}`}
                         alt={`${altText || 'Menu'} Main Image`}
                         fill
                         className={styles.mainImage}
                         priority
+                        onError={() => setMainImgError(true)}
                     />
                 ) : (
                     <div className={styles.imagePlaceholder}>

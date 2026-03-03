@@ -1,6 +1,11 @@
+/* ================================================================
+   Admin Layout
+   ================================================================ */
+
 .layout {
     min-height: 100vh;
     display: flex;
+    background: #faf9f7;
 }
 
 .main {
@@ -13,11 +18,10 @@
 
 .content {
     flex: 1;
-    padding: var(--space-6);
+    padding: 2.5rem 2.5rem 4rem;
 }
 
 @media (max-width: 1023px) {
-    .main {
-        margin-left: 0;
-    }
+    .main { margin-left: 0; }
+    .content { padding: 1.75rem 1.25rem 3rem; }
 }

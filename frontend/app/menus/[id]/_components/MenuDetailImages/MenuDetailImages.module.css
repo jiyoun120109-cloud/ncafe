@@ -1,0 +1,48 @@
+.imageSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.mainImageWrapper {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f0eb;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mainImage { object-fit: cover; }
+
+.imagePlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: rgba(0, 0, 0, 0.28);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+}
+
+.thumbnailGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.thumbnail {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    transition: border-color 0.2s ease;
+}
+
+.thumbnail img { object-fit: cover; }
+
+.activeThumbnail { border-color: #2a2825; }

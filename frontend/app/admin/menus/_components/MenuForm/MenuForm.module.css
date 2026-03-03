@@ -1,13 +1,13 @@
 .form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-8);
+    gap: 2rem;
 }
 
 .section {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 1.25rem;
 }
 
 .sectionHeader {
@@ -17,23 +17,26 @@
 }
 
 .sectionTitle {
-    font-size: var(--text-lg);
-    font-weight: var(--font-bold);
-    color: var(--color-gray-900);
-    border-left: 4px solid var(--color-primary-500);
-    padding-left: var(--space-3);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.35);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    width: 100%;
 }
 
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
+    gap: 1rem;
 }
 
 .field {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: 0.5rem;
 }
 
 .fullWidth {
@@ -41,208 +44,255 @@
 }
 
 .label {
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    color: var(--color-gray-700);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.55);
 }
 
 .input,
 .select,
 .textarea {
-    padding: var(--space-3);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-gray-200);
-    font-size: var(--text-sm);
+    padding: 0.65rem 0.875rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    font-size: 0.875rem;
+    color: #1c1917;
+    background: #fff;
     outline: none;
-    transition: all var(--transition-fast);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: rgba(0, 0, 0, 0.28);
+    font-weight: 300;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
-    border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 2px var(--color-primary-100);
+    border-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
 }
 
 .errorInput {
-    border-color: var(--color-error);
+    border-color: #ef4444;
 }
 
 .errorText {
-    color: var(--color-error);
-    font-size: var(--text-xs);
+    color: #ef4444;
+    font-size: 0.72rem;
 }
 
+/* ── 이미지 업로드 ── */
 .imageUploadGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.875rem;
 }
 
 .uploadBox {
     aspect-ratio: 1;
-    border: 2px dashed var(--color-gray-200);
-    border-radius: var(--radius-lg);
+    border: 1.5px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-1);
-    color: var(--color-gray-400);
+    gap: 0.375rem;
+    color: rgba(0, 0, 0, 0.28);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: all 0.2s ease;
 }
 
 .uploadBox:hover {
-    border-color: var(--color-primary-500);
-    color: var(--color-primary-500);
-    background-color: var(--color-primary-50);
+    border-color: rgba(0, 0, 0, 0.35);
+    color: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 .uploadBox span {
-    font-size: var(--text-xs);
-    font-weight: var(--font-bold);
+    font-size: 0.72rem;
+    font-weight: 500;
 }
 
 .uploadBox p {
-    font-size: 10px;
+    font-size: 0.65rem;
+    color: rgba(0, 0, 0, 0.22);
 }
 
 .imagePreview {
     position: relative;
     aspect-ratio: 1;
-    border-radius: var(--radius-lg);
-    background-color: var(--color-gray-100);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-gray-300);
-    border: 1px solid var(--color-gray-200);
+    color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .badge {
     position: absolute;
-    top: var(--space-2);
-    left: var(--space-2);
-    background-color: var(--color-primary-600);
-    color: white;
-    font-size: 10px;
+    top: 0.375rem;
+    left: 0.375rem;
+    background: #2a2825;
+    color: #fff;
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
     padding: 2px 6px;
-    border-radius: var(--radius-sm);
+    border-radius: 3px;
 }
 
 .removeImg {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background-color: var(--color-gray-900);
-    color: white;
-    width: 20px;
-    height: 20px;
+    top: -6px;
+    right: -6px;
+    background: #1c1917;
+    color: #fff;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background 0.2s ease;
 }
 
+.removeImg:hover { background: #ef4444; }
+
+/* ── 옵션 ── */
 .addBtn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    color: var(--color-primary-600);
-    font-size: var(--text-sm);
-    font-weight: var(--font-bold);
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.52);
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    border-radius: 6px;
+    padding: 0.45rem 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addBtn:hover {
+    border-color: rgba(0, 0, 0, 0.3);
+    color: #1c1917;
 }
 
 .optionList {
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-4);
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0.875rem;
 }
 
 .optionRow {
     display: grid;
     grid-template-columns: 1fr 120px auto auto;
-    gap: var(--space-3);
+    gap: 0.75rem;
     align-items: center;
 }
 
 .checkboxLabel {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
-    color: var(--color-gray-600);
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.52);
     cursor: pointer;
 }
 
 .deleteBtn {
-    color: var(--color-gray-400);
-    transition: color var(--transition-fast);
+    color: rgba(0, 0, 0, 0.28);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: color 0.2s ease, background 0.2s ease;
 }
 
 .deleteBtn:hover {
-    color: var(--color-error);
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.07);
 }
 
 .emptyText {
     text-align: center;
-    color: var(--color-gray-400);
-    font-size: var(--text-sm);
-    padding: var(--space-4) 0;
+    color: rgba(0, 0, 0, 0.28);
+    font-size: 0.8rem;
+    padding: 1rem 0;
 }
 
+/* ── 판매 설정 ── */
 .statusBox {
-    background-color: var(--bg-secondary);
-    padding: var(--space-4);
-    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .statusLabel {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    font-size: var(--text-sm);
-    color: var(--color-gray-700);
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
     cursor: pointer;
 }
 
+/* ── 액션 버튼 ── */
 .actions {
     display: flex;
     justify-content: flex-end;
-    gap: var(--space-4);
-    margin-top: var(--space-4);
-    padding-top: var(--space-8);
-    border-top: 1px solid var(--color-gray-100);
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .cancelBtn {
-    padding: var(--space-3) var(--space-8);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-semibold);
-    color: var(--color-gray-500);
-    transition: background-color var(--transition-fast);
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.45);
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .cancelBtn:hover {
-    background-color: var(--color-gray-100);
+    border-color: rgba(0, 0, 0, 0.3);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .submitBtn {
-    padding: var(--space-3) var(--space-10);
-    border-radius: var(--radius-md);
-    background-color: var(--color-primary-600);
-    color: white;
-    font-weight: var(--font-bold);
-    transition: background-color var(--transition-fast);
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: #2a2825;
+    color: #fff;
+    border: 1px solid #2a2825;
+    cursor: pointer;
+    transition: background 0.2s ease;
 }
 
 .submitBtn:hover {
-    background-color: var(--color-primary-700);
+    background: #3d3a36;
+    border-color: #3d3a36;
 }
 
 @media (max-width: 640px) {
@@ -256,6 +306,6 @@
 
     .optionRow {
         grid-template-columns: 1fr;
-        gap: var(--space-2);
+        gap: 0.5rem;
     }
 }

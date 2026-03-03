@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { fetcher } from '@/services/api';
 
 interface MenuDetail {
     id: number;
@@ -23,13 +24,7 @@ export function useMenuDetail(id: number) {
         const fetchMenuDetail = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`/api/admin/menus/${id}`);
-
-                if (!response.ok) {
-                    throw new Error('메뉴를 불러오는데 실패했습니다.');
-                }
-
-                const data = await response.json();
+                const data = await fetcher(`/admin/menus/${id}`);
                 console.log('Menu Detail Data:', data);
                 setMenu(data);
             } catch (err) {

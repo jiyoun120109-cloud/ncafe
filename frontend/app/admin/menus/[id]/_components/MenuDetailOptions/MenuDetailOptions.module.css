@@ -1,71 +1,77 @@
 .optionSection {
-    background-color: var(--bg-primary);
-    padding: var(--space-6);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--color-gray-200);
+    background: #fff;
+    padding: 1.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 1rem;
 }
 
 .header {
-    margin-bottom: var(--space-2);
+    margin-bottom: 0.25rem;
 }
 
 .sectionTitle {
-    font-size: var(--text-base);
-    font-weight: var(--font-bold);
-    color: var(--color-gray-900);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.35);
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: 0.5rem;
 }
 
 .optionList {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: 0.75rem;
 }
 
 .optionItem {
-    background-color: var(--bg-secondary);
-    padding: var(--space-4);
-    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.02);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .optionHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-2);
+    margin-bottom: 0.5rem;
 }
 
 .optionName {
-    font-weight: var(--font-semibold);
-    color: var(--color-gray-700);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1c1917;
 }
 
 .optionType {
-    font-size: var(--text-xs);
-    color: var(--color-gray-400);
+    font-size: 0.72rem;
+    color: rgba(0, 0, 0, 0.35);
 }
 
 .optionValues {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: 0.375rem;
 }
 
 .optionValue {
-    background-color: white;
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-    border: 1px solid var(--color-gray-200);
-    color: var(--color-gray-600);
+    background: #fff;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: rgba(0, 0, 0, 0.52);
 }
 
 .emptyText {
-    color: var(--color-gray-400);
-    font-size: var(--text-sm);
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.28);
+    text-align: center;
+    padding: 1.5rem 0;
 }

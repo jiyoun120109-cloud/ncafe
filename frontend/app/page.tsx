@@ -16,6 +16,7 @@ import {
   Check,
   Plus,
 } from "lucide-react";
+import HeaderAuth from "@/components/HeaderAuth";
 import styles from "./page.module.css";
 
 /* ------------------------------------------------------------------ */
@@ -155,18 +156,22 @@ export default function Home() {
           >
             About
           </a>
-          <a
-            href="#menu"
+          <Link
+            href="/menus"
             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
           >
             Menu
-          </a>
+          </Link>
           <a
             href="#about"
             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
           >
             Story
           </a>
+          <HeaderAuth
+            loginLinkClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
+            authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
+          />
           <a
             href="#visit"
             className={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ""}`}
@@ -215,7 +220,7 @@ export default function Home() {
             variants={fadeUp}
             custom={3}
           >
-            <Link href="/admin/menus" className={styles.btnPrimary}>
+            <Link href="/menus" className={styles.btnPrimary}>
               Explore Menu
               <ArrowRight size={16} />
             </Link>

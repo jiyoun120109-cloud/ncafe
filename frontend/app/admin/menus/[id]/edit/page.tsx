@@ -34,7 +34,7 @@ export default function EditMenuPage() {
 
     const handleSubmit = (data: any) => {
         updateMenu(id, data);
-        success('메뉴 정보가 성공적으로 수정되었습니다! 🖋️');
+        success('메뉴 정보가 수정되었습니다.');
         router.push(`/admin/menus/${id}`);
     };
 
@@ -48,13 +48,15 @@ export default function EditMenuPage() {
 
     return (
         <main className={styles.container}>
-            <div className={styles.header}>
-                <Link href={`/admin/menus/${id}`} className={styles.backBtn}>
-                    <ChevronLeft size={18} />
-                    <span>상세 페이지로 돌아가기</span>
-                </Link>
+            <div className={styles.pageHeader}>
+                <p className={styles.pageLabel}>Menu Management</p>
+                <h2 className={styles.pageTitle}>메뉴 수정</h2>
             </div>
-
+            <div className={styles.divider} />
+            <Link href={`/admin/menus/${id}`} className={styles.backBtn}>
+                <ChevronLeft size={14} />
+                <span>상세로 돌아가기</span>
+            </Link>
             <div className={styles.formCard}>
                 <MenuForm
                     initialData={menu}

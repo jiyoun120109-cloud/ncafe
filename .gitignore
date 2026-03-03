@@ -1,0 +1,8 @@
+# Docker PostgreSQL 데이터 (볼륨 마운트용, 권한 문제 방지)
+data/
+
+# 배포/로컬 환경변수 (비밀번호 등 포함, Git 제외)
+.env
+.env.local
+**/.env
+**/.env.local

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu } from '@/types/menu';
 
 export interface MenuResponse {
     id: number;
@@ -33,15 +32,15 @@ export const useMenus = (request: MenuListRequest) => {
 
     useEffect(() => {
         const fetchMenus = async () => {
-            const url = new URL('/api/admin/menus', window.location.origin);
+            const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+            const url = new URL(`${base}/api/admin/menus`);
 
-            const params = new URLSearchParams();
             if (request.categoryId)
-                params.set('categoryId', request.categoryId.toString());
+                url.searchParams.set('categoryId', request.categoryId.toString());
             if (request.searchQuery)
-                params.set('searchQuery', request.searchQuery);
-            url.search = params.toString();
+                url.searchParams.set('searchQuery', request.searchQuery);
 
+            console.log('📍 Requesting URL:', url.toString());
             try {
                 const res = await fetch(url.toString());
                 if (!res.ok) throw new Error('메뉴 데이터를 불러오는데 실패했습니다.');

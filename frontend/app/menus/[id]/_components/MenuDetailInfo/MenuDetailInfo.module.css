@@ -1,0 +1,104 @@
+.infoSection {
+    width: 100%;
+}
+
+.infoCard {
+    background: #fff;
+    padding: 1.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.categoryBadge {
+    display: inline-flex;
+    align-self: flex-start;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.32);
+    margin-bottom: 0.1rem;
+}
+
+.korName {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: #1c1917;
+    line-height: 1.2;
+}
+
+.engName {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.35);
+    margin-top: -0.5rem;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #1c1917;
+    padding-top: 0.25rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.description {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.52);
+    line-height: 1.7;
+    font-weight: 300;
+}
+
+.statusRow {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.statusAvailable {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.statusAvailable::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.statusSoldOut {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: rgba(0, 0, 0, 0.35);
+}
+
+.statusSoldOut::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.loading,
+.error {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.35);
+}
+
+.error { color: #ef4444; }

@@ -5,59 +5,56 @@
 }
 
 .backBtn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    color: var(--color-gray-500);
-    font-size: var(--text-sm);
-    transition: color var(--transition-fast);
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.42);
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
 
-.backBtn:hover {
-    color: var(--color-gray-900);
-}
+.backBtn:hover { color: #1c1917; }
 
-.actions {
-    display: flex;
-    gap: var(--space-3);
-}
+.actions { display: flex; gap: 0.5rem; }
 
-.editBtn,
-.deleteBtn {
-    display: flex;
+.editBtn, .deleteBtn {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-md);
-    font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
-    transition: all var(--transition-fast);
+    gap: 0.35rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .editBtn {
-    background-color: var(--bg-primary);
-    border: 1px solid var(--color-gray-200);
-    color: var(--color-gray-700);
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .editBtn:hover {
-    border-color: var(--color-primary-500);
-    color: var(--color-primary-600);
+    border-color: rgba(0, 0, 0, 0.3);
+    color: #1c1917;
 }
 
 .deleteBtn {
-    background-color: var(--color-error);
-    color: white;
+    background: none;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
 }
 
 .deleteBtn:hover {
-    opacity: 0.9;
+    background: rgba(239, 68, 68, 0.06);
+    border-color: #ef4444;
 }
 
 @media (max-width: 640px) {
-    .header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--space-4);
-    }
+    .header { flex-direction: column; align-items: stretch; gap: 1rem; }
 }

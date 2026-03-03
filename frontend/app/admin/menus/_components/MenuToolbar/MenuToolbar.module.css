@@ -1,70 +1,89 @@
+/* ================================================================
+   MenuToolbar
+   ================================================================ */
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--space-4);
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
 .searchWrapper {
     position: relative;
     flex: 1;
-    max-width: 400px;
+    max-width: 380px;
 }
 
 .searchIcon {
     position: absolute;
-    left: var(--space-4);
+    left: 0.875rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--color-gray-400);
+    color: rgba(0, 0, 0, 0.28);
     pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.searchWrapper:focus-within .searchIcon {
+    color: rgba(0, 0, 0, 0.55);
 }
 
 .searchInput {
     width: 100%;
-    padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--color-gray-200);
+    padding: 0.65rem 1rem 0.65rem 2.5rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #1c1917;
     outline: none;
-    font-size: var(--text-sm);
-    transition: all var(--transition-fast);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchInput::placeholder {
+    color: rgba(0, 0, 0, 0.28);
+    font-weight: 300;
 }
 
 .searchInput:focus {
-    border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 2px var(--color-primary-100);
+    border-color: rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
 }
 
 .actions {
     display: flex;
-    gap: var(--space-3);
+    gap: 0.5rem;
+    align-items: center;
 }
 
+/* 추가 버튼 — 살짝 둥근 모서리 */
 .addBtn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
-    background-color: var(--color-primary-600);
-    color: white;
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-md);
-    font-weight: var(--font-semibold);
-    font-size: var(--text-sm);
-    transition: background-color var(--transition-fast);
+    gap: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    background: #2a2825;
+    border: 1px solid #2a2825;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
 }
 
 .addBtn:hover {
-    background-color: var(--color-primary-700);
+    background: #3d3a36;
+    border-color: #3d3a36;
+    transform: translateY(-1px);
 }
 
 @media (max-width: 640px) {
-    .header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .searchWrapper {
-        max-width: none;
-    }
+    .header { flex-direction: column; align-items: stretch; }
+    .searchWrapper { max-width: none; }
 }

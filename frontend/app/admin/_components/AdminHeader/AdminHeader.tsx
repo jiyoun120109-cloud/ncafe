@@ -1,12 +1,34 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Menu, Bell, ChevronDown } from 'lucide-react';
+import { Menu, Bell, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authStore';
+import { logoutApi } from '@/services/authService';
 import styles from './AdminHeader.module.css';
 
 export default function AdminHeader() {
     const { toggleSidebar, title } = useUIStore();
+    const { user, clearUser } = useAuthStore();
+    const router = useRouter();
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await logoutApi();
+            clearUser();
+            router.push('/login');
+        } catch {
+            clearUser();
+            router.push('/login');
+        } finally {
+            setIsLoggingOut(false);
+        }
+    };
+
     return (
         <header className={styles.header}>
             <div className={styles.left}>
@@ -31,14 +53,25 @@ export default function AdminHeader() {
                     <span className={styles.notificationBadge} />
                 </motion.button>
 
-                <motion.div
-                    whileHover={{ backgroundColor: 'var(--color-gray-50)' }}
-                    className={styles.profile}
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={styles.logoutButton}
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
                 >
-                    <div className={styles.profileAvatar}>👤</div>
-                    <span className={styles.profileName}>사장님</span>
-                    <ChevronDown size={16} />
-                </motion.div>
+                    <LogOut size={16} />
+                    <span>{isLoggingOut ? '처리중...' : '로그아웃'}</span>
+                </motion.button>
+
+                <div className={styles.profile}>
+                    <div className={styles.profileAvatar}>
+                        {user?.username?.[0]?.toUpperCase() ?? '?'}
+                    </div>
+                    <span className={styles.profileName}>
+                        {user?.name ?? user?.username ?? '관리자'}
+                    </span>
+                </div>
             </div>
         </header>
     );

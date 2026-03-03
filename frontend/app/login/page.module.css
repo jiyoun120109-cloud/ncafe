@@ -1,0 +1,320 @@
+/* ================================================================
+   Login Page — NCafe 루트 페이지 디자인과 통일된 스타일
+   ================================================================ */
+
+.root {
+    display: flex;
+    min-height: 100vh;
+    background: var(--color-primary-50);
+}
+
+/* ================================================================
+   왼쪽 비주얼 패널
+   ================================================================ */
+.visual {
+    display: none;
+    position: relative;
+    overflow: hidden;
+
+    /* 루트 hero와 동일한 커피 배경 이미지 */
+    background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200&q=80');
+    background-size: cover;
+    background-position: center;
+}
+
+@media (min-width: 960px) {
+    .visual {
+        display: flex;
+        flex: 1.1;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* 루트 heroOverlay와 동일한 어두운 그라디언트 */
+.visualOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        160deg,
+        rgba(74, 50, 34, 0.82) 0%,
+        rgba(90, 61, 41, 0.65) 60%,
+        rgba(111, 74, 49, 0.55) 100%
+    );
+}
+
+.visualContent {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 3rem;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* 루트 navBrand 스타일 참고 */
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    text-decoration: none;
+    color: #fff;
+}
+
+.brandMark {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 3.5rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: #e8c9a8;
+}
+
+.brandText {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 2.8rem;
+    font-weight: 300;
+    letter-spacing: 0.06em;
+    line-height: 1;
+}
+
+.brandTagline {
+    font-size: var(--text-sm);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    font-weight: 300;
+}
+
+/* 루트 heroTitle 세리프 스타일 참고 */
+.quote {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: var(--text-xl);
+    font-weight: 300;
+    font-style: italic;
+    opacity: 0.9;
+    line-height: 1.6;
+    max-width: 320px;
+    border: none;
+    margin: 0.5rem 0;
+    padding: 0;
+}
+
+/* 루트 aboutStat 스타일 참고 */
+.visualStats {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 0.5rem;
+    padding: 1.25rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.statNumber {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: var(--text-2xl);
+    font-weight: 400;
+    color: #e8c9a8;
+    line-height: 1;
+}
+
+.statLabel {
+    font-size: var(--text-xs);
+    opacity: 0.75;
+    letter-spacing: 0.04em;
+}
+
+.statDivider {
+    width: 1px;
+    height: 2rem;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ================================================================
+   오른쪽 폼 패널
+   ================================================================ */
+.formPanel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    position: relative;
+    background: #fff;
+}
+
+.topLinks {
+    position: absolute;
+    top: 1.75rem;
+    left: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.backLink {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+}
+
+.backLink:hover {
+    color: var(--color-primary-600);
+}
+
+.menuLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-primary-600);
+    text-decoration: none;
+    padding: 0.35rem 0.875rem;
+    border: 1px solid var(--color-primary-200);
+    border-radius: 999px;
+    background: var(--color-primary-50);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.menuLink:hover {
+    background: var(--color-primary-100);
+    border-color: var(--color-primary-400);
+    color: var(--color-primary-800);
+}
+
+.formWrapper {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* ── 폼 헤더 ── */
+.formHeader {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* 루트 featureIcon 스타일 참고 */
+.formIconWrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-primary-100), var(--color-primary-200));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-700);
+    margin-bottom: 0.25rem;
+}
+
+/* 루트 navBrand 세리프 스타일 참고 */
+.formTitle {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: var(--text-3xl);
+    font-weight: 400;
+    color: var(--color-primary-800);
+    letter-spacing: 0.08em;
+    line-height: 1;
+}
+
+.formSubtitle {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+    letter-spacing: 0.06em;
+}
+
+/* ── 에러 메시지 ── */
+.errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--color-error-light);
+    color: var(--color-error);
+    border-radius: 0.5rem;
+    font-size: var(--text-sm);
+    margin-bottom: 1.5rem;
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+.errorIcon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+}
+
+/* ── 하단 저작권 ── */
+.copyright {
+    position: absolute;
+    bottom: 1.5rem;
+    font-size: var(--text-xs);
+    color: var(--color-gray-400);
+    letter-spacing: 0.02em;
+}
+
+/* ================================================================
+   모바일: 비주얼 패널 숨김 시 배경 처리
+   ================================================================ */
+@media (max-width: 959px) {
+    .root {
+        background: linear-gradient(
+            160deg,
+            var(--color-primary-100) 0%,
+            #fff 40%
+        );
+    }
+
+    .formPanel {
+        background: transparent;
+    }
+
+    .formWrapper {
+        background: #fff;
+        border-radius: 1.25rem;
+        padding: 2.5rem 2rem;
+        box-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.07),
+            0 20px 40px -8px rgba(90, 61, 41, 0.12);
+    }
+
+    .topLinks {
+        top: 1.25rem;
+        left: 1.25rem;
+        right: 1.25rem;
+    }
+
+    .copyright {
+        position: static;
+        margin-top: 2rem;
+        text-align: center;
+    }
+}

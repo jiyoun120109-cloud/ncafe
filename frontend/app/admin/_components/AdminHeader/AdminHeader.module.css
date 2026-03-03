@@ -1,114 +1,162 @@
+/* ================================================================
+   AdminHeader
+   ================================================================ */
+
 .header {
     height: var(--header-height);
-    background-color: var(--bg-primary);
-    border-bottom: 1px solid var(--color-gray-200);
+    background: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--space-6);
+    padding: 0 2rem;
     position: sticky;
     top: 0;
     z-index: 50;
 }
 
+/* ── 왼쪽 ── */
 .left {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: 1rem;
 }
 
 .menuButton {
     display: none;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-md);
-    color: var(--color-gray-600);
-    transition: background-color var(--transition-fast);
+    color: rgba(0, 0, 0, 0.45);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .menuButton:hover {
-    background-color: var(--color-gray-100);
+    background: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
 }
 
 .pageTitle {
-    font-size: var(--text-xl);
-    font-weight: var(--font-semibold);
-    color: var(--color-gray-900);
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgba(0, 0, 0, 0.65);
 }
 
+/* ── 오른쪽 ── */
 .right {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: 0.5rem;
 }
 
 .iconButton {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-md);
-    color: var(--color-gray-600);
+    color: rgba(0, 0, 0, 0.38);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
     position: relative;
-    transition: background-color var(--transition-fast);
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .iconButton:hover {
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-900);
+    background: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
 }
 
 .notificationBadge {
     position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 8px;
-    height: 8px;
-    background-color: var(--color-error);
+    top: 8px;
+    right: 8px;
+    width: 5px;
+    height: 5px;
+    background: #ef4444;
     border-radius: 50%;
-    border: 2px solid var(--bg-primary);
 }
 
+/* 로그아웃 버튼 — 살짝 둥근 모서리 */
+.logoutButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: rgba(0, 0, 0, 0.5);
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logoutButton:hover {
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.04);
+}
+
+.logoutButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 프로필 */
 .profile {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2);
-    border-radius: var(--radius-md);
+    gap: 0.5rem;
+    padding: 0.35rem 0.625rem;
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .profile:hover {
-    background-color: var(--color-gray-100);
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
 }
 
 .profileAvatar {
-    width: 32px;
-    height: 32px;
-    background-color: var(--color-primary-100);
-    border-radius: var(--radius-full);
+    width: 28px;
+    height: 28px;
+    background: #f0ebe4;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-sm);
+    font-size: 0.75rem;
+    flex-shrink: 0;
 }
 
 .profileName {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--color-gray-700);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.62);
 }
 
+/* ── 반응형 ── */
 @media (max-width: 1023px) {
-    .menuButton {
-        display: flex;
-    }
+    .menuButton { display: flex; }
+    .profileName { display: none; }
 
-    .profileName {
-        display: none;
+    .logoutButton span { display: none; }
+    .logoutButton {
+        padding: 0.45rem 0.6rem;
+        gap: 0;
     }
 }

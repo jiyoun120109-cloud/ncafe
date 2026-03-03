@@ -1,15 +1,49 @@
-.container {
+/* ================================================================
+   Admin Menus Page — 대시보드와 동일한 디자인 언어
+   ================================================================ */
+
+.page {
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: 2rem;
 }
 
+/* ── 페이지 헤더 — 대시보드 pageHeader 동일 ── */
+.pageHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.pageLabel {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.35);
+}
+
+.pageTitle {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 2rem;
+    font-weight: 400;
+    color: #1c1917;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+}
+
+/* ── 구분선 ── */
+.divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.07);
+}
+
+/* skeletonGrid / overlayItem — 기존 호환 유지 */
 .skeletonGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-6);
+    gap: 1.5rem;
 }
-
 
 .overlayItem {
     width: 320px;
@@ -18,7 +52,5 @@
 }
 
 @media (max-width: 768px) {
-    .skeletonGrid {
-        grid-template-columns: 1fr;
-    }
+    .skeletonGrid { grid-template-columns: 1fr; }
 }

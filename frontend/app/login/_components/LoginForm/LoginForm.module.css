@@ -1,0 +1,179 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ===== 입력 필드 그룹 ===== */
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-gray-700);
+    margin-bottom: var(--space-1);
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.inputIcon {
+    position: absolute;
+    left: var(--space-4);
+    color: var(--color-gray-400);
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+    transition: color var(--transition-fast);
+}
+
+.input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 26px);
+    border: 1.5px solid var(--color-gray-200);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    color: var(--color-gray-900);
+    background: #fff;
+    outline: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input::placeholder {
+    color: var(--color-gray-400);
+}
+
+.input:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 3px rgba(164, 117, 81, 0.12);
+}
+
+.inputError {
+    border-color: var(--color-error);
+}
+
+.inputError:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.inputWrapper:focus-within .inputIcon {
+    color: var(--color-primary-500);
+}
+
+.togglePassword {
+    position: absolute;
+    right: var(--space-3);
+    padding: var(--space-1);
+    color: var(--color-gray-400);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast);
+    display: flex;
+    align-items: center;
+}
+
+.togglePassword:hover {
+    color: var(--color-gray-600);
+}
+
+.fieldError {
+    font-size: var(--text-xs);
+    color: var(--color-error);
+    margin-top: var(--space-1);
+}
+
+/* ===== 로그인 버튼 ===== */
+.submitButton {
+    width: 100%;
+    padding: var(--space-3) var(--space-6);
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    margin-top: var(--space-2);
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+}
+
+.submitButton::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--color-primary-700) 0%, var(--color-primary-800) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.submitButton:hover::before {
+    opacity: 1;
+}
+
+.submitButton:active {
+    transform: scale(0.98);
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.buttonText {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== 로딩 스피너 ===== */
+.spinner {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== 하단 링크 ===== */
+.footer {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-1);
+    margin-top: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+}
+
+.footerLink {
+    color: var(--color-primary-600);
+    font-weight: var(--font-medium);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.footerLink:hover {
+    color: var(--color-primary-800);
+    text-decoration: underline;
+}

@@ -1,0 +1,315 @@
+/* ================================================================
+   Menus Layout — NCafe 루트 페이지 디자인 통일
+   ================================================================ */
+
+.root {
+    min-height: 100vh;
+    background: var(--color-primary-50);
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================================================================
+   헤더 — 루트 nav와 동일한 스타일
+   ================================================================ */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transition: background 0.5s ease, box-shadow 0.5s ease, padding 0.5s ease;
+}
+
+.headerInner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 4rem;
+    transition: padding 0.5s ease;
+}
+
+.headerScrolled {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.headerScrolled .headerInner {
+    padding: 1rem 4rem;
+}
+
+/* 브랜드 — 루트 navBrand 동일 */
+.brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.15rem;
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: color 0.5s ease;
+}
+
+.brandMark {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-weight: 700;
+    font-size: 2rem;
+    font-style: italic;
+}
+
+.brandText {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-weight: 400;
+    font-size: 1.65rem;
+    letter-spacing: 0.02em;
+}
+
+.brandScrolled {
+    color: #1a1a1a;
+}
+
+/* 네비 링크 — 루트 navLink 동일 */
+.navLinks {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+}
+
+.navLink {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.navLink::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.3s ease;
+}
+
+.navLink:hover { color: #fff; }
+.navLink:hover::after { width: 100%; }
+
+.navLinkScrolled { color: rgba(0, 0, 0, 0.45); }
+.navLinkScrolled:hover { color: #1a1a1a; }
+
+.navLinkActive {
+    color: #fff !important;
+}
+.navLinkActive::after { width: 100%; }
+.navLinkScrolled.navLinkActive {
+    color: var(--color-primary-700) !important;
+}
+
+/* CTA 버튼 — 루트 navCta 동일 */
+.navCta {
+    padding: 0.55rem 1.6rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.navCta:hover {
+    background: #fff;
+    border-color: #fff;
+    color: #1a1a1a;
+}
+
+.navCtaScrolled {
+    border-color: #1a1a1a;
+    color: #1a1a1a;
+}
+
+.navCtaScrolled:hover {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+/* ================================================================
+   히어로 배너 — 루트 hero 축소판
+   ================================================================ */
+.heroBanner {
+    position: relative;
+    height: 340px;
+    background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&q=80');
+    background-size: cover;
+    background-position: center 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.heroBannerOverlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        160deg,
+        rgba(74, 50, 34, 0.75) 0%,
+        rgba(90, 61, 41, 0.55) 100%
+    );
+}
+
+.heroBannerContent {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #fff;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* 루트 heroTagline 동일 */
+.bannerLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+/* 루트 heroTitle 동일 */
+.bannerTitle {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1.15;
+}
+
+.bannerTitleSerif {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-weight: 300;
+    font-style: italic;
+    display: block;
+}
+
+.bannerTitleSans {
+    font-family: var(--font-sans, sans-serif);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    display: block;
+}
+
+.bannerDesc {
+    font-size: var(--text-sm);
+    opacity: 0.8;
+    max-width: 420px;
+    line-height: 1.7;
+}
+
+/* 디테일 페이지 뒤로가기 링크 */
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.5rem 1.2rem;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.backLink:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+/* ================================================================
+   바디
+   ================================================================ */
+.body {
+    flex: 1;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 3rem 4rem 4rem;
+}
+
+/* ================================================================
+   푸터
+   ================================================================ */
+.footer {
+    background: var(--color-primary-900);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 2rem 4rem;
+}
+
+.footerInner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.footerBrand {
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.04em;
+}
+
+.footerBrandMark {
+    font-style: italic;
+    color: #e8c9a8;
+}
+
+.footerCopy {
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+}
+
+/* ================================================================
+   반응형
+   ================================================================ */
+@media (max-width: 1024px) {
+    .headerInner { padding: 1.25rem 2rem; }
+    .headerScrolled .headerInner { padding: 0.875rem 2rem; }
+    .body { padding: 2.5rem 2rem 3rem; }
+    .footer { padding: 1.5rem 2rem; }
+}
+
+@media (max-width: 768px) {
+    .headerInner { padding: 1rem 1.25rem; }
+    .headerScrolled .headerInner { padding: 0.75rem 1.25rem; }
+    .navLinks { gap: 1.5rem; }
+    .heroBanner { height: 260px; }
+    .body { padding: 2rem 1.25rem 3rem; }
+    .footer { padding: 1.25rem; }
+    .footerInner { flex-direction: column; gap: 0.5rem; text-align: center; }
+}
+
+@media (max-width: 480px) {
+    .navLinks { gap: 1rem; }
+    .navLink { font-size: 0.7rem; letter-spacing: 0.08em; }
+    .navCta { padding: 0.4rem 1rem; font-size: 0.7rem; }
+}

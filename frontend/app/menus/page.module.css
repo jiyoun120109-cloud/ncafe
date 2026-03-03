@@ -1,0 +1,76 @@
+/* ================================================================
+   Menus Page — aside + main 레이아웃
+   ================================================================ */
+
+.pageLayout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* ================================================================
+   Aside — 카테고리 사이드바
+   ================================================================ */
+.aside {
+    position: sticky;
+    top: 100px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem 1.25rem;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.asideTitle {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.35);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+/* ================================================================
+   Main
+   ================================================================ */
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.mainHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+/* ================================================================
+   반응형 — 태블릿 이하: aside 상단 수평 탭으로 전환
+   ================================================================ */
+@media (max-width: 900px) {
+    .pageLayout {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .aside {
+        position: static;
+        padding: 1rem 1rem 0.875rem;
+    }
+
+    .asideTitle {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .mainHeader {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

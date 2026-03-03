@@ -2,32 +2,56 @@
 
 import { useEffect } from 'react';
 import { useUIStore } from '@/stores/uiStore';
+import styles from './page.module.css';
+
+const stats = [
+    { label: 'Orders Today',   value: '12',         sub: '+3 from yesterday' },
+    { label: 'Revenue Today',  value: '₩154,000',   sub: '+12% from yesterday' },
+    { label: 'Sold Out',       value: '2',          sub: 'Requires attention', alert: true },
+    { label: 'Visitors',       value: '38',         sub: '+5 from yesterday' },
+];
 
 export default function AdminDashboardPage() {
     const { setTitle } = useUIStore();
-
-    useEffect(() => {
-        setTitle('대시보드');
-    }, [setTitle]);
+    useEffect(() => { setTitle('Dashboard'); }, [setTitle]);
 
     return (
-        <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 'var(--space-6)'
-        }}>
-            {/* Summary Cards */}
-            <div style={{ background: 'white', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)' }}>
-                <h3 style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-500)', marginBottom: 'var(--space-2)' }}>오늘의 주문</h3>
-                <p style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--font-bold)' }}>12건</p>
+        <div className={styles.page}>
+            {/* 페이지 헤더 */}
+            <div className={styles.pageHeader}>
+                <p className={styles.pageLabel}>Overview</p>
+                <h2 className={styles.pageTitle}>Dashboard</h2>
             </div>
-            <div style={{ background: 'white', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)' }}>
-                <h3 style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-500)', marginBottom: 'var(--space-2)' }}>오늘의 매출</h3>
-                <p style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--font-bold)' }}>154,000원</p>
+
+            {/* 통계 그리드 */}
+            <div className={styles.statsGrid}>
+                {stats.map((s) => (
+                    <div key={s.label} className={`${styles.statCard} ${s.alert ? styles.statAlert : ''}`}>
+                        <p className={styles.statLabel}>{s.label}</p>
+                        <p className={styles.statValue}>{s.value}</p>
+                        <p className={styles.statSub}>{s.sub}</p>
+                    </div>
+                ))}
             </div>
-            <div style={{ background: 'white', padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)' }}>
-                <h3 style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-500)', marginBottom: 'var(--space-2)' }}>품절 메뉴</h3>
-                <p style={{ fontSize: 'var(--text-3xl)', fontWeight: 'var(--font-bold)', color: 'var(--color-error)' }}>2개</p>
+
+            {/* 구분선 */}
+            <div className={styles.divider} />
+
+            {/* 빠른 링크 */}
+            <div className={styles.quickLinks}>
+                <p className={styles.pageLabel}>Quick Actions</p>
+                <div className={styles.quickGrid}>
+                    {[
+                        { href: '/admin/menus/new', label: 'Add Menu Item' },
+                        { href: '/admin/menus',     label: 'Manage Menus' },
+                        { href: '/admin/orders',    label: 'View Orders' },
+                    ].map((link) => (
+                        <a key={link.href} href={link.href} className={styles.quickLink}>
+                            <span>{link.label}</span>
+                            <span className={styles.quickArrow}>→</span>
+                        </a>
+                    ))}
+                </div>
             </div>
         </div>
     );

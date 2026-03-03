@@ -28,8 +28,8 @@ export default function MenuToolbar({ searchQuery, setSearchQuery }: MenuToolbar
 
             <div className={styles.actions}>
                 <Link href="/admin/menus/new" className={styles.addBtn}>
-                    <Plus size={18} />
-                    <span>새 메뉴 추가</span>
+                    <Plus size={15} />
+                    <span>Add Menu</span>
                 </Link>
             </div>
         </div>

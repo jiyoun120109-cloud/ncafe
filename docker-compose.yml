@@ -7,12 +7,16 @@ services:
     ports:
       - "8011:8011"
     volumes:
-      - /home/yun/workspace/ncafe/backend/upload:/app/upload
+      - ./backend/upload:/app/upload
     environment:
       - SERVER_PORT=8011
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db.newlecture.com:5432/ncafedb?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/ncafedb
       - SPRING_DATASOURCE_USERNAME=ncafe
-      - SPRING_DATASOURCE_PASSWORD=new_ibm2
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-new_ibm2}
+      - JWT_SECRET=${JWT_SECRET:-ncafe-jwt-secret-key-min-32-characters-long}
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     build:
@@ -20,6 +24,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
+        - BACKEND_URL=http://backend:8011
     ports:
       - "3011:3011"
     environment:
@@ -28,3 +33,22 @@ services:
       - PORT=3011
     depends_on:
       - backend
+
+  db:
+    image: postgres:17
+    container_name: ${USER_ID:-ncafe}-db
+    environment:
+      POSTGRES_DB: ncafedb
+      POSTGRES_USER: ncafe
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-new_ibm2}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ncafe -d ncafedb"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+      start_period: 5s

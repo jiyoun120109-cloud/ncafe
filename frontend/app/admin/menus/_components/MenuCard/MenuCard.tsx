@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
-import { Edit2, Trash2, MoreVertical, Image as ImageIcon, GripVertical, AlertTriangle } from 'lucide-react';
+import { Edit2, Trash2, GripVertical, AlertTriangle } from 'lucide-react';
 import styles from './MenuCard.module.css';
 import { MenuResponse } from '../MenuList/useMenus';
 
@@ -14,10 +12,13 @@ interface MenuCardProps {
 
 export default function MenuCard({ menu }: MenuCardProps) {
     const router = useRouter();
+    const [imgError, setImgError] = useState(false);
 
     const handleCardClick = () => {
         router.push(`/admin/menus/${menu.id}`);
     };
+
+    const showPlaceholder = !menu.imageSrc || imgError;
 
     return (
         <div
@@ -36,13 +37,14 @@ export default function MenuCard({ menu }: MenuCardProps) {
 
                 {/* Image Section */}
                 <div className={styles.imageContainer}>
-                    {menu.imageSrc ? (
+                    {!showPlaceholder ? (
                         <Image
                             src={`/images/${menu.imageSrc}`}
                             alt={menu.korName}
                             fill
                             className={styles.image}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            onError={() => setImgError(true)}
                         />
                     ) : (
                         <div className={styles.placeholder}>
