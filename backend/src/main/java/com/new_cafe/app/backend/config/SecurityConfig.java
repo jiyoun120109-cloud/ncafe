@@ -32,7 +32,11 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .csrfTokenRequestHandler(requestHandler)
                 .ignoringRequestMatchers(
-                    (RequestMatcher) request -> "/api/csrf".equals(request.getRequestURI()) || "/api/auth/login".equals(request.getRequestURI())
+                    (RequestMatcher) request -> {
+                        String uri = request.getRequestURI();
+                        return "/api/csrf".equals(uri) || "/csrf".equals(uri)
+                            || "/api/auth/login".equals(uri) || "/auth/login".equals(uri);
+                    }
                 )
             )
             .authorizeHttpRequests(auth -> auth
