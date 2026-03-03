@@ -1,13 +1,16 @@
 package com.new_cafe.app.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration // @Component
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${app.upload.path:file:./upload/}")
+    private String uploadPath;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // 모든 URL에 대해 CORS 허용
@@ -19,11 +22,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // /images/xxx → Next가 백엔드 /xxx 로 요청. 루트 경로를 upload 디렉터리에서 서빙
-        String uploadPath = "/app/upload/";
+        // /images/xxx → Next가 백엔드 /xxx 로 요청. bootRun=./upload, Docker=APP_UPLOAD_PATH로 file:/app/upload/
+        String path = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+        if (!path.startsWith("file:")) {
+            path = "file:" + path;
+        }
         registry.addResourceHandler("/**")
-                .addResourceLocations("file:" + uploadPath)
-                .resourceChain(true)
-                .setOrder(Ordered.LOWEST_PRECEDENCE);
+                .addResourceLocations(path)
+                .resourceChain(true);
     }
 }

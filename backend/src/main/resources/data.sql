@@ -18,7 +18,7 @@ END $$;
 
 -- 사용자 시드: admin(비밀번호 admin123), hong/user(비밀번호 1234) — BCrypt. ON CONFLICT로 매번 비밀번호 갱신.
 INSERT INTO users (nickname, password, role, created_at, updated_at)
-VALUES ('admin', '$2b$10$sr3jNN0qM5qYxvqM52IfDO8brqlhM8mgI/mqudkm/G9w8IKZzBuxW', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+VALUES ('admin', '$2b$10$PuCgAovNP0kXGhAhx/9Y7.PE.EUt5XbkW09Eeyk7361ivsG/kseAq', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (nickname) DO UPDATE SET password = EXCLUDED.password, updated_at = CURRENT_TIMESTAMP;;
 INSERT INTO users (nickname, password, role, created_at, updated_at)
 VALUES ('hong', '$2b$10$fLlRQKGL3BDlaYlrb7x3Eu7hYhxK1B/DYUV2UmWH8sgKg7GIy13V2', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
