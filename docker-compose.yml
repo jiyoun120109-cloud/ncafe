@@ -15,9 +15,9 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:}
-      - JWT_SECRET=${JWT_SECRET:}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-}
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
     depends_on:
@@ -38,7 +38,7 @@ services:
     environment:
       # 컨테이너 내부에서는 반드시 서비스 이름(backend)으로 접근. localhost 사용 시 ECONNREFUSED
       - API_BASE_URL=http://backend:8011
-      - SESSION_SECRET=${SESSION_SECRET:}
+      - SESSION_SECRET=${SESSION_SECRET:-}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
     depends_on:
       - backend
@@ -50,7 +50,7 @@ services:
     environment:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
-      POSTGRES_PASSWORD: ${DB_PASSWORD:}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-}
     # ports:
     #   - "${DB_PORT:-5511}:5432"
     volumes:

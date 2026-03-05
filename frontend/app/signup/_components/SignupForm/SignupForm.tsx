@@ -5,44 +5,44 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuthStore } from '@/stores/authStore';
-import { loginApi } from '@/services/authService';
-import styles from './LoginForm.module.css';
+import { signupApi } from '@/services/authService';
+import styles from './SignupForm.module.css';
 
-interface LoginFormValues {
+interface SignupFormValues {
     username: string;
     password: string;
+    passwordConfirm: string;
 }
 
-interface LoginFormProps {
+interface SignupFormProps {
     onError: (message: string) => void;
 }
 
-export default function LoginForm({ onError }: LoginFormProps) {
+export default function SignupForm({ onError }: SignupFormProps) {
     const router = useRouter();
-    const { setUser } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
-    } = useForm<LoginFormValues>();
+    } = useForm<SignupFormValues>();
 
-    const onSubmit = async (data: LoginFormValues) => {
+    const password = watch('password');
+
+    const onSubmit = async (data: SignupFormValues) => {
         setIsLoading(true);
         onError('');
 
         try {
-            const user = await loginApi(data.username, data.password);
-            setUser(user);
-            // 관리자만 /admin으로, 그 외에는 홈으로
-            if (user.role === 'ADMIN') {
-                router.push('/admin');
-            } else {
-                router.push('/');
+            const result = await signupApi(data.username, data.password);
+            if (result.success) {
+                router.push('/login?registered=1');
+                return;
             }
+            onError(result.message || '회원가입에 실패했습니다.');
         } catch (err) {
             const message = err instanceof Error
                 ? err.message
@@ -56,7 +56,6 @@ export default function LoginForm({ onError }: LoginFormProps) {
     return (
         <>
             <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
-                {/* 아이디 */}
                 <div className={styles.fieldGroup}>
                     <label htmlFor="username" className={styles.label}>
                         아이디
@@ -71,6 +70,7 @@ export default function LoginForm({ onError }: LoginFormProps) {
                             autoComplete="username"
                             {...register('username', {
                                 required: '아이디를 입력해주세요.',
+                                minLength: { value: 2, message: '아이디는 2자 이상 입력해주세요.' },
                             })}
                         />
                     </div>
@@ -79,7 +79,6 @@ export default function LoginForm({ onError }: LoginFormProps) {
                     )}
                 </div>
 
-                {/* 비밀번호 */}
                 <div className={styles.fieldGroup}>
                     <label htmlFor="password" className={styles.label}>
                         비밀번호
@@ -90,10 +89,11 @@ export default function LoginForm({ onError }: LoginFormProps) {
                             id="password"
                             type={showPassword ? 'text' : 'password'}
                             className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
-                            placeholder="비밀번호를 입력하세요"
-                            autoComplete="current-password"
+                            placeholder="비밀번호 (4자 이상)"
+                            autoComplete="new-password"
                             {...register('password', {
                                 required: '비밀번호를 입력해주세요.',
+                                minLength: { value: 4, message: '비밀번호는 4자 이상 입력해주세요.' },
                             })}
                         />
                         <button
@@ -111,7 +111,30 @@ export default function LoginForm({ onError }: LoginFormProps) {
                     )}
                 </div>
 
-                {/* 로그인 버튼 */}
+                <div className={styles.fieldGroup}>
+                    <label htmlFor="passwordConfirm" className={styles.label}>
+                        비밀번호 확인
+                    </label>
+                    <div className={styles.inputWrapper}>
+                        <Lock className={styles.inputIcon} />
+                        <input
+                            id="passwordConfirm"
+                            type={showPassword ? 'text' : 'password'}
+                            className={`${styles.input} ${errors.passwordConfirm ? styles.inputError : ''}`}
+                            placeholder="비밀번호를 다시 입력하세요"
+                            autoComplete="new-password"
+                            {...register('passwordConfirm', {
+                                required: '비밀번호 확인을 입력해주세요.',
+                                validate: (value) =>
+                                    value === password || '비밀번호가 일치하지 않습니다.',
+                            })}
+                        />
+                    </div>
+                    {errors.passwordConfirm && (
+                        <span className={styles.fieldError}>{errors.passwordConfirm.message}</span>
+                    )}
+                </div>
+
                 <button
                     type="submit"
                     className={styles.submitButton}
@@ -120,16 +143,15 @@ export default function LoginForm({ onError }: LoginFormProps) {
                     {isLoading ? (
                         <span className={styles.spinner} />
                     ) : (
-                        <span className={styles.buttonText}>로그인</span>
+                        <span className={styles.buttonText}>회원가입</span>
                     )}
                 </button>
             </form>
 
-            {/* 하단 링크 */}
             <div className={styles.footer}>
-                <span>계정이 없으신가요?</span>
-                <Link href="/signup" className={styles.footerLink}>
-                    회원가입
+                <span>이미 계정이 있으신가요?</span>
+                <Link href="/login" className={styles.footerLink}>
+                    로그인
                 </Link>
             </div>
         </>

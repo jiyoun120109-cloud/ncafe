@@ -33,6 +33,15 @@ export async function logoutApi(): Promise<void> {
 }
 
 /**
+ * 회원가입
+ * POST /api/auth/signup → Next.js BFF → Spring Boot
+ */
+export async function signupApi(username: string, password: string): Promise<{ success: boolean; message: string }> {
+    const data = await authAPI.signup(username, password);
+    return { success: !!data?.success, message: data?.message ?? '' };
+}
+
+/**
  * 현재 로그인 사용자 조회
  * GET /api/auth/session → BFF 쿠키(JWT) 기반 user 반환
  */

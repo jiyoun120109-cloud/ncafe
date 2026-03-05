@@ -54,4 +54,10 @@ export const authAPI = {
 
     getSession: () =>
         fetchAPI<{ user: { id: number; username: string; name: string | null; role: string } | null }>('/auth/session'),
+
+    signup: (username: string, password: string) =>
+        fetchAPI<{ success: boolean; message: string }>('/auth/signup', {
+            method: 'POST',
+            body: JSON.stringify({ username, password }),
+        }),
 };

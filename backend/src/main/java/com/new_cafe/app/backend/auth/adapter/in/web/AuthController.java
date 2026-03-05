@@ -4,6 +4,9 @@ import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import com.new_cafe.app.backend.auth.application.port.in.LoginUseCase;
 import com.new_cafe.app.backend.auth.application.port.in.LoginUseCase.LoginCommand;
 import com.new_cafe.app.backend.auth.application.port.in.LoginUseCase.LoginResult;
+import com.new_cafe.app.backend.auth.application.port.in.SignupUseCase;
+import com.new_cafe.app.backend.auth.application.port.in.SignupUseCase.SignupCommand;
+import com.new_cafe.app.backend.auth.application.port.in.SignupUseCase.SignupResult;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +20,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final LoginUseCase loginUseCase;
+    private final SignupUseCase signupUseCase;
     private final JwtService jwtService;
 
-    public AuthController(LoginUseCase loginUseCase, JwtService jwtService) {
+    public AuthController(LoginUseCase loginUseCase, SignupUseCase signupUseCase, JwtService jwtService) {
         this.loginUseCase = loginUseCase;
+        this.signupUseCase = signupUseCase;
         this.jwtService = jwtService;
     }
 
@@ -57,6 +62,25 @@ public class AuthController {
                 result.role(),
                 accessToken
             )
+        );
+    }
+
+    /**
+     * 회원가입 — USER 역할로 저장, 비밀번호 BCrypt 암호화
+     * POST /api/auth/signup
+     */
+    @PostMapping("/signup")
+    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
+        SignupResult result = signupUseCase.signup(
+            new SignupCommand(request.getUsername(), request.getPassword())
+        );
+        if (!result.success()) {
+            return ResponseEntity.badRequest().body(
+                new SignupResponse(false, result.message())
+            );
+        }
+        return ResponseEntity.status(201).body(
+            new SignupResponse(true, result.message())
         );
     }
 
