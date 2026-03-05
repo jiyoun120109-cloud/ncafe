@@ -1,39 +1,48 @@
-name: ncafe-yun
+# DeplyGuid: 내부 포트 고정(backend=8011, frontend=3011, db=5432), 외부 포트는 .env
+name: ${COMPOSE_PROJECT_NAME:-yun_ncafe}
+
 services:
   backend:
+    image: ${BACKEND_IMAGE:-ncafe-backend:latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8011:8011"
+    container_name: ${USER_ID:-yun}-backend
+    # ports:
+    #   - "${BACKEND_PORT:-8011}:8011"
     volumes:
       - ./backend/upload:/app/upload
     environment:
-      - SERVER_PORT=8011
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/ncafedb
-      - SPRING_DATASOURCE_USERNAME=ncafe
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-new_ibm2}
-      - JWT_SECRET=${JWT_SECRET:-ncafe-jwt-secret-key-min-32-characters-long}
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:}
+      - JWT_SECRET=${JWT_SECRET:}
       - APP_UPLOAD_PATH=file:/app/upload/
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
 
   frontend:
+    image: ${FRONTEND_IMAGE:-ncafe-frontend:latest}
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
-        - BACKEND_URL=http://backend:8011
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
+        - API_BASE_URL=http://backend:8011
+    container_name: ${USER_ID:-yun}-frontend
     ports:
-      - "3011:3011"
+      - "${FRONTEND_PORT:-3011}:3011"
     environment:
-      - NEXT_PUBLIC_API_URL=https://eunami.newlecture.com
-      - BACKEND_URL=http://backend:8011
-      - PORT=3011
+      # 컨테이너 내부에서는 반드시 서비스 이름(backend)으로 접근. localhost 사용 시 ECONNREFUSED
+      - API_BASE_URL=http://backend:8011
+      - SESSION_SECRET=${SESSION_SECRET:}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
     depends_on:
       - backend
+    restart: unless-stopped
 
   db:
     image: postgres:17
@@ -41,10 +50,9 @@ services:
     environment:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-new_ibm2}
-    # 호스트 포트: 5432/5433 사용 중이면 .env에 POSTGRES_PORT=5434 등 빈 포트로 지정
-    ports:
-      - "${POSTGRES_PORT:-5411}:5432"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:}
+    # ports:
+    #   - "${DB_PORT:-5511}:5432"
     volumes:
       - ./data:/var/lib/postgresql/data
     restart: unless-stopped

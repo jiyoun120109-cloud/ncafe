@@ -5,6 +5,35 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowRight } from 'lucide-react';
 import styles from './MenuCard.module.css';
+
+function isValidImageUrl(url: string | null | undefined): boolean {
+    if (!url?.trim()) return false;
+    if (url.startsWith('http')) {
+        try {
+            const path = new URL(url).pathname;
+            return /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
+        } catch {
+            return false;
+        }
+    }
+    return true;
+}
+
+function imageSrc(url: string | null | undefined): string {
+    if (!url?.trim()) return '/images/missing';
+    if (url.startsWith('http')) {
+        try {
+            const path = new URL(url).pathname;
+            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
+            if (!hasImageExt) return '/images/missing';
+        } catch {
+            return '/images/missing';
+        }
+        return url;
+    }
+    const filename = url.replace(/^.*\//, '').trim();
+    return `/images/${filename || 'missing'}`;
+}
 import type { UserMenuResponse } from '../useUserMenus';
 
 interface MenuCardProps {
@@ -19,8 +48,8 @@ export default function MenuCard({ menu }: MenuCardProps) {
         router.push(`/menus/${menu.id}`);
     };
 
-    const showPlaceholder = !menu.imageSrc || imgError;
-    const imageSrc = menu.imageSrc?.startsWith('http') ? menu.imageSrc : `/images/${menu.imageSrc}`;
+    const showPlaceholder = !menu.imageSrc || imgError || !isValidImageUrl(menu.imageSrc);
+    const imageSrcUrl = imageSrc(menu.imageSrc);
 
     return (
         <article
@@ -34,7 +63,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
             <div className={styles.imageContainer}>
                 {!showPlaceholder ? (
                     <Image
-                        src={imageSrc}
+                        src={imageSrcUrl}
                         alt={menu.korName}
                         fill
                         className={styles.image}

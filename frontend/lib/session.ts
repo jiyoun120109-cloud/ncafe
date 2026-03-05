@@ -20,7 +20,7 @@ export interface SessionData {
 }
 
 export const sessionOptions: SessionOptions = {
-    password: process.env.SESSION_SECRET || 'ncafe-default-secret-change-in-production-32chars',
+    password: process.env.SESSION_SECRET || 'ncafe-bff-session-secret-key-2026-change-in-prod',
     cookieName: 'app_session',
     cookieOptions: {
         httpOnly: true,

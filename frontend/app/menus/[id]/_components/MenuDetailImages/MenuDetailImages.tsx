@@ -3,6 +3,22 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './MenuDetailImages.module.css';
+
+function imageSrc(url: string | null | undefined): string {
+    if (!url?.trim()) return '/images/missing';
+    if (url.startsWith('http')) {
+        try {
+            const path = new URL(url).pathname;
+            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
+            if (!hasImageExt) return '/images/missing';
+        } catch {
+            return '/images/missing';
+        }
+        return url;
+    }
+    const filename = url.replace(/^.*\//, '').trim();
+    return `/images/${filename || 'missing'}`;
+}
 import { useUserMenuDetailImages } from '../useUserMenuDetailImages';
 
 interface MenuDetailImagesProps {
@@ -22,14 +38,12 @@ export default function MenuDetailImages({ menuId }: MenuDetailImagesProps) {
     }, [menuImages, selectedImage]);
 
     const showMainPlaceholder = !selectedImage || mainImgError;
-    const toImageSrc = (url: string) => url?.startsWith('http') ? url : `/images/${url}`;
-
     return (
         <section className={styles.imageSection}>
             <div className={styles.mainImageWrapper}>
                 {!showMainPlaceholder ? (
                     <Image
-                        src={toImageSrc(selectedImage!)}
+                        src={imageSrc(selectedImage!)}
                         alt={altText || '메뉴 이미지'}
                         fill
                         className={styles.mainImage}
@@ -52,7 +66,7 @@ export default function MenuDetailImages({ menuId }: MenuDetailImagesProps) {
                             onClick={() => setSelectedImage(image.imageUrl)}
                         >
                             <Image
-                                src={toImageSrc(image.imageUrl)}
+                                src={imageSrc(image.imageUrl)}
                                 alt={`${altText || '메뉴'} ${image.sortOrder}`}
                                 fill
                                 sizes="(max-width: 768px) 20vw, 10vw"

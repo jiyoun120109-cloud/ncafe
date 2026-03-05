@@ -1,0 +1,10 @@
+# 로컬 전용 — 이 파일을 application-local.properties 로 복사한 뒤 값을 채우고
+# 실행 시 --spring.profiles.active=local 로 사용. application-local.properties 는 .gitignore 됨.
+
+# JWT 서명 키 (32자 이상)
+jwt.secret=
+
+# DB (로컬 PostgreSQL 등)
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=

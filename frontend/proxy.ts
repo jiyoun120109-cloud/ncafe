@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const PROTECTED_PATHS = ['/admin'];
 
 // 인증 체크를 건너뛸 경로
-const PUBLIC_PATHS = ['/login', '/menus', '/api', '/_next', '/images'];
+const PUBLIC_PATHS = ['/login', '/menus', '/api', '/_next', '/images', '/upload'];
 
 // BFF: 쿠키에는 JWT+user 암호화 저장 (세션 없음). cookieName은 session.ts와 동일.
 const SESSION_COOKIE_NAME = 'app_session';

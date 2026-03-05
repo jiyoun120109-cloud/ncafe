@@ -3,6 +3,22 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './MenuDetailImages.module.css';
+
+function imageSrc(url: string | null | undefined): string {
+    if (!url?.trim()) return '/images/missing';
+    if (url.startsWith('http')) {
+        try {
+            const path = new URL(url).pathname;
+            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
+            if (!hasImageExt) return '/images/missing';
+        } catch {
+            return '/images/missing';
+        }
+        return url;
+    }
+    const filename = url.replace(/^.*\//, '').trim();
+    return `/images/${filename || 'missing'}`;
+}
 import { useMenuDetailImages } from './useMenuDetailImages';
 
 export default function MenuDetailImages({ menuId }: { menuId: number }) {
@@ -24,7 +40,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
             <div className={styles.mainImageWrapper}>
                 {!showMainPlaceholder ? (
                     <Image
-                        src={`/images/${selectedImage}`}
+                        src={imageSrc(selectedImage)}
                         alt={`${altText || 'Menu'} Main Image`}
                         fill
                         className={styles.mainImage}
@@ -47,7 +63,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
                             onClick={() => setSelectedImage(image.imageUrl)}
                         >
                             <Image
-                                src={`/images/${image.imageUrl}`}
+                                src={imageSrc(image.imageUrl)}
                                 alt={`${altText || 'Menu'} Thumbnail ${image.sortOrder}`}
                                 fill
                                 sizes="(max-width: 768px) 20vw, 10vw"

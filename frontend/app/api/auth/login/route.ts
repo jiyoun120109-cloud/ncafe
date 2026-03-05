@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { getBackendCsrfToken } from '@/lib/backendCsrf';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:8011';
+const API_BASE = process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
 
 /**
  * POST /api/auth/login

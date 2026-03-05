@@ -23,7 +23,7 @@ public class JwtService {
 
     private final SecretKey key;
 
-    public JwtService(@Value("${jwt.secret:ncafe-jwt-secret-key-min-32-characters-long}") String secret) {
+    public JwtService(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 

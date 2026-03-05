@@ -38,6 +38,7 @@
     "app/admin/menus/page.jsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "app/images"
   ]
 }

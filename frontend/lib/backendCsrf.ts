@@ -1,6 +1,6 @@
 import { getSession } from '@/lib/session';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:8011';
+const API_BASE = process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
 
 /**
  * 백엔드 CSRF 토큰 조회. 세션에 없으면 GET /api/csrf 호출 후 저장.
