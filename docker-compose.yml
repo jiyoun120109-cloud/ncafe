@@ -53,8 +53,9 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-}
     # ports:
     #   - "${DB_PORT:-5511}:5432"
+    # named volume 사용: 워크스페이스에 ./data( root 소유 ) 생성 방지 → GitHub Actions runner EACCES 방지
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ncafe -d ncafedb"]
