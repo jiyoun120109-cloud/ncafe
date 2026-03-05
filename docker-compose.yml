@@ -10,8 +10,9 @@ services:
     container_name: ${USER_ID:-yun}-backend
     # ports:
     #   - "${BACKEND_PORT:-8011}:8011"
+    # named volume 사용: 워크스페이스 backend/upload( root 소유 ) 생성 방지 → runner EACCES 방지
     volumes:
-      - ./backend/upload:/app/upload
+      - backend-upload:/app/upload
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb}
@@ -66,4 +67,6 @@ services:
 
 volumes:
   db-data:
-    name: ${USER_ID:-yun}-db-data # 볼륨 이름
+    name: ${USER_ID:-yun}-db-data
+  backend-upload:
+    name: ${USER_ID:-yun}-backend-upload
