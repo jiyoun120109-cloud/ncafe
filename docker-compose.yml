@@ -8,9 +8,10 @@ services:
       dockerfile: Dockerfile
     image: ${AGENT_IMAGE:-ncafe-agent:latest}
     container_name: ${USER_ID:-yun}-agent
-    # GEMINI_API_KEY 등은 agent-server/.env 에서 로드 (도커에서도 키 인식)
-    env_file:
-      - ./agent-server/.env
+    # CI/배포: 워크플로에서 GEMINI_API_KEY 환경변수로 전달. 로컬: 루트 .env 또는 agent-server/.env 로드 후 compose 실행
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
     restart: unless-stopped
 
   backend:
