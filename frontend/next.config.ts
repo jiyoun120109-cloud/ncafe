@@ -14,17 +14,17 @@ const nextConfig: NextConfig = {
         const backendUrl = raw.replace(/\/$/, '');
         return [
           {
-            // BFF: /images/*, /upload/* → 백엔드 /upload/* (WebConfig addResourceHandlers)
+            // BFF: /images/* → 백엔드 루트 (static-locations=file:./upload/ 가 경로 그대로 파일로 매핑)
             source: '/images/:path*',
-            destination: `${backendUrl}/upload/:path*`,
+            destination: `${backendUrl}/:path*`,
           },
           {
             source: '/upload/:path*',
-            destination: `${backendUrl}/upload/:path*`,
+            destination: `${backendUrl}/:path*`,
           },
           {
             source: '/:file(.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico))$',
-            destination: `${backendUrl}/upload/:file`,
+            destination: `${backendUrl}/:file`,
           },
         ];
       },
