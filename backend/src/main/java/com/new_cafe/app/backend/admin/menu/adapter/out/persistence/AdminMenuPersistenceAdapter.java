@@ -2,8 +2,8 @@ package com.new_cafe.app.backend.admin.menu.adapter.out.persistence;
 
 import com.new_cafe.app.backend.admin.menu.application.port.out.AdminMenuRepositoryPort;
 import com.new_cafe.app.backend.admin.menu.model.AdminMenu;
-import com.new_cafe.app.backend.admin.menu.adapter.out.jpa.AdminMenuEntity;
-import com.new_cafe.app.backend.admin.menu.adapter.out.jpa.AdminMenuJpaRepository;
+import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuEntity;
+import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
 import com.new_cafe.app.backend.category.domain.model.Category;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryEntity;
 
@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 @Repository
 public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
 
-    private final AdminMenuJpaRepository adminMenuJpaRepository;
+    private final MenuJpaRepository menuJpaRepository;
 
-    public AdminMenuPersistenceAdapter(AdminMenuJpaRepository adminMenuJpaRepository) {
-        this.adminMenuJpaRepository = adminMenuJpaRepository;
+    public AdminMenuPersistenceAdapter(MenuJpaRepository menuJpaRepository) {
+        this.menuJpaRepository = menuJpaRepository;
     }
 
     @Override
     public List<AdminMenu> findAllByCategoryIdAndSearchQuery(Integer categoryId, String searchQuery) {
-        List<AdminMenuEntity> entities = adminMenuJpaRepository.findAll();
+        List<MenuEntity> entities = menuJpaRepository.findAll();
 
         return entities.stream()
             .filter(e -> categoryId == null || e.getCategoryId() == null || e.getCategoryId().equals(categoryId.longValue()))
@@ -37,14 +37,14 @@ public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
 
     @Override
     public AdminMenu findById(Long id) {
-        return adminMenuJpaRepository.findById(id)
+        return menuJpaRepository.findById(id)
             .map(this::toDomain)
             .orElse(null);
     }
 
-    private AdminMenu toDomain(AdminMenuEntity e) {
+    private AdminMenu toDomain(MenuEntity e) {
         Category category = e.getCategory() != null ? categoryEntityToDomain(e.getCategory()) : null;
-        
+
         return AdminMenu.builder()
             .id(e.getId())
             .korName(e.getKorName())
@@ -54,6 +54,8 @@ public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
             .categoryId(e.getCategoryId())
             .category(category)
             .isAvailable(e.getIsAvailable())
+            .isSoldOut(e.getIsSoldOut())
+            .sortOrder(e.getSortOrder())
             .createdAt(e.getCreatedAt())
             .updatedAt(e.getUpdatedAt())
             .build();

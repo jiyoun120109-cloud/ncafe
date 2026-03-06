@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @Builder
 @Entity(name = "Category")
-@Table(name = "category")
+@Table(name = "categories")
 public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

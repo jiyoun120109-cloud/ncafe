@@ -20,6 +20,8 @@ public class AdminMenu {
     private Long categoryId;
     private Category category;
     private Boolean isAvailable;
+    private Boolean isSoldOut;
+    private Integer sortOrder;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

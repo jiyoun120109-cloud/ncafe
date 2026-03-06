@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "menu_images")
+@Table(name = "images")
 public class MenuImageEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

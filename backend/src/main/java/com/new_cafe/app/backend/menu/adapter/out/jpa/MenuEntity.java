@@ -22,7 +22,7 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @Builder
 @Entity(name = "Menu")
-@Table(name = "menu_user")
+@Table(name = "menus")
 public class MenuEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +49,12 @@ public class MenuEntity {
 
     @Column(name = "is_available")
     private Boolean isAvailable;
+
+    @Column(name = "is_sold_out")
+    private Boolean isSoldOut;
+
+    @Column(name = "sort_order")
+    private Integer sortOrder;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
