@@ -25,8 +25,10 @@ public class MenuPersistenceAdapter implements MenuRepositoryPort {
     public List<Menu> findAllByCategoryIdAndSearchQuery(Integer categoryId, String searchQuery) {
         List<MenuEntity> entities = menuJpaRepository.findAll();
 
+        // categoryId null 또는 0이면 전체 조회 (0은 프론트 "전체" 선택 시 올 수 있음)
+        boolean listAll = categoryId == null || categoryId.intValue() == 0;
         return entities.stream()
-            .filter(e -> categoryId == null || e.getCategoryId() == null || e.getCategoryId().equals(categoryId.longValue()))
+            .filter(e -> listAll || e.getCategoryId() == null || e.getCategoryId().equals(categoryId.longValue()))
             .filter(e -> searchQuery == null || searchQuery.isBlank() ||
                 (e.getKorName() != null && e.getKorName().contains(searchQuery)) ||
                 (e.getEngName() != null && e.getEngName().contains(searchQuery)) ||

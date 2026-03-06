@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * 손님용 채팅 API (더미 · 메모리)
- * POST /api/chat — 메시지 받으면 더미 봇 응답 반환
- */
+const AGENT_SERVER_URL = process.env.AGENT_SERVER_URL || '';
+
 const DUMMY_REPLIES: { pattern: RegExp | string; reply: string }[] = [
   { pattern: /안녕|hello|hi/i, reply: '안녕하세요! NCafe입니다. 무엇을 도와드릴까요?' },
   { pattern: /메뉴|추천|뭐 먹을까/i, reply: '오늘은 시그니처 커피나 카페라떼를 추천드려요. 메뉴 페이지에서 자세히 보실 수 있어요.' },
@@ -30,11 +28,44 @@ function getDummyReply(userMessage: string): string {
   return fallbacks[Math.floor(Math.random() * fallbacks.length)];
 }
 
+/**
+ * BFF: 클라이언트 요청을 agent-server(Gemini)로 프록시.
+ * AGENT_SERVER_URL이 있으면 POST /chat 호출, 없으면 더미 응답.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const message = typeof body.message === 'string' ? body.message : '';
-    const reply = getDummyReply(message);
+    type Msg = { role?: string; content?: string };
+    const messages: { role: 'user' | 'model'; content: string }[] =
+      Array.isArray(body.messages) && body.messages.length > 0
+        ? (body.messages as Msg[]).map((m) => ({
+            role: (m.role === 'model' ? 'model' : 'user') as 'user' | 'model',
+            content: typeof m.content === 'string' ? m.content : '',
+          })).filter((m: { content: string }) => m.content !== '')
+        : message.trim() ? [{ role: 'user' as const, content: message }] : [];
+
+    if (AGENT_SERVER_URL && messages.length > 0) {
+      const base = AGENT_SERVER_URL.replace(/\/$/, '');
+      const res = await fetch(`${base}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages, stream: false }),
+      });
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const content = data.content ?? '';
+        return NextResponse.json({ reply: content || '응답이 비어 있습니다.' });
+      }
+      if (res.status === 503) {
+        const err = await res.json().catch(() => ({}));
+        return NextResponse.json({
+          reply: err.detail ?? '챗봇 설정이 완료되지 않았습니다. 관리자에게 문의하세요.',
+        });
+      }
+    }
+
+    const reply = getDummyReply(message || '');
     return NextResponse.json({ reply });
   } catch {
     return NextResponse.json({ reply: '잠시 후 다시 시도해 주세요.' }, { status: 500 });

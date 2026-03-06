@@ -16,7 +16,6 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
@@ -25,4 +24,7 @@ COPY --from=builder /app/next.config.ts ./
 
 EXPOSE 3011
 ENV PORT=3011
+# 이미지 rewrite/프록시가 Docker 내부에서 backend:8011 로 가도록 기본값 설정 (docker-compose에서 덮어쓸 수 있음)
+ENV API_BASE_URL=http://backend:8011
+ENV BACKEND_URL=http://backend:8011
 CMD ["npm", "run", "start"]

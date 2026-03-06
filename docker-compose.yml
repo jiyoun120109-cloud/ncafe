@@ -1,25 +1,43 @@
-# DeplyGuid: 내부 포트 고정(backend=8011, frontend=3011, db=5432), 외부 포트는 .env
+# DeplyGuid: 내부 포트 고정(backend=8011, frontend=3011, db=5432, agent=8000), 외부 포트는 .env
 name: ${COMPOSE_PROJECT_NAME:-yun_ncafe}
 
 services:
+  agent-server:
+    build:
+      context: ./agent-server
+      dockerfile: Dockerfile
+    image: ${AGENT_IMAGE:-ncafe-agent:latest}
+    container_name: ${USER_ID:-yun}-agent
+    # GEMINI_API_KEY 등은 agent-server/.env 에서 로드 (도커에서도 키 인식)
+    env_file:
+      - ./agent-server/.env
+    restart: unless-stopped
+
   backend:
     image: ${BACKEND_IMAGE:-ncafe-backend:latest}
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: ${USER_ID:-yun}-backend
+    # BFF만 노출. 백엔드는 BFF가 내부(backend:8011)로만 호출
     # ports:
     #   - "${BACKEND_PORT:-8011}:8011"
     volumes:
       - /home/yun/upload:/app/upload
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb?currentSchema=public}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ncafe}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8011/api/categories >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
     depends_on:
       db:
         condition: service_healthy
@@ -36,12 +54,15 @@ services:
     ports:
       - "${FRONTEND_PORT:-3011}:3011"
     environment:
-      # 컨테이너 내부에서는 반드시 서비스 이름(backend)으로 접근. localhost 사용 시 ECONNREFUSED
       - API_BASE_URL=http://backend:8011
+      - AGENT_SERVER_URL=http://agent-server:8000
       - SESSION_SECRET=${SESSION_SECRET}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+      agent-server:
+        condition: service_started
     restart: unless-stopped
 
   db:
@@ -51,6 +72,7 @@ services:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # BFF만 노출. DB는 백엔드가 내부(db:5432)로만 접속
     # ports:
     #   - "${DB_PORT:-5511}:5432"
     volumes:

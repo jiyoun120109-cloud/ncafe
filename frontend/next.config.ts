@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next'
 
+// 모듈 로드 시점(서버 기동 시)에 백엔드 URL 고정 — rewrite/이미지 프록시가 동일한 값 사용
+const BACKEND_BASE =
+    process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
+
 const nextConfig: NextConfig = {
     images: {
         unoptimized: true,
@@ -9,9 +13,7 @@ const nextConfig: NextConfig = {
         ],
     },
     async rewrites() {
-        // 로컬: BACKEND_URL 또는 API_BASE_URL / 도커: API_BASE_URL=http://backend:8011
-        const raw = process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
-        const backendUrl = raw.replace(/\/$/, '');
+        const backendUrl = BACKEND_BASE.replace(/\/$/, '');
         return [
           {
             // BFF: /images/* → 백엔드 루트 (static-locations=file:./upload/ 가 경로 그대로 파일로 매핑)

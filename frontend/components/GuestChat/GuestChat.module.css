@@ -26,9 +26,8 @@
   bottom: 5rem;
   right: 1.5rem;
   z-index: 998;
-  width: 360px;
-  max-width: calc(100vw - 2rem);
-  height: 420px;
+  min-width: 280px;
+  min-height: 300px;
   background: var(--bg-primary);
   border-radius: var(--radius-xl);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
@@ -36,6 +35,7 @@
   flex-direction: column;
   overflow: hidden;
   animation: panelIn 0.2s ease;
+  resize: none;
 }
 @keyframes panelIn {
   from {
@@ -89,6 +89,7 @@
   border-radius: 1rem;
   font-size: var(--text-sm);
   line-height: 1.5;
+  white-space: pre-line; /* 봇 응답의 \n을 줄바꿈으로 표시 */
 }
 .msgUser .msgBubble {
   background: var(--color-primary-600);
@@ -101,21 +102,101 @@
   border: 1px solid var(--color-gray-200);
   border-bottom-left-radius: 4px;
 }
+.msgBubbleLoading {
+  animation: bubblePulse 1s ease-in-out infinite;
+}
+@keyframes bubblePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
 
 .panelForm {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--color-gray-200);
   background: var(--bg-primary);
+  position: relative;
+}
+.formRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--color-gray-500);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.iconBtn:hover:not(:disabled) {
+  color: var(--color-primary-600);
+  background: var(--color-gray-100);
+}
+.iconBtn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.fileInput {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 .input {
   flex: 1;
+  min-width: 0;
   padding: 0.6rem 1rem;
   border: 1px solid var(--color-gray-300);
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
   outline: none;
+}
+.emojiPicker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-height: 120px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.emojiItem {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.emojiItem:hover {
+  background: var(--color-gray-100);
 }
 .input:focus {
   border-color: var(--color-primary-500);
@@ -126,7 +207,8 @@
 }
 .input:disabled {
   background: var(--color-gray-100);
-  cursor: not-allowed;
+  opacity: 0.85;
+  cursor: wait; /* 대기 중일 때 딱딱한 금지 아이콘 대신 로딩 커서 */
 }
 .sendBtn {
   width: 40px;
@@ -145,5 +227,25 @@
 }
 .sendBtn:disabled {
   background: var(--color-gray-300);
-  cursor: not-allowed;
+  cursor: wait; /* 전송 대기 중에도 귀엽게 로딩 커서 */
+}
+
+/* 채팅창 크기 조절 핸들 (우하단) */
+.resizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-400);
+  cursor: nwse-resize;
+  border-radius: 0 0 var(--radius-xl) 0;
+  background: linear-gradient(135deg, transparent 50%, var(--color-gray-100) 50%);
+}
+.resizeHandle:hover {
+  color: var(--color-primary-600);
+  background: linear-gradient(135deg, transparent 50%, rgba(164, 117, 81, 0.15) 50%);
 }
