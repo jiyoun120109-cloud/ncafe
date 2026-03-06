@@ -50,6 +50,15 @@ async function proxyRequest(req: NextRequest) {
         body,
     });
 
+    // 백엔드 401(JWT 만료 등) 시 세션 제거 → 클라이언트가 다시 로그인하도록
+    if (proxyRes.status === 401 && session.token) {
+        try {
+            await session.destroy();
+        } catch {
+            // 세션 정리 실패해도 프록시 응답은 그대로 전달
+        }
+    }
+
     const responseHeaders = new Headers();
     const resContentType = proxyRes.headers.get('content-type');
     if (resContentType) responseHeaders.set('Content-Type', resContentType);

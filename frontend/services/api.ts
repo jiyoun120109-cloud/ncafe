@@ -15,8 +15,12 @@ export const getApiBase = () => {
     return `${appOrigin.replace(/\/$/, '')}/api`;
 };
 
+/** BFF 경유: getApiBase() + 경로만 전달 (예: /menus, /categories). 쿠키 자동 전송. */
 export const fetcher = async (url: string, options?: RequestInit) => {
-    const res = await fetch(`${getApiBase()}${url}`, options);
+    const res = await fetch(`${getApiBase()}${url}`, {
+        ...options,
+        credentials: 'same-origin',
+    });
     if (!res.ok) {
         throw new Error(`API Error: ${res.status} ${res.statusText}`);
     }
