@@ -23,9 +23,9 @@ jobs:
           echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
         env:
-          COMPOSE_PROJECT_NAME: ${{ secrets.COMPOSE_PROJECT_NAME }}
-          USER_ID: ${{ secrets.USER_ID }}
-          FRONTEND_PORT: ${{ secrets.FRONTEND_PORT }}
+          COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
+          USER_ID: ${{ vars.USER_ID }}
+          FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
