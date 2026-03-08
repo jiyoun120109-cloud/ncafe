@@ -15,6 +15,8 @@ import {
   Instagram,
   Check,
   Plus,
+  Menu,
+  X,
 } from "lucide-react";
 import HeaderAuth from "@/components/HeaderAuth";
 import styles from "./page.module.css";
@@ -63,32 +65,57 @@ const features = [
   },
 ];
 
-const menuItems = [
-  {
-    name: "시그니처 라떼",
-    desc: "부드러운 우유 거품과 에스프레소의 완벽한 조화",
-    price: "5,500원",
-    badge: "Best",
-    image:
-      "https://images.unsplash.com/photo-1534778101976-62847782c213?w=600&q=80",
-  },
-  {
-    name: "아보카도 브런치",
-    desc: "사워도우 위에 올린 신선한 아보카도와 포치드 에그",
-    price: "13,800원",
-    badge: "New",
-    image:
-      "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80",
-  },
-  {
-    name: "크루아상 플레이트",
-    desc: "갓 구운 버터 크루아상과 수제 잼, 계절 과일",
-    price: "9,200원",
-    badge: "Popular",
-    image:
-      "https://images.unsplash.com/photo-1555507036-ab1f4038024a?w=600&q=80",
-  },
-];
+const SHOWCASE_BADGES = ["추천", "NEW", "인기"] as const;
+
+/** 카테고리명을 음료/빵/기타로 그룹화 */
+function menuGroup(categoryName: string): "음료" | "빵" | "기타" {
+  const n = (categoryName ?? "").toLowerCase();
+  if (/커피|음료|티|라떼|에스프레소|주스|스무디|ade|tea|coffee|drink/i.test(n)) return "음료";
+  if (/빵|베이커리|케이크|크루아상|토스트|샌드위치|bread|bakery|pastry/i.test(n)) return "빵";
+  return "기타";
+}
+
+interface ShowcaseMenu {
+  id: number;
+  korName: string;
+  description: string;
+  price: number;
+  categoryName: string;
+  imageSrc: string;
+  badge: (typeof SHOWCASE_BADGES)[number];
+}
+
+function menuImageUrl(imageSrc: string | null | undefined): string {
+  if (!imageSrc?.trim()) return "";
+  if (imageSrc.startsWith("http")) return imageSrc;
+  const filename = imageSrc.replace(/^.*\//, "").trim() || "missing";
+  return `/images/${filename}`;
+}
+
+/** 메뉴 목록에서 음료·빵·기타 각 1개씩 뽑고 배지 부여 */
+function pickShowcaseMenus(menus: Omit<ShowcaseMenu, "badge">[]): ShowcaseMenu[] {
+  const groups: { 음료: typeof menus; 빵: typeof menus; 기타: typeof menus } = {
+    음료: [],
+    빵: [],
+    기타: [],
+  };
+  menus.forEach((m) => {
+    const g = menuGroup(m.categoryName);
+    groups[g].push(m);
+  });
+  const order: ("음료" | "빵" | "기타")[] = ["음료", "빵", "기타"];
+  const result: ShowcaseMenu[] = [];
+  order.forEach((key, i) => {
+    const first = groups[key][0];
+    if (first) result.push({ ...first, badge: SHOWCASE_BADGES[i] ?? "추천" });
+  });
+  while (result.length < 3 && menus.length > 0) {
+    const next = menus.find((m) => !result.some((r) => r.id === m.id));
+    if (!next) break;
+    result.push({ ...next, badge: SHOWCASE_BADGES[result.length] ?? "추천" });
+  }
+  return result.slice(0, 3);
+}
 
 const aboutFeatures = [
   "스페셜티 등급 원두",
@@ -127,6 +154,8 @@ function AnimatedSection({
 /* ================================================================== */
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showcaseMenus, setShowcaseMenus] = useState<ShowcaseMenu[]>([]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -134,11 +163,28 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/menus")
+      .then((res) => res.ok ? res.json() : Promise.resolve({ menus: [] }))
+      .then((data: { menus?: Omit<ShowcaseMenu, "badge">[] }) => {
+        if (cancelled) return;
+        const list = data.menus ?? [];
+        setShowcaseMenus(pickShowcaseMenus(list));
+      })
+      .catch(() => {
+        if (!cancelled) setShowcaseMenus([]);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
     <>
       {/* ============== Navigation ============== */}
       <nav
-        className={`${styles.nav} ${scrolled ? styles.navScrolled : ""}`}
+        className={`${styles.nav} ${scrolled ? styles.navScrolled : ""} ${mobileMenuOpen ? styles.navMobileOpen : ""}`}
         id="nav"
       >
         <a
@@ -149,37 +195,60 @@ export default function Home() {
           <span className={styles.navBrandText}>Cafe</span>
         </a>
 
+        <button
+          type="button"
+          className={styles.navMobileTrigger}
+          onClick={() => setMobileMenuOpen((o) => !o)}
+          aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
         <div className={styles.navLinks}>
           <a
             href="#features"
             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
+            onClick={closeMobileMenu}
           >
             About
           </a>
           <Link
             href="/menus"
             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
+            onClick={closeMobileMenu}
           >
             Menu
           </Link>
           <a
             href="#about"
             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
+            onClick={closeMobileMenu}
           >
             Story
           </a>
           <HeaderAuth
+            compact
+            wrapperClassName={scrolled ? styles.navLinkScrolled : ""}
             loginLinkClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
             authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
           />
           <a
             href="#visit"
             className={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ""}`}
+            onClick={closeMobileMenu}
           >
             Reserve
           </a>
         </div>
       </nav>
+
+      {/* 모바일 슬라이딩 메뉴: 오버레이 (클릭 시 닫기) */}
+      <div
+        className={`${styles.navOverlay} ${mobileMenuOpen ? styles.navOverlayOpen : ""}`}
+        onClick={closeMobileMenu}
+        aria-hidden
+      />
 
       {/* ============== Hero Section ============== */}
       <section className={styles.hero} id="hero">
@@ -306,33 +375,79 @@ export default function Home() {
         </div>
 
         <div className={styles.menuGrid}>
-          {menuItems.map((item, i) => (
-            <motion.div
-              key={item.name}
-              className={styles.menuCard}
-              variants={scaleIn}
-              custom={i}
-            >
-              <div className={styles.menuCardImage}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image} alt={item.name} loading="lazy" />
-                <span className={styles.menuCardBadge}>{item.badge}</span>
-              </div>
-              <div className={styles.menuCardBody}>
-                <h3 className={styles.menuCardName}>{item.name}</h3>
-                <p className={styles.menuCardDesc}>{item.desc}</p>
-                <div className={styles.menuCardFooter}>
-                  <span className={styles.menuCardPrice}>{item.price}</span>
-                  <button
-                    className={styles.menuCardAction}
-                    aria-label={`${item.name} 담기`}
-                  >
-                    <Plus size={16} />
-                  </button>
+          {showcaseMenus.length === 0 ? (
+            [...Array(3)].map((_, i) => (
+              <motion.div
+                key={`skeleton-${i}`}
+                className={styles.menuCard}
+                variants={scaleIn}
+                custom={i}
+              >
+                <div className={styles.menuCardImage}>
+                  <div className={styles.menuCardImagePlaceholder} />
                 </div>
-              </div>
-            </motion.div>
-          ))}
+                <div className={styles.menuCardBody}>
+                  <h3 className={styles.menuCardName}>메뉴를 불러오는 중</h3>
+                  <p className={styles.menuCardDesc}>...</p>
+                  <div className={styles.menuCardFooter}>
+                    <span className={styles.menuCardPrice}>-</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            showcaseMenus.map((menu, i) => {
+              const imgUrl = menuImageUrl(menu.imageSrc);
+              return (
+                <motion.div
+                  key={menu.id}
+                  className={styles.menuCard}
+                  variants={scaleIn}
+                  custom={i}
+                >
+                  <div className={styles.menuCardImage}>
+                    {imgUrl ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={imgUrl}
+                        alt={menu.korName}
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                          const placeholder = (e.target as HTMLImageElement).nextElementSibling;
+                          if (placeholder) (placeholder as HTMLElement).style.display = "flex";
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className={styles.menuCardImagePlaceholder}
+                      style={{ display: imgUrl ? "none" : "flex" }}
+                    >
+                      이미지 없음
+                    </div>
+                    <span className={styles.menuCardBadge}>{menu.badge}</span>
+                  </div>
+                  <div className={styles.menuCardBody}>
+                    <h3 className={styles.menuCardName}>{menu.korName}</h3>
+                    <p className={styles.menuCardDesc}>{menu.description || ""}</p>
+                    <div className={styles.menuCardFooter}>
+                      <span className={styles.menuCardPrice}>
+                        {menu.price.toLocaleString()}원
+                      </span>
+                      <Link
+                        href={`/menus/${menu.id}`}
+                        className={styles.menuCardAction}
+                        aria-label={`${menu.korName} 상세보기`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Plus size={16} />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </AnimatedSection>
 
@@ -451,7 +566,7 @@ export default function Home() {
             </span>
           </motion.div>
           <motion.div variants={fadeUp} custom={3}>
-            <a href="#" className={styles.ctaButton}>
+            <a href="#visit" className={styles.ctaButton}>
               <MapPin size={16} />
               Find Us
             </a>
@@ -475,16 +590,16 @@ export default function Home() {
 
           <div>
             <h4 className={styles.footerColumnTitle}>메뉴</h4>
-            <a href="#" className={styles.footerLink}>커피</a>
-            <a href="#" className={styles.footerLink}>브런치</a>
-            <a href="#" className={styles.footerLink}>디저트</a>
-            <a href="#" className={styles.footerLink}>음료</a>
+            <Link href="/menus?category=커피" className={styles.footerLink}>커피</Link>
+            <Link href="/menus?category=브런치" className={styles.footerLink}>브런치</Link>
+            <Link href="/menus?category=디저트" className={styles.footerLink}>디저트</Link>
+            <Link href="/menus?category=음료" className={styles.footerLink}>음료</Link>
           </div>
 
           <div>
             <h4 className={styles.footerColumnTitle}>안내</h4>
-            <a href="#" className={styles.footerLink}>매장 위치</a>
-            <a href="#" className={styles.footerLink}>영업 시간</a>
+            <Link href="/#visit" className={styles.footerLink}>매장 위치</Link>
+            <Link href="/#visit" className={styles.footerLink}>영업 시간</Link>
             <a href="#" className={styles.footerLink}>이벤트</a>
             <a href="#" className={styles.footerLink}>채용</a>
           </div>

@@ -4,6 +4,7 @@ import com.new_cafe.app.backend.admin.menu.application.port.in.AdminMenuUseCase;
 import com.new_cafe.app.backend.admin.menu.application.command.CreateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.UpdateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.DeleteMenuCommand;
+import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenusCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.MenuListCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuImageListCommand;
@@ -14,6 +15,7 @@ import com.new_cafe.app.backend.admin.menu.application.result.CreateMenuResult;
 import com.new_cafe.app.backend.admin.menu.application.result.UpdateMenuResult;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.CreateMenuRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.MenuListRequestDto;
+import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.ReorderMenusRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.UpdateMenuRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.CreateMenuResponseDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.MenuDetailResponseDto;
@@ -92,6 +94,14 @@ public class AdminMenuController {
         adminMenuUseCase.deleteMenu(command);
     }
 
+    @PutMapping("/reorder")
+    public void reorderMenus(@RequestBody ReorderMenusRequestDto request) {
+        ReorderMenusCommand command = ReorderMenusCommand.builder()
+                .orderedIds(request.getOrderedIds() != null ? request.getOrderedIds() : java.util.Collections.emptyList())
+                .build();
+        adminMenuUseCase.reorderMenus(command);
+    }
+
     @GetMapping("/{id}")
     public MenuDetailResponseDto getMenu(@PathVariable Long id) {
         GetMenuCommand command = GetMenuCommand.builder()
@@ -100,12 +110,13 @@ public class AdminMenuController {
 
         GetMenuResult result = adminMenuUseCase.getMenu(command);
         return MenuDetailResponseDto.builder()
-                .id(result.getId())
-                .korName(result.getKorName())
-                .engName(result.getEngName())
-                .description(result.getDescription())
-                .price(result.getPrice())
-                .categoryName(result.getCategoryName())
+            .id(result.getId())
+            .korName(result.getKorName())
+            .engName(result.getEngName())
+            .categoryId(result.getCategoryId())
+            .description(result.getDescription())
+            .price(result.getPrice())
+            .categoryName(result.getCategoryName())
                 .isAvailable(result.getIsAvailable())
                 .createdAt(result.getCreatedAt())
                 .updatedAt(result.getUpdatedAt())

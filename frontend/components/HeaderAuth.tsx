@@ -12,13 +12,17 @@ type HeaderAuthProps = {
     loginLinkClassName?: string;
     /** 로그인 시 사용자명·로그아웃 버튼에 적용할 클래스 */
     authClassName?: string;
+    /** true면 관리자 헤더처럼 아바타+아이디+로그아웃 버튼 분리 표시 */
+    compact?: boolean;
+    /** compact일 때 wrapper에 추가할 클래스 (예: 스크롤 시 색상) */
+    wrapperClassName?: string;
 };
 
 /**
  * 헤더용 로그인 상태 표시
  * - 마운트 시 세션 확인 후 로그인 시 사용자명 + 로그아웃, 비로그인 시 로그인 링크 표시
  */
-export default function HeaderAuth({ loginLinkClassName = '', authClassName = '' }: HeaderAuthProps) {
+export default function HeaderAuth({ loginLinkClassName = '', authClassName = '', compact = false, wrapperClassName = '' }: HeaderAuthProps) {
     const router = useRouter();
     const { user, setUser, clearUser } = useAuthStore();
     const [checked, setChecked] = useState(false);
@@ -48,10 +52,31 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
     }
 
     if (user) {
+        const displayName = compact ? (user.username ?? user.name ?? '') : (user.name || user.username);
+        if (compact) {
+            return (
+                <span className={`${styles.compactWrapper} ${wrapperClassName}`.trim()}>
+                    <span className={styles.avatar} aria-hidden>
+                        {(user.username ?? user.name ?? '?')[0].toUpperCase()}
+                    </span>
+                    <span className={`${styles.userName} ${authClassName}`.trim()}>
+                        {displayName}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className={styles.logoutBtnCompact}
+                        title="로그아웃"
+                    >
+                        로그아웃
+                    </button>
+                </span>
+            );
+        }
         return (
             <span className={styles.wrapper}>
                 <span className={`${styles.userName} ${authClassName}`.trim()}>
-                    {user.name || user.username}
+                    {displayName}
                 </span>
                 <button
                     type="button"

@@ -17,31 +17,43 @@ export function useUserCategories() {
 
     useEffect(() => {
         let cancelled = false;
-        Promise.all([fetcher('/categories'), fetcher('/menus')])
+        Promise.all([
+            fetcher('/categories').catch(() => ({ categories: [] })),
+            fetcher('/menus').catch(() => ({ menus: [], total: 0 })),
+        ])
             .then(([catData, menusData]) => {
                 if (cancelled) return;
                 const menus = (menusData as { menus?: { categoryName?: string }[] }).menus ?? [];
                 const counts: Record<string, number> = {};
                 menus.forEach((menu: { categoryName?: string }) => {
-                    const key = menu.categoryName ?? 'unknown';
-                    counts[key] = (counts[key] ?? 0) + 1;
+                    const key = (menu.categoryName ?? 'unknown').trim();
+                    if (key) counts[key] = (counts[key] ?? 0) + 1;
                 });
-                const catList = (catData as { categories?: unknown }).categories;
-                const raw = Array.isArray(catList)
-                    ? catList
-                    : Array.isArray(catData)
-                        ? catData
-                        : [];
-                const mapped: UserCategoryItem[] = raw.map((c: { id: number; name?: string; korName?: string; icon?: string; sortOrder?: number }) => {
-                    const name = typeof c.name === 'string' ? c.name : c.korName ?? '';
+                type RawCategory = { id?: number; name?: string; korName?: string; icon?: string; sortOrder?: number };
+                const catList = (catData as { categories?: unknown[] }).categories;
+                const raw: RawCategory[] = Array.isArray(catList) ? (catList as RawCategory[]) : [];
+                let mapped: UserCategoryItem[] = raw.map((c) => {
+                    const id = typeof c.id === 'number' ? c.id : Number(c.id) || 0;
+                    const name = (typeof c.name === 'string' ? c.name : c.korName ?? '').trim();
                     return {
-                        id: c.id,
+                        id,
                         name,
                         icon: c.icon ?? '',
                         sortOrder: c.sortOrder ?? 0,
                         menuCount: counts[name] ?? 0,
                     };
                 });
+                if (mapped.length === 0 && Object.keys(counts).length > 0) {
+                    const names = Object.keys(counts).sort();
+                    mapped = names.map((name, idx) => ({
+                        id: idx + 1,
+                        name,
+                        icon: '',
+                        sortOrder: idx,
+                        menuCount: counts[name] ?? 0,
+                    }));
+                }
+                mapped = mapped.filter((c) => c.name);
                 setCategories(mapped);
                 setTotalCount((menusData as { total?: number }).total ?? menus.length);
             })

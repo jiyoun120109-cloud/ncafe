@@ -35,9 +35,18 @@ export default function GuestChat() {
   const [sending, setSending] = useState(false);
   const [panelSize, setPanelSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)');
+    const update = () => setIsMobileView(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     if (open && listRef.current) {
@@ -167,8 +176,8 @@ export default function GuestChat() {
 
       {open && (
         <div
-          className={styles.panel}
-          style={{ width: panelSize.width, height: panelSize.height }}
+          className={`${styles.panel} ${isMobileView ? styles.panelMobile : ''}`}
+          style={isMobileView ? undefined : { width: panelSize.width, height: panelSize.height }}
         >
           <div className={styles.panelHeader}>
             <span className={styles.panelTitle}>NCafe 문의</span>
@@ -258,13 +267,15 @@ export default function GuestChat() {
               </button>
             </div>
           </form>
-          <div
-            className={styles.resizeHandle}
-            onMouseDown={handleResizeStart}
-            aria-label="창 크기 조절"
-          >
-            <GripHorizontal size={16} />
-          </div>
+          {!isMobileView && (
+            <div
+              className={styles.resizeHandle}
+              onMouseDown={handleResizeStart}
+              aria-label="창 크기 조절"
+            >
+              <GripHorizontal size={16} />
+            </div>
+          )}
         </div>
       )}
     </>

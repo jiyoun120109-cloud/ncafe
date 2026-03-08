@@ -17,6 +17,7 @@ public class MenuDetailResponseDto {
     private Long id;
     private String korName;
     private String engName;
+    private Long categoryId;
     private String categoryName;
     private Integer price;
     private Boolean isAvailable;

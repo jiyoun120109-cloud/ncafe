@@ -63,6 +63,79 @@
     to { transform: rotate(360deg); }
 }
 
+/* ── 페이지네이션 ── */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.pageBtn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--color-gray-700);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.pageBtn:hover:not(:disabled) {
+    background: var(--color-gray-50);
+    border-color: var(--color-primary-500);
+    color: var(--color-primary-600);
+}
+
+.pageBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pageNumbers {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pageNum {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-gray-700);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.pageNum:hover {
+    background: var(--color-gray-50);
+    border-color: var(--color-primary-400);
+    color: var(--color-primary-600);
+}
+
+.pageNumActive {
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-600);
+    color: #fff;
+}
+
+.pageNumActive:hover {
+    background: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+    color: #fff;
+}
+
 /* ── 반응형 ── */
 @media (max-width: 640px) {
     .grid {

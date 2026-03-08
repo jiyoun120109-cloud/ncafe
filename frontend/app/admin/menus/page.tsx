@@ -8,40 +8,42 @@ import MenuToolbar from './_components/MenuToolbar';
 import CategoryTabs from './_components/CategoryTabs';
 import styles from './page.module.css';
 
+const PAGE_SIZE = 12;
+
 export default function AdminMenusPage() {
     const { setTitle } = useUIStore();
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
 
     useEffect(() => { setTitle('메뉴 관리'); }, [setTitle]);
+    useEffect(() => { setPage(1); }, [selectedCategory, searchQuery]);
 
     return (
         <div className={styles.page}>
-            {/* 페이지 헤더 — 대시보드와 동일한 패턴 */}
             <div className={styles.pageHeader}>
                 <p className={styles.pageLabel}>Menu Management</p>
                 <h2 className={styles.pageTitle}>메뉴 관리</h2>
             </div>
 
-            {/* 구분선 */}
             <div className={styles.divider} />
 
-            {/* 툴바 */}
             <MenuToolbar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
             />
 
-            {/* 카테고리 탭 */}
             <CategoryTabs
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
             />
 
-            {/* 메뉴 그리드 */}
             <MenuList
                 selectedCategory={selectedCategory}
                 searchQuery={searchQuery}
+                page={page}
+                onPageChange={setPage}
+                pageSize={PAGE_SIZE}
             />
         </div>
     );

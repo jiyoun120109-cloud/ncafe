@@ -52,6 +52,35 @@
   color: #1a1a1a;
 }
 
+.navMobileTrigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.navMobileTrigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.navScrolled .navMobileTrigger {
+  color: #1a1a1a;
+}
+.navScrolled .navMobileTrigger:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* 모바일 슬라이딩 메뉴용 오버레이 (768px 이하에서만 사용) */
+.navOverlay {
+  display: none;
+}
+
 .navLinks {
   display: flex;
   gap: 2.5rem;
@@ -478,6 +507,17 @@
   transition: transform 0.6s ease;
 }
 
+.menuCardImagePlaceholder {
+  position: absolute;
+  inset: 0;
+  background: var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+}
+
 .menuCard:hover .menuCardImage img {
   transform: scale(1.08);
 }
@@ -534,6 +574,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
+  text-decoration: none;
   transition: all 0.3s ease;
 }
 
@@ -902,15 +943,110 @@
 
 @media (max-width: 768px) {
   .nav {
-    padding: 1rem 1.5rem;
+    padding: 0.875rem 1rem;
+    min-height: 56px;
   }
 
   .navScrolled {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
   }
 
-  .navLinks {
+  .navMobileTrigger {
+    display: flex;
+    order: 1;
+    position: relative;
+    z-index: 101;
+  }
+
+  .navBrand {
+    order: 0;
+    position: relative;
+    z-index: 101;
+  }
+
+  /* 오버레이: 클릭 시 메뉴 닫기 */
+  .navOverlay {
     display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    transition: opacity 0.25s ease;
+  }
+  .navOverlay.navOverlayOpen {
+    display: block;
+  }
+
+  /* 슬라이딩 드로어: 오른쪽에서 슬라이드 */
+  .navLinks {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: auto;
+    bottom: 0;
+    width: min(280px, 85vw);
+    max-width: 280px;
+    background: #2a2825;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 5rem 0 2rem;
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .navMobileOpen .navLinks {
+    transform: translateX(0);
+  }
+
+  .navMobileOpen .navLink,
+  .navMobileOpen .navLinkScrolled,
+  .navMobileOpen .navCta,
+  .navMobileOpen .navCtaScrolled {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    padding: 0.85rem 1.5rem;
+    letter-spacing: 0.06em;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: left;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .navMobileOpen .navLink::after,
+  .navMobileOpen .navLinkScrolled::after {
+    display: none;
+  }
+
+  .navMobileOpen .navCta,
+  .navMobileOpen .navCtaScrolled {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    width: calc(100% - 3rem);
+    padding: 0.75rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+  }
+
+  .navMobileOpen .navCta:hover,
+  .navMobileOpen .navCtaScrolled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  /* 드로어 열렸을 때 상단 브랜드/버튼 색은 헤더 배경과 무관하게 유지 (오버레이 위에 보임) */
+  .navMobileOpen .navBrand,
+  .navMobileOpen .navBrandScrolled {
+    color: #fff;
+  }
+
+  .navMobileOpen .navMobileTrigger {
+    color: #fff;
   }
 
   .featuresGrid {
@@ -968,5 +1104,43 @@
 
   .section {
     padding: 4.5rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav {
+    padding: 0.75rem 0.875rem;
+  }
+  .navBrandMark { font-size: 1.65rem; }
+  .navBrandText { font-size: 1.45rem; }
+  .heroContent {
+    padding: 0 1rem;
+  }
+  .heroTagline {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+  }
+  .heroDescription br {
+    display: none;
+  }
+  .heroButtons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+  .section {
+    padding: 3.5rem 1rem;
+  }
+  .sectionHeader {
+    margin-bottom: 2.5rem;
+  }
+  .footer {
+    padding: 2.5rem 1rem 1.5rem;
   }
 }

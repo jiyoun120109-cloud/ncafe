@@ -4,6 +4,7 @@ import com.new_cafe.app.backend.admin.menu.application.port.in.*;
 import com.new_cafe.app.backend.admin.menu.application.command.CreateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.UpdateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.DeleteMenuCommand;
+import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenusCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.MenuListCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuImageListCommand;
@@ -67,12 +68,14 @@ public class AdminMenuService implements AdminMenuUseCase {
             throw new IllegalArgumentException("Menu not found with id: " + command.getId());
         }
         
+        Long categoryId = menu.getCategory() != null ? menu.getCategory().getId() : null;
         String categoryName = menu.getCategory() != null ? menu.getCategory().getName() : "";
         
         return GetMenuResult.builder()
             .id(menu.getId())
             .korName(menu.getKorName())
             .engName(menu.getEngName())
+            .categoryId(categoryId)
             .description(menu.getDescription())
             .price(menu.getPrice())
             .categoryName(categoryName)
@@ -109,9 +112,26 @@ public class AdminMenuService implements AdminMenuUseCase {
      */
     @Override
     public UpdateMenuResult updateMenu(UpdateMenuCommand command) {
-        // 메뉴 수정 로직 구현
-        // TODO: 기존 메뉴 조회 후 업데이트
-        throw new UnsupportedOperationException("Update menu not yet implemented");
+        AdminMenu existing = adminMenuRepositoryPort.findById(command.getId());
+        if (existing == null) {
+            throw new IllegalArgumentException("Menu not found with id: " + command.getId());
+        }
+        AdminMenu toSave = AdminMenu.builder()
+            .id(existing.getId())
+            .korName(command.getKorName() != null ? command.getKorName() : existing.getKorName())
+            .engName(command.getEngName() != null ? command.getEngName() : existing.getEngName())
+            .description(command.getDescription() != null ? command.getDescription() : existing.getDescription())
+            .price(command.getPrice() != null ? command.getPrice() : existing.getPrice())
+            .categoryId(command.getCategoryId() != null ? command.getCategoryId() : existing.getCategoryId())
+            .category(existing.getCategory())
+            .isAvailable(command.getIsAvailable() != null ? command.getIsAvailable() : existing.getIsAvailable())
+            .isSoldOut(existing.getIsSoldOut())
+            .sortOrder(existing.getSortOrder())
+            .createdAt(existing.getCreatedAt())
+            .updatedAt(existing.getUpdatedAt())
+            .build();
+        adminMenuRepositoryPort.save(toSave);
+        return UpdateMenuResult.builder().id(toSave.getId()).build();
     }
 
     /**
@@ -119,9 +139,41 @@ public class AdminMenuService implements AdminMenuUseCase {
      */
     @Override
     public void deleteMenu(DeleteMenuCommand command) {
-        // 메뉴 삭제 로직 구현
-        // TODO: menuRepositoryPort.deleteById() 호출하여 메뉴 삭제
-        throw new UnsupportedOperationException("Delete menu not yet implemented");
+        if (adminMenuRepositoryPort.findById(command.getId()) == null) {
+            throw new IllegalArgumentException("Menu not found with id: " + command.getId());
+        }
+        adminMenuRepositoryPort.deleteById(command.getId());
+    }
+
+    /**
+     * 메뉴 정렬 순서 변경
+     */
+    @Override
+    public void reorderMenus(ReorderMenusCommand command) {
+        if (command.getOrderedIds() == null || command.getOrderedIds().isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < command.getOrderedIds().size(); i++) {
+            Long id = command.getOrderedIds().get(i);
+            AdminMenu menu = adminMenuRepositoryPort.findById(id);
+            if (menu != null) {
+                AdminMenu toSave = AdminMenu.builder()
+                    .id(menu.getId())
+                    .korName(menu.getKorName())
+                    .engName(menu.getEngName())
+                    .description(menu.getDescription())
+                    .price(menu.getPrice())
+                    .categoryId(menu.getCategoryId())
+                    .category(menu.getCategory())
+                    .isAvailable(menu.getIsAvailable())
+                    .isSoldOut(menu.getIsSoldOut())
+                    .sortOrder(i)
+                    .createdAt(menu.getCreatedAt())
+                    .updatedAt(menu.getUpdatedAt())
+                    .build();
+                adminMenuRepositoryPort.save(toSave);
+            }
+        }
     }
 
     /**

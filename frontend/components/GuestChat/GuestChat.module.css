@@ -249,3 +249,25 @@
   color: var(--color-primary-600);
   background: linear-gradient(135deg, transparent 50%, rgba(164, 117, 81, 0.15) 50%);
 }
+
+/* 모바일: 챗봇 열면 화면 전체 사용 */
+.panel.panelMobile {
+  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0;
+}
+
+@media (max-width: 768px) {
+  .fab {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    right: max(1rem, env(safe-area-inset-right));
+  }
+}

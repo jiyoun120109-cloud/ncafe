@@ -7,6 +7,7 @@
     background: var(--color-primary-50);
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* ================================================================
@@ -70,6 +71,36 @@
 
 .brandScrolled {
     color: #1a1a1a;
+}
+
+/* 모바일 햄버거 — 768px 이하에서 표시 */
+.navMobileTrigger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+.navMobileTrigger:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.headerScrolled .navMobileTrigger {
+    color: #1a1a1a;
+}
+.headerScrolled .navMobileTrigger:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* 모바일 슬라이딩 메뉴용 오버레이 */
+.navOverlay {
+    display: none;
 }
 
 /* 네비 링크 — 루트 navLink 동일 */
@@ -299,17 +330,92 @@
 }
 
 @media (max-width: 768px) {
-    .headerInner { padding: 1rem 1.25rem; }
-    .headerScrolled .headerInner { padding: 0.75rem 1.25rem; }
-    .navLinks { gap: 1.5rem; }
+    .headerInner {
+        padding: 0.875rem 1rem;
+        min-height: 56px;
+    }
+    .headerScrolled .headerInner { padding: 0.75rem 1rem; }
+    .navMobileTrigger {
+        display: flex;
+        position: relative;
+        z-index: 101;
+    }
+    .brand { position: relative; z-index: 101; }
+    .navOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        transition: opacity 0.25s ease;
+    }
+    .navOverlay.navOverlayOpen {
+        display: block;
+    }
+    .navLinks {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: auto;
+        bottom: 0;
+        width: min(280px, 85vw);
+        max-width: 280px;
+        background: #2a2825;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 0;
+        padding: 5rem 0 2rem;
+        z-index: 100;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    }
+    .headerMobileOpen .navLinks {
+        transform: translateX(0);
+    }
+    .headerMobileOpen .navLink,
+    .headerMobileOpen .navLinkScrolled,
+    .headerMobileOpen .navCta,
+    .headerMobileOpen .navCtaScrolled {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        padding: 0.85rem 1.5rem;
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        text-align: left;
+        width: 100%;
+    }
+    .headerMobileOpen .navLink::after,
+    .headerMobileOpen .navLinkScrolled::after { display: none; }
+    .headerMobileOpen .navCta,
+    .headerMobileOpen .navCtaScrolled {
+        margin-top: 0.5rem;
+        margin-left: 1.5rem;
+        margin-right: 1.5rem;
+        width: calc(100% - 3rem);
+        padding: 0.75rem 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+    }
+    .headerMobileOpen .navCta:hover,
+    .headerMobileOpen .navCtaScrolled:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+    .headerMobileOpen .brand,
+    .headerMobileOpen .brandScrolled { color: #fff; }
+    .headerMobileOpen .navMobileTrigger { color: #fff; }
     .heroBanner { height: 260px; }
-    .body { padding: 2rem 1.25rem 3rem; }
-    .footer { padding: 1.25rem; }
+    .body { padding: 2rem 1rem 2.5rem; }
+    .footer { padding: 1.25rem 1rem; }
     .footerInner { flex-direction: column; gap: 0.5rem; text-align: center; }
 }
 
 @media (max-width: 480px) {
-    .navLinks { gap: 1rem; }
-    .navLink { font-size: 0.7rem; letter-spacing: 0.08em; }
-    .navCta { padding: 0.4rem 1rem; font-size: 0.7rem; }
+    .heroBanner { height: 220px; }
+    .heroBannerContent { padding: 0 1rem; }
+    .bannerTitle { font-size: clamp(1.5rem, 6vw, 2rem); }
+    .bannerDesc { font-size: 0.8rem; }
+    .body { padding: 1.5rem 0.75rem 2rem; }
 }

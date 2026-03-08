@@ -7,6 +7,8 @@
     grid-template-columns: 200px 1fr;
     gap: 2rem;
     align-items: start;
+    max-width: 100%;
+    min-width: 0;
 }
 
 /* ================================================================
@@ -60,17 +62,42 @@
 
     .aside {
         position: static;
-        padding: 1rem 1rem 0.875rem;
+        padding: 1rem 0.875rem 0.75rem;
+        min-width: 0;
     }
 
     .asideTitle {
         display: none;
     }
+
+    .main {
+        min-width: 0;
+    }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+    .pageLayout {
+        gap: 1rem;
+    }
+
+    .aside {
+        padding: 0.75rem 0.5rem 0.5rem;
+        min-width: 0;
+    }
+
     .mainHeader {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pageLayout {
+        gap: 0.875rem;
+    }
+
+    .aside {
+        padding: 0.625rem 0.25rem 0.25rem;
     }
 }

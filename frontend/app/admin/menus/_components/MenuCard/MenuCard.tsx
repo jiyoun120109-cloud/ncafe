@@ -3,8 +3,10 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Edit2, Trash2, GripVertical, AlertTriangle } from 'lucide-react';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal/DeleteConfirmModal';
 import styles from './MenuCard.module.css';
 import { MenuResponse } from '../MenuList/useMenus';
+import { getApiBase } from '@/services/api';
 
 function isValidImageUrl(url: string | null | undefined): boolean {
     if (!url?.trim()) return false;
@@ -37,14 +39,74 @@ function imageSrc(url: string | null | undefined): string {
 
 interface MenuCardProps {
     menu: MenuResponse;
+    onUpdated?: () => void;
+    /** DND: attach to drag handle (from useSortable) */
+    dragHandleProps?: {
+        listeners?: Record<string, unknown> | undefined;
+        attributes?: Record<string, unknown>;
+    };
 }
 
-export default function MenuCard({ menu }: MenuCardProps) {
+export default function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardProps) {
     const router = useRouter();
     const [imgError, setImgError] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const handleCardClick = () => {
         router.push(`/admin/menus/${menu.id}`);
+    };
+
+    const handleToggleAvailability = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            const res = await fetch(`${getApiBase()}/admin/menus/${menu.id}`, { credentials: 'include' });
+            if (!res.ok) throw new Error('메뉴 정보를 불러올 수 없습니다.');
+            const detail = await res.json();
+            const next = !detail.isAvailable;
+            const putRes = await fetch(`${getApiBase()}/admin/menus/${menu.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    korName: detail.korName,
+                    engName: detail.engName,
+                    description: detail.description,
+                    price: detail.price,
+                    categoryId: detail.categoryId,
+                    isAvailable: next,
+                }),
+            });
+            if (!putRes.ok) throw new Error('품절 상태 변경에 실패했습니다.');
+            onUpdated?.();
+        } catch (err) {
+            console.error(err);
+            alert(err instanceof Error ? err.message : '품절 상태 변경에 실패했습니다.');
+        }
+    };
+
+    const handleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        router.push(`/admin/menus/${menu.id}/edit`);
+    };
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setDeleteModalOpen(true);
+    };
+
+    const handleDeleteConfirm = async () => {
+        try {
+            const res = await fetch(`${getApiBase()}/admin/menus/${menu.id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+            if (!res.ok) throw new Error('삭제에 실패했습니다.');
+            onUpdated?.();
+        } catch (err) {
+            console.error(err);
+            alert(err instanceof Error ? err.message : '삭제에 실패했습니다.');
+            throw err;
+        }
     };
 
     const showPlaceholder = !menu.imageSrc || imgError || !isValidImageUrl(menu.imageSrc);
@@ -60,6 +122,8 @@ export default function MenuCard({ menu }: MenuCardProps) {
                 <div
                     className={styles.dragHandle}
                     onClick={(e) => e.stopPropagation()}
+                    {...(dragHandleProps?.listeners ?? {})}
+                    {...(dragHandleProps?.attributes ?? {})}
                 >
                     <GripVertical size={18} />
                 </div>
@@ -102,9 +166,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
 
                     {/* Footer Section */}
                     <div className={styles.footer}>
-                        <div className={styles.statusToggle} onClick={(e) => {
-                            e.stopPropagation();
-                        }}>
+                        <div className={styles.statusToggle} onClick={handleToggleAvailability}>
                             <div className={`${styles.toggleSwitch} ${menu.isAvailable ? styles.active : ''}`}>
                                 <div className={styles.toggleHandle} />
                             </div>
@@ -118,9 +180,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 className={styles.actionBtn}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
+                                onClick={handleEdit}
                                 title="수정"
                             >
                                 <Edit2 size={16} />
@@ -129,9 +189,7 @@ export default function MenuCard({ menu }: MenuCardProps) {
                                 whileHover={{ scale: 1.1, color: 'var(--color-error-600)' }}
                                 whileTap={{ scale: 0.9 }}
                                 className={`${styles.actionBtn} ${styles.deleteBtn}`}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
+                                onClick={handleDeleteClick}
                                 title="삭제"
                             >
                                 <Trash2 size={16} />
@@ -140,6 +198,14 @@ export default function MenuCard({ menu }: MenuCardProps) {
                     </div>
                 </div>
             </motion.div>
+
+            <DeleteConfirmModal
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleDeleteConfirm}
+                title="메뉴 삭제"
+                message={`"${menu.korName}" 메뉴를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`}
+            />
         </div>
     );
 }

@@ -6,4 +6,6 @@ import java.util.List;
 public interface AdminMenuRepositoryPort {
     List<AdminMenu> findAllByCategoryIdAndSearchQuery(Integer categoryId, String searchQuery);
     AdminMenu findById(Long id);
+    AdminMenu save(AdminMenu menu);
+    void deleteById(Long id);
 }

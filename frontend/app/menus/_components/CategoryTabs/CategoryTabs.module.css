@@ -57,9 +57,13 @@
         flex-direction: row;
         gap: 0.375rem;
         overflow-x: auto;
+        overflow-y: hidden;
         padding-bottom: 0.25rem;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        /* 뷰포트 너비로 제한해 스크롤이 탭 안에서만 일어나도록 (부모 overflow-x: hidden에 잘리지 않도록) */
+        min-width: 0;
+        max-width: 100%;
     }
 
     .tabs::-webkit-scrollbar {

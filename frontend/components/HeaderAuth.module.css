@@ -29,3 +29,42 @@
 .placeholder {
     opacity: 0.5;
 }
+
+/* compact: 아바타 + 아이디 + 로그아웃 분리 (관리자 헤더 스타일) */
+.compactWrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.logoutBtnCompact {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0.3rem 0.6rem;
+    opacity: 0.9;
+}
+
+.logoutBtnCompact:hover {
+    opacity: 1;
+}

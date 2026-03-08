@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Coffee, ArrowLeft } from 'lucide-react';
+import { Coffee, ArrowLeft, Menu, X } from 'lucide-react';
 import HeaderAuth from '@/components/HeaderAuth';
 import styles from './layout.module.css';
 
 export default function MenusLayout({ children }: { children: React.ReactNode }) {
     const [scrolled, setScrolled] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const isDetail = pathname !== '/menus';
 
@@ -18,24 +19,36 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
     return (
         <div className={styles.root}>
             {/* ── 헤더 ── */}
-            <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''}`}>
+            <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ''} ${mobileMenuOpen ? styles.headerMobileOpen : ''}`}>
                 <div className={styles.headerInner}>
                     <Link href="/" className={`${styles.brand} ${scrolled ? styles.brandScrolled : ''}`}>
                         <span className={styles.brandMark}>N</span>
                         <span className={styles.brandText}>Cafe</span>
                     </Link>
 
+                    <button
+                        type="button"
+                        className={styles.navMobileTrigger}
+                        onClick={() => setMobileMenuOpen((o) => !o)}
+                        aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+                        aria-expanded={mobileMenuOpen}
+                    >
+                        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+
                     <nav className={styles.navLinks}>
-                        <Link href="/#features" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}>
+                        <Link href="/#features" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`} onClick={closeMobileMenu}>
                             About
                         </Link>
-                        <Link href="/menus" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''} ${!isDetail ? styles.navLinkActive : ''}`}>
+                        <Link href="/menus" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''} ${!isDetail ? styles.navLinkActive : ''}`} onClick={closeMobileMenu}>
                             Menu
                         </Link>
-                        <Link href="/#about" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}>
+                        <Link href="/#about" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`} onClick={closeMobileMenu}>
                             Story
                         </Link>
                         <HeaderAuth
@@ -45,6 +58,13 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
                     </nav>
                 </div>
             </header>
+
+            {/* 모바일 슬라이딩 메뉴: 오버레이 (클릭 시 닫기) */}
+            <div
+                className={`${styles.navOverlay} ${mobileMenuOpen ? styles.navOverlayOpen : ''}`}
+                onClick={closeMobileMenu}
+                aria-hidden
+            />
 
             {/* ── 페이지 히어로 배너 ── */}
             <div className={styles.heroBanner}>
