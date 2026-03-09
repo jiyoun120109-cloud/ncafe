@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Coffee, ArrowLeft, Menu, X } from 'lucide-react';
 import HeaderAuth from '@/components/HeaderAuth';
+import HeaderCart from '@/components/HeaderCart';
 import styles from './layout.module.css';
 
 export default function MenusLayout({ children }: { children: React.ReactNode }) {
@@ -51,6 +52,10 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
                         <Link href="/#about" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`} onClick={closeMobileMenu}>
                             Story
                         </Link>
+                        <HeaderCart
+                            className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}
+                            scrolled={scrolled}
+                        />
                         <HeaderAuth
                             loginLinkClassName={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ''}`}
                             authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}

@@ -27,6 +27,11 @@ async function proxyRequest(req: NextRequest) {
         headers['Authorization'] = `Bearer ${session.token}`;
     }
 
+    const cartSessionId = req.headers.get('x-cart-session-id');
+    if (cartSessionId) {
+        headers['X-Cart-Session-Id'] = cartSessionId;
+    }
+
     if (isStateChangingMethod(req.method)) {
         const csrfToken = await getBackendCsrfToken();
         if (csrfToken) {

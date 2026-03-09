@@ -83,6 +83,49 @@ INSERT INTO menus (kor_name, eng_name, category_id, price, description, is_avail
 ('초콜릿 크루아상', 'Chocolate Croissant', 6, 4500, '초콜릿 크루아상', true, false, 19, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('초콜릿 무스', 'Chocolate Mousse', 6, 6500, '달콤한 초콜릿 무스', true, false, 20, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
+-- 장바구니 (비회원: guest_session_id, 회원: user_id)
+CREATE TABLE IF NOT EXISTS carts (
+    id BIGSERIAL PRIMARY KEY,
+    guest_session_id VARCHAR(255) UNIQUE,
+    user_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS cart_items (
+    id BIGSERIAL PRIMARY KEY,
+    cart_id BIGINT NOT NULL REFERENCES carts(id) ON DELETE CASCADE,
+    menu_id BIGINT NOT NULL,
+    menu_kor_name VARCHAR(255),
+    menu_price INT,
+    quantity INT NOT NULL DEFAULT 1,
+    option_temperature VARCHAR(20),
+    option_bean VARCHAR(100),
+    option_decaf BOOLEAN DEFAULT FALSE,
+    option_extra_price INT DEFAULT 0,
+    options_display VARCHAR(255)
+);
+
+-- 기존 DB에 옵션 컬럼 추가 (이미 있으면 무시)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cart_items' AND column_name = 'option_temperature') THEN
+        ALTER TABLE cart_items ADD COLUMN option_temperature VARCHAR(20);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cart_items' AND column_name = 'option_bean') THEN
+        ALTER TABLE cart_items ADD COLUMN option_bean VARCHAR(100);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cart_items' AND column_name = 'option_decaf') THEN
+        ALTER TABLE cart_items ADD COLUMN option_decaf BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cart_items' AND column_name = 'option_extra_price') THEN
+        ALTER TABLE cart_items ADD COLUMN option_extra_price INT DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'cart_items' AND column_name = 'options_display') THEN
+        ALTER TABLE cart_items ADD COLUMN options_display VARCHAR(255);
+    END IF;
+END $$;
+
 -- images 테이블 (없으면 생성)
 CREATE TABLE IF NOT EXISTS images (
     id BIGSERIAL PRIMARY KEY,

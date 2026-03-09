@@ -2,7 +2,11 @@
 FROM node:20-alpine AS builder  
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+# Longer timeouts and retries for slow/unstable networks (e.g. Docker build)
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-timeout 120000 && \
+    npm install
 COPY . .
 ARG NEXT_PUBLIC_API_URL
 ARG API_BASE_URL=http://backend:8011
