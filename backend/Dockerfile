@@ -10,7 +10,8 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=builder /app/build/libs/app.jar app.jar
 
-# 빌드 시점의 upload 폴더를 시드로 포함 (compose 빌드하면 이미지에 함께 올라감)
+# 빌드 시점의 upload 폴더를 시드로 포함 (compose 빌드하면 이미지에 함께 올라감).
+# CI에서는 deploy 워크플로가 backend/upload(.gitkeep) 존재를 보장함.
 RUN mkdir -p /app/upload-seed
 COPY upload/ /app/upload-seed/
 RUN mkdir -p /app/upload

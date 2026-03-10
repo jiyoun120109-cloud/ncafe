@@ -14,6 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Ensure backend/upload for Docker build
+        run: mkdir -p backend/upload && touch backend/upload/.gitkeep
+
       - name: Create .env file
         run: |
           echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-yun_ncafe}" > .env
