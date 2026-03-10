@@ -1,12 +1,12 @@
 # DeplyGuid: 내부 포트 고정(backend=8011, frontend=3011, db=5432, agent=8000), 외부 포트는 .env
-name: ${COMPOSE_PROJECT_NAME:-yun_ncafe}
+name: yun_ncafe
 
 services:
   agent-server:
     build:
       context: ./agent-server
       dockerfile: Dockerfile
-    image: ${AGENT_IMAGE:-ncafe-agent:latest}
+    image: ncafe-agent:latest
     container_name: ${USER_ID:-yun}-agent
     # CI/배포: 워크플로에서 GEMINI_API_KEY 환경변수로 전달. 로컬: 루트 .env 또는 agent-server/.env 로드 후 compose 실행
     # RAG: 아래 db와 같은 컨테이너(yun-db) 사용. 별도 DB 컨테이너 불필요. RAG_DATABASE_URL 설정 시 ncafedb에 rag_documents 테이블·vector 확장 사용.
@@ -20,7 +20,7 @@ services:
         condition: service_healthy
 
   backend:
-    image: ${BACKEND_IMAGE:-ncafe-backend:latest}
+    image: ncafe-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -49,7 +49,7 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ${FRONTEND_IMAGE:-ncafe-frontend:latest}
+    image: ncafe-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
