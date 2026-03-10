@@ -79,8 +79,8 @@ services:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT:-5511}:5432"
+    # ports:
+    #   - "${DB_PORT:-5511}:5432"
     volumes:
       - /home/yun/data:/var/lib/postgresql/data
     restart: unless-stopped
