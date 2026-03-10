@@ -7,6 +7,7 @@ RUN ./gradlew bootJar --no-daemon -x test
 
 # Run stage
 FROM eclipse-temurin:21-jre-alpine
+RUN apk add --no-cache wget
 WORKDIR /app
 COPY --from=builder /app/build/libs/app.jar app.jar
 

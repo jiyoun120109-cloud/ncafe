@@ -47,7 +47,7 @@ jobs:
           echo "=== Health Check ==="
           curl -sf --max-time 10 -o /dev/null -w "Frontend : HTTP %{http_code}\n" http://localhost:${FRONTEND_PORT:-3011} || echo "Frontend : not responding"
         env:
-          FRONTEND_PORT: ${{ secrets.FRONTEND_PORT }}
+          FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
 
       - name: Clean up old images
         run: docker image prune -f
