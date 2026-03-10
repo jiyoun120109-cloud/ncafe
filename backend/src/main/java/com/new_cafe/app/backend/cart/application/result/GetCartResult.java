@@ -34,5 +34,7 @@ public class GetCartResult {
         private String temperature;
         private String beanOption;
         private Boolean decaf;
+        /** 품절 여부 (true면 품절) */
+        private Boolean isSoldOut;
     }
 }

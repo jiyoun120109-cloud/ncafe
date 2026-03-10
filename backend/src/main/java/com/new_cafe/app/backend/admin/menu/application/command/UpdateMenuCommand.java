@@ -20,4 +20,7 @@ public class UpdateMenuCommand {
     private Integer price;
     private Long categoryId;
     private Boolean isAvailable;
+    private String optionsJson;
+    /** 상품 정보 제공 고시 JSON */
+    private String productInfoJson;
 }

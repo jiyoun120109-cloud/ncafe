@@ -56,6 +56,7 @@ public class MenuPersistenceAdapter implements MenuRepositoryPort {
             .categoryId(e.getCategoryId())
             .category(category)
             .isAvailable(e.getIsAvailable())
+            .productInfoJson(e.getProductInfoJson())
             .createdAt(e.getCreatedAt())
             .updatedAt(e.getUpdatedAt())
             .build();

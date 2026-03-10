@@ -19,4 +19,8 @@ public class CreateMenuRequestDto {
     private Integer price;
     private Long categoryId;
     private Boolean isAvailable;
+    /** 옵션 목록 JSON 문자열 (예: [{"name":"사이즈","type":"radio","required":true}] ) */
+    private String optionsJson;
+    /** 상품 정보 제공 고시 JSON (영양정보, 알레르기정보 등) */
+    private String productInfoJson;
 }

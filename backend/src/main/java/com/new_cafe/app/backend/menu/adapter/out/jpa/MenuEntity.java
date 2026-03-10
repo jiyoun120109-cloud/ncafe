@@ -56,6 +56,12 @@ public class MenuEntity {
     @Column(name = "sort_order")
     private Integer sortOrder;
 
+    @Column(name = "options_json", length = 2000)
+    private String optionsJson;
+
+    @Column(name = "product_info_json", length = 4000)
+    private String productInfoJson;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

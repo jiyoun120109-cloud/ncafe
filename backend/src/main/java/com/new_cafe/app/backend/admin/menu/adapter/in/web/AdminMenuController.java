@@ -25,16 +25,28 @@ import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.MenuListRespon
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.MenuResponseDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.UpdateMenuResponseDto;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * 관리자 전용 메뉴 API (Admin-Only Interface)
  */
-@RestController 
+@RestController
 @RequestMapping("/api/admin/menus")
 public class AdminMenuController {
 
     private final AdminMenuUseCase adminMenuUseCase;
+
+    @Value("${app.upload.dir:./upload}")
+    private String uploadDir;
 
     public AdminMenuController(AdminMenuUseCase adminMenuUseCase) {
         this.adminMenuUseCase = adminMenuUseCase;
@@ -51,7 +63,7 @@ public class AdminMenuController {
         return convertToResponseDto(result);
     }
 
-    @PostMapping("/")
+    @PostMapping(value = {"", "/"})
     public CreateMenuResponseDto createMenu(@RequestBody CreateMenuRequestDto request) {
         CreateMenuCommand command = CreateMenuCommand.builder()
                 .korName(request.getKorName())
@@ -60,6 +72,8 @@ public class AdminMenuController {
                 .price(request.getPrice())
                 .categoryId(request.getCategoryId())
                 .isAvailable(request.getIsAvailable())
+                .optionsJson(request.getOptionsJson())
+                .productInfoJson(request.getProductInfoJson())
                 .build();
 
         CreateMenuResult result = adminMenuUseCase.createMenu(command);
@@ -78,6 +92,8 @@ public class AdminMenuController {
                 .price(request.getPrice())
                 .categoryId(request.getCategoryId())
                 .isAvailable(request.getIsAvailable())
+                .optionsJson(request.getOptionsJson())
+                .productInfoJson(request.getProductInfoJson())
                 .build();
 
         UpdateMenuResult result = adminMenuUseCase.updateMenu(command);
@@ -117,10 +133,32 @@ public class AdminMenuController {
             .description(result.getDescription())
             .price(result.getPrice())
             .categoryName(result.getCategoryName())
-                .isAvailable(result.getIsAvailable())
-                .createdAt(result.getCreatedAt())
-                .updatedAt(result.getUpdatedAt())
-                .build();
+            .isAvailable(result.getIsAvailable())
+            .optionsJson(result.getOptionsJson())
+            .productInfoJson(result.getProductInfoJson())
+            .createdAt(result.getCreatedAt())
+            .updatedAt(result.getUpdatedAt())
+            .build();
+    }
+
+    @PostMapping("/{id}/images")
+    public void addMenuImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File is required");
+        }
+        String ext = Optional.ofNullable(file.getOriginalFilename())
+            .filter(n -> n.contains("."))
+            .map(n -> n.substring(n.lastIndexOf(".")))
+            .orElse(".jpg");
+        String safeName = UUID.randomUUID().toString().replace("-", "") + ext;
+        String dirPath = uploadDir.replaceFirst("^file:", "").trim();
+        Path dir = Paths.get(dirPath).toAbsolutePath().normalize();
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
+        Path target = dir.resolve(safeName);
+        file.transferTo(target);
+        adminMenuUseCase.addMenuImage(id, safeName, 0);
     }
 
     @GetMapping("/{id}/menu-images")

@@ -3,3 +3,6 @@ uvicorn
 google-genai
 python-dotenv
 sse-starlette
+psycopg2-binary
+sentence-transformers
+pgvector

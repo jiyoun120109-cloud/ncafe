@@ -80,6 +80,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .price(menu.getPrice())
             .categoryName(categoryName)
             .isAvailable(menu.getIsAvailable())
+            .optionsJson(menu.getOptionsJson())
+            .productInfoJson(menu.getProductInfoJson())
             .createdAt(menu.getCreatedAt())
             .updatedAt(menu.getUpdatedAt())
             .build();
@@ -102,9 +104,30 @@ public class AdminMenuService implements AdminMenuUseCase {
      */
     @Override
     public CreateMenuResult createMenu(CreateMenuCommand command) {
-        // 메뉴 생성 로직 구현
-        // TODO: menuRepositoryPort.save() 호출하여 메뉴 저장
-        throw new UnsupportedOperationException("Create menu not yet implemented");
+        int nextSort = adminMenuRepositoryPort.findAllByCategoryIdAndSearchQuery(null, null).stream()
+            .mapToInt(m -> m.getSortOrder() != null ? m.getSortOrder() : 0)
+            .max()
+            .orElse(0) + 1;
+        AdminMenu newMenu = AdminMenu.builder()
+            .id(null)
+            .korName(command.getKorName())
+            .engName(command.getEngName())
+            .description(command.getDescription() != null ? command.getDescription() : "")
+            .price(command.getPrice() != null ? command.getPrice() : 0)
+            .categoryId(command.getCategoryId())
+            .category(null)
+            .isAvailable(command.getIsAvailable() != null ? command.getIsAvailable() : true)
+            .isSoldOut(false)
+            .sortOrder(nextSort)
+            .optionsJson(command.getOptionsJson())
+            .productInfoJson(command.getProductInfoJson())
+            .createdAt(null)
+            .updatedAt(null)
+            .build();
+        AdminMenu saved = adminMenuRepositoryPort.save(newMenu);
+        return CreateMenuResult.builder()
+            .id(saved.getId())
+            .build();
     }
 
     /**
@@ -116,6 +139,8 @@ public class AdminMenuService implements AdminMenuUseCase {
         if (existing == null) {
             throw new IllegalArgumentException("Menu not found with id: " + command.getId());
         }
+        String optionsJson = command.getOptionsJson() != null ? command.getOptionsJson() : existing.getOptionsJson();
+        String productInfoJson = command.getProductInfoJson() != null ? command.getProductInfoJson() : existing.getProductInfoJson();
         AdminMenu toSave = AdminMenu.builder()
             .id(existing.getId())
             .korName(command.getKorName() != null ? command.getKorName() : existing.getKorName())
@@ -127,6 +152,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .isAvailable(command.getIsAvailable() != null ? command.getIsAvailable() : existing.getIsAvailable())
             .isSoldOut(existing.getIsSoldOut())
             .sortOrder(existing.getSortOrder())
+            .optionsJson(optionsJson)
+            .productInfoJson(productInfoJson)
             .createdAt(existing.getCreatedAt())
             .updatedAt(existing.getUpdatedAt())
             .build();
@@ -168,12 +195,28 @@ public class AdminMenuService implements AdminMenuUseCase {
                     .isAvailable(menu.getIsAvailable())
                     .isSoldOut(menu.getIsSoldOut())
                     .sortOrder(i)
+                    .optionsJson(menu.getOptionsJson())
+                    .productInfoJson(menu.getProductInfoJson())
                     .createdAt(menu.getCreatedAt())
                     .updatedAt(menu.getUpdatedAt())
                     .build();
                 adminMenuRepositoryPort.save(toSave);
             }
         }
+    }
+
+    @Override
+    public void addMenuImage(Long menuId, String imageSrc, int sortOrder) {
+        if (adminMenuRepositoryPort.findById(menuId) == null) {
+            throw new IllegalArgumentException("Menu not found: " + menuId);
+        }
+        AdminMenuImage image = AdminMenuImage.builder()
+            .id(null)
+            .menuId(menuId)
+            .imageSrc(imageSrc)
+            .sortOrder(sortOrder)
+            .build();
+        adminMenuImageRepositoryPort.save(image);
     }
 
     /**

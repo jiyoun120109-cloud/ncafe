@@ -135,6 +135,48 @@
     font-weight: 300;
 }
 
+/* 상품 정보 제공 고시 */
+.productNotice {
+    padding: 1rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.productNoticeTitle {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.4);
+    margin: 0;
+}
+
+.productNoticeMeta {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.55);
+    margin: 0;
+}
+
+.nutritionGrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.nutItem {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.allergenLine,
+.storageLine {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
 .statusRow {
     padding-top: 0.75rem;
     border-top: 1px solid rgba(0, 0, 0, 0.06);
@@ -290,4 +332,10 @@
 .orderButton:hover {
     background: rgba(0, 0, 0, 0.04);
     border-color: rgba(0, 0, 0, 0.25);
+}
+
+.orderButtonDisabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }

@@ -9,10 +9,15 @@ services:
     image: ${AGENT_IMAGE:-ncafe-agent:latest}
     container_name: ${USER_ID:-yun}-agent
     # CI/배포: 워크플로에서 GEMINI_API_KEY 환경변수로 전달. 로컬: 루트 .env 또는 agent-server/.env 로드 후 compose 실행
+    # RAG: 아래 db와 같은 컨테이너(yun-db) 사용. 별도 DB 컨테이너 불필요. RAG_DATABASE_URL 설정 시 ncafedb에 rag_documents 테이블·vector 확장 사용.
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - RAG_DATABASE_URL=${RAG_DATABASE_URL:-}
     restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
 
   backend:
     image: ${BACKEND_IMAGE:-ncafe-backend:latest}
@@ -67,15 +72,15 @@ services:
     restart: unless-stopped
 
   db:
-    image: postgres:17
+    # pgvector 포함 이미지 — RAG 임베딩 저장 시 vector 확장 사용. 백엔드(메뉴/주문 등)와 agent-server(RAG) 모두 이 컨테이너 하나 사용.
+    image: pgvector/pgvector:pg17
     container_name: ${USER_ID:-yun}-db
     environment:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    # BFF만 노출. DB는 백엔드가 내부(db:5432)로만 접속
-    # ports:
-    #   - "${DB_PORT:-5511}:5432"
+    ports:
+      - "${DB_PORT:-5511}:5432"
     volumes:
       - /home/yun/data:/var/lib/postgresql/data
     restart: unless-stopped

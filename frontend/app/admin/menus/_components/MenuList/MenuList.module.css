@@ -157,9 +157,9 @@
 .sortableItem {
     width: 100%;
     height: 100%;
+    will-change: transform;
 }
 
 .sortableItemDragging {
     z-index: 1000;
-    opacity: 0.9;
 }

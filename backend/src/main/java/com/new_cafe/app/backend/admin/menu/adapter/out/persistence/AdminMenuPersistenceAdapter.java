@@ -51,9 +51,14 @@ public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
 
     @Override
     public AdminMenu save(AdminMenu menu) {
-        MenuEntity entity = menuJpaRepository.findById(menu.getId())
-            .map(existing -> toEntity(menu, existing.getCreatedAt()))
-            .orElseGet(() -> toEntity(menu, LocalDateTime.now()));
+        MenuEntity entity;
+        if (menu.getId() == null) {
+            entity = toEntity(menu, LocalDateTime.now());
+        } else {
+            entity = menuJpaRepository.findById(menu.getId())
+                .map(existing -> toEntity(menu, existing.getCreatedAt()))
+                .orElseGet(() -> toEntity(menu, LocalDateTime.now()));
+        }
         entity.setUpdatedAt(LocalDateTime.now());
         MenuEntity saved = menuJpaRepository.save(entity);
         return toDomain(saved);
@@ -78,6 +83,8 @@ public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
             .isAvailable(menu.getIsAvailable() != null ? menu.getIsAvailable() : true)
             .isSoldOut(menu.getIsSoldOut() != null ? menu.getIsSoldOut() : false)
             .sortOrder(menu.getSortOrder() != null ? menu.getSortOrder() : 0)
+            .optionsJson(menu.getOptionsJson())
+            .productInfoJson(menu.getProductInfoJson())
             .createdAt(createdAt)
             .updatedAt(LocalDateTime.now())
             .build();
@@ -97,6 +104,8 @@ public class AdminMenuPersistenceAdapter implements AdminMenuRepositoryPort {
             .isAvailable(e.getIsAvailable())
             .isSoldOut(e.getIsSoldOut())
             .sortOrder(e.getSortOrder())
+            .optionsJson(e.getOptionsJson())
+            .productInfoJson(e.getProductInfoJson())
             .createdAt(e.getCreatedAt())
             .updatedAt(e.getUpdatedAt())
             .build();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getApiBase } from '@/services/api';
 
 export interface MenuResponse {
@@ -31,7 +31,7 @@ export interface MenuListRequest {
 export const useMenus = (request: MenuListRequest) => {
     const [menus, setMenus] = useState<MenuResponse[]>([]);
 
-    const fetchMenus = async () => {
+    const fetchMenus = useCallback(async () => {
         const url = new URL(`${getApiBase()}/admin/menus`);
         if (request.categoryId)
             url.searchParams.set('categoryId', request.categoryId.toString());
@@ -45,11 +45,11 @@ export const useMenus = (request: MenuListRequest) => {
         } catch (err) {
             console.error('메뉴를 불러오는 중에 문제가 발생했습니다.', err);
         }
-    };
+    }, [request.categoryId, request.searchQuery]);
 
     useEffect(() => {
         fetchMenus();
-    }, [request.categoryId, request.searchQuery]);
+    }, [fetchMenus]);
 
     return { menus, setMenus, refetch: fetchMenus };
 };

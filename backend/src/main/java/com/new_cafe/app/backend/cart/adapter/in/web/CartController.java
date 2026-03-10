@@ -113,6 +113,7 @@ public class CartController {
                     .temperature(i.getTemperature())
                     .beanOption(i.getBeanOption())
                     .decaf(i.getDecaf())
+                    .isSoldOut(i.getIsSoldOut())
                     .build())
                 .collect(Collectors.toList());
         return CartResponseDto.builder()

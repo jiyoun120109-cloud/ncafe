@@ -11,6 +11,7 @@ import {
     ShoppingCart,
     Megaphone,
     MessageCircle,
+    BookOpen,
 } from 'lucide-react';
 import styles from './AdminSidebar.module.css';
 
@@ -23,6 +24,7 @@ const mainNavItems = [
     { href: '/admin',            label: '대시보드',  icon: LayoutDashboard },
     { href: '/admin/menus',      label: '메뉴 관리', icon: ClipboardList },
     { href: '/admin/categories', label: '카테고리',  icon: FolderOpen },
+    { href: '/admin/rag',        label: 'RAG 관리',  icon: BookOpen },
     { href: '/admin/orders',     label: '주문 관리', icon: Package, badge: 3 },
     { href: '/admin/settings',   label: '설정',      icon: Settings },
 ];

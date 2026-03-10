@@ -6,6 +6,8 @@ import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuImageEntity;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuImageJpaRepository;
 
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +23,6 @@ public class AdminMenuImagePersistenceAdapter implements AdminMenuImageRepositor
     @Override
     public List<AdminMenuImage> findAllByMenuId(Long menuId) {
         List<MenuImageEntity> entities = menuImageJpaRepository.findAllByMenuIdOrderBySortOrderAsc(menuId);
-
         return entities.stream()
             .map(e -> AdminMenuImage.builder()
                 .id(e.getId())
@@ -30,5 +31,23 @@ public class AdminMenuImagePersistenceAdapter implements AdminMenuImageRepositor
                 .sortOrder(e.getSortOrder())
                 .build())
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public AdminMenuImage save(AdminMenuImage image) {
+        MenuImageEntity entity = MenuImageEntity.builder()
+            .id(image.getId())
+            .menuId(image.getMenuId())
+            .imageSrc(image.getImageSrc())
+            .createdAt(LocalDateTime.now())
+            .sortOrder(image.getSortOrder() != null ? image.getSortOrder() : 0)
+            .build();
+        MenuImageEntity saved = menuImageJpaRepository.save(entity);
+        return AdminMenuImage.builder()
+            .id(saved.getId())
+            .menuId(saved.getMenuId())
+            .imageSrc(saved.getImageSrc())
+            .sortOrder(saved.getSortOrder())
+            .build();
     }
 }

@@ -13,6 +13,8 @@ interface MenuDetail {
     createdAt: string;
     updatedAt: string;
     description: string;
+    optionsJson: string | null;
+    productInfoJson: string | null;
 }
 
 export function useMenuDetail(id: number) {

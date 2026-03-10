@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -47,7 +47,7 @@ interface MenuCardProps {
     };
 }
 
-export default function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardProps) {
+function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardProps) {
     const router = useRouter();
     const [imgError, setImgError] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -209,3 +209,5 @@ export default function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardP
         </div>
     );
 }
+
+export default memo(MenuCard);

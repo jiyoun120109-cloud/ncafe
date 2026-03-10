@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useRef } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { Menu, MenuCategory } from '@/types/menu';
+import { Menu, MenuCategory, ProductInfo } from '@/types/menu';
 import { Plus, Trash2, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Button from '@/components/common/Button';
 import Input from '@/components/common/Input';
@@ -12,6 +13,48 @@ interface MenuFormProps {
     categories: MenuCategory[];
     onSubmit: (data: any) => void;
     onCancel: () => void;
+}
+
+const emptyNut = () => ({
+    sodiumMg: undefined as number | undefined,
+    carbsG: undefined as number | undefined,
+    sugarsG: undefined as number | undefined,
+    fatG: undefined as number | undefined,
+    transFatG: undefined as number | undefined,
+    saturatedFatG: undefined as number | undefined,
+    cholesterolMg: undefined as number | undefined,
+    proteinG: undefined as number | undefined,
+});
+
+const emptyProductInfo = (): ProductInfo & { allergensStr?: string } => ({
+    weightG: undefined,
+    calorieKcal: undefined,
+    nutrition: emptyNut(),
+    allergens: [],
+    allergensStr: '',
+    storage: '',
+});
+
+function productInfoFromInitial(p?: ProductInfo | null): ProductInfo & { allergensStr?: string } {
+    if (!p) return emptyProductInfo();
+    const nut = p.nutrition ?? {};
+    return {
+        weightG: p.weightG,
+        calorieKcal: p.calorieKcal,
+        nutrition: {
+            sodiumMg: nut.sodiumMg,
+            carbsG: nut.carbsG,
+            sugarsG: nut.sugarsG,
+            fatG: nut.fatG,
+            transFatG: nut.transFatG,
+            saturatedFatG: nut.saturatedFatG,
+            cholesterolMg: nut.cholesterolMg,
+            proteinG: nut.proteinG,
+        },
+        allergens: p.allergens ?? [],
+        allergensStr: Array.isArray(p.allergens) ? p.allergens.join(', ') : '',
+        storage: p.storage ?? '',
+    };
 }
 
 export default function MenuForm({ initialData, categories, onSubmit, onCancel }: MenuFormProps) {
@@ -29,6 +72,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
             category: initialData?.category || categories[0]?.id || '',
             isSoldOut: initialData?.isSoldOut || false,
             options: initialData?.options || [],
+            productInfo: productInfoFromInitial(initialData?.productInfo),
         },
     });
 
@@ -36,9 +80,69 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
         control,
         name: 'options',
     });
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = () => setImagePreview(reader.result as string);
+            reader.readAsDataURL(file);
+        } else {
+            setImageFile(null);
+            setImagePreview(null);
+        }
+    };
+
+    const num = (v: unknown): number | undefined => {
+        if (v == null || v === '') return undefined;
+        const n = Number(v);
+        return Number.isNaN(n) ? undefined : n;
+    };
+
+    const handleFormSubmit = (data: any) => {
+        const pi = data.productInfo as (ProductInfo & { allergensStr?: string }) | undefined;
+        const allergensStr = pi?.allergensStr ?? '';
+        const allergens = typeof allergensStr === 'string'
+            ? allergensStr.split(/[,，\s]+/).map((s: string) => s.trim()).filter(Boolean)
+            : (pi?.allergens ?? []);
+        let productInfoJson: string | undefined;
+        if (pi) {
+            const nutrition = pi.nutrition
+                ? {
+                    sodiumMg: num(pi.nutrition.sodiumMg),
+                    carbsG: num(pi.nutrition.carbsG),
+                    sugarsG: num(pi.nutrition.sugarsG),
+                    fatG: num(pi.nutrition.fatG),
+                    transFatG: num(pi.nutrition.transFatG),
+                    saturatedFatG: num(pi.nutrition.saturatedFatG),
+                    cholesterolMg: num(pi.nutrition.cholesterolMg),
+                    proteinG: num(pi.nutrition.proteinG),
+                }
+                : undefined;
+            const cleaned: ProductInfo = {
+                weightG: num(pi.weightG),
+                calorieKcal: num(pi.calorieKcal),
+                nutrition: nutrition && Object.values(nutrition).some((v) => v != null) ? nutrition : undefined,
+                allergens: allergens.length ? allergens : undefined,
+                storage: pi.storage?.trim() || undefined,
+            };
+            const hasAny =
+                cleaned.weightG != null ||
+                cleaned.calorieKcal != null ||
+                (cleaned.nutrition && Object.values(cleaned.nutrition).some((v) => v != null)) ||
+                (cleaned.allergens?.length) ||
+                cleaned.storage;
+            productInfoJson = hasAny ? JSON.stringify(cleaned) : undefined;
+        }
+        onSubmit({ ...data, imageFile: imageFile ?? undefined, productInfoJson });
+    };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className={styles.form}>
             {/* Basic Info Section */}
             <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>기본 정보</h2>
@@ -92,21 +196,48 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                 </div>
             </section>
 
-            {/* Image Upload Section (Prototype UI) */}
+            {/* Image Upload Section */}
             <section className={styles.section}>
                 <h2 className={styles.sectionTitle}>이미지 등록</h2>
                 <div className={styles.imageUploadGrid}>
-                    <div className={styles.uploadBox}>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className={styles.fileInput}
+                        aria-label="이미지 선택"
+                    />
+                    <div
+                        className={styles.uploadBox}
+                        onClick={() => fileInputRef.current?.click()}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+                    >
                         <Upload size={24} />
                         <span>이미지 업로드</span>
-                        <p>드래그하거나 클릭하세요</p>
+                        <p>클릭하여 선택</p>
                     </div>
-                    {/* Placeholder for uploaded images */}
-                    <div className={styles.imagePreview}>
-                        <ImageIcon size={32} />
-                        <span className={styles.badge}>대표</span>
-                        <button type="button" className={styles.removeImg}><X size={14} /></button>
-                    </div>
+                    {imagePreview ? (
+                        <div className={styles.imagePreview}>
+                            <img src={imagePreview} alt="미리보기" className={styles.previewImg} />
+                            <span className={styles.badge}>대표</span>
+                            <button
+                                type="button"
+                                className={styles.removeImg}
+                                onClick={() => { setImageFile(null); setImagePreview(null); }}
+                                aria-label="이미지 제거"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className={styles.imagePreviewPlaceholder}>
+                            <ImageIcon size={32} />
+                            <span>선택된 이미지 없음</span>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -157,6 +288,54 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                     {optionFields.length === 0 && (
                         <p className={styles.emptyText}>추가된 옵션이 없습니다.</p>
                     )}
+                </div>
+            </section>
+
+            {/* Product Info (상품 정보 제공 고시) */}
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>제품 정보 (상품 정보 제공 고시)</h2>
+                <div className={styles.grid}>
+                    <Input
+                        label="내용량 (g)"
+                        type="number"
+                        {...register('productInfo.weightG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })}
+                        placeholder="예: 360"
+                        fullWidth
+                    />
+                    <Input
+                        label="열량 (kcal)"
+                        type="number"
+                        {...register('productInfo.calorieKcal', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })}
+                        placeholder="예: 180"
+                        fullWidth
+                    />
+                </div>
+                <div className={styles.nutritionSubGrid}>
+                    <p className={styles.nutritionLabel}>영양정보 (1회 제공량 기준)</p>
+                    <Input label="나트륨 (mg)" type="number" {...register('productInfo.nutrition.sodiumMg', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="탄수화물 (g)" type="number" {...register('productInfo.nutrition.carbsG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="당류 (g)" type="number" {...register('productInfo.nutrition.sugarsG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="지방 (g)" type="number" {...register('productInfo.nutrition.fatG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="트랜스지방 (g)" type="number" {...register('productInfo.nutrition.transFatG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="포화지방 (g)" type="number" {...register('productInfo.nutrition.saturatedFatG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="콜레스테롤 (mg)" type="number" {...register('productInfo.nutrition.cholesterolMg', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                    <Input label="단백질 (g)" type="number" {...register('productInfo.nutrition.proteinG', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })} placeholder="0" fullWidth />
+                </div>
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                    <label className={styles.label}>알레르기 유발 물질 (쉼표로 구분)</label>
+                    <input
+                        className={styles.input}
+                        {...register('productInfo.allergensStr')}
+                        placeholder="예: 우유, 대두, 밀, 달걀"
+                    />
+                </div>
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                    <label className={styles.label}>보관방법</label>
+                    <input
+                        className={styles.input}
+                        {...register('productInfo.storage')}
+                        placeholder="예: 냉장보관(0~10℃), 상온보관"
+                    />
                 </div>
             </section>
 

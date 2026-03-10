@@ -36,28 +36,35 @@ def _to_contents(
     ]
 
 
-def _config() -> types.GenerateContentConfig:
-    return types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION)
+def _config(rag_context: str | None = None) -> types.GenerateContentConfig:
+    instruction = SYSTEM_INSTRUCTION
+    if rag_context and rag_context.strip():
+        instruction = (
+            instruction
+            + "\n\n[아래 참고 자료를 우선 반영하여 답변해 주세요. 자료에 없는 내용은 모른다고 말하고 매장 문의를 권하세요.]\n\n"
+            + rag_context.strip()
+        )
+    return types.GenerateContentConfig(system_instruction=instruction)
 
 
-def chat(messages: list[dict]) -> str:
+def chat(messages: list[dict], rag_context: str | None = None) -> str:
     client = _client_get()
     contents = _to_contents(messages)
     response = client.models.generate_content(
         model=GEMINI_MODEL,
         contents=contents,
-        config=_config(),
+        config=_config(rag_context=rag_context),
     )
     return response.text or ""
 
 
-def chat_stream(messages: list[dict]) -> Generator[str, None, None]:
+def chat_stream(messages: list[dict], rag_context: str | None = None) -> Generator[str, None, None]:
     client = _client_get()
     contents = _to_contents(messages)
     for chunk in client.models.generate_content_stream(
         model=GEMINI_MODEL,
         contents=contents,
-        config=_config(),
+        config=_config(rag_context=rag_context),
     ):
         if chunk.text:
             yield chunk.text

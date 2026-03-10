@@ -9,3 +9,6 @@ load_dotenv(dotenv_path=_env_path)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+# RAG: PostgreSQL + pgvector (임베딩 저장). 미설정 시 메모리 스토어 사용.
+RAG_DATABASE_URL = os.getenv("RAG_DATABASE_URL", "").strip()

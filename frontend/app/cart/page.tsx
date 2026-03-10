@@ -87,9 +87,18 @@ export default function CartPage() {
                         {items.map((item) => {
                             const unitPrice = item.menuPrice + (item.optionExtraPrice ?? 0);
                             const lineTotal = unitPrice * item.quantity;
+                            const soldOut = Boolean(item.isSoldOut);
+                            const detailHref = `/menus/${item.menuId}`;
                             return (
-                                <li key={item.id} className={styles.item}>
-                                    <div className={styles.itemThumb}>
+                                <li
+                                    key={item.id}
+                                    className={`${styles.item} ${soldOut ? styles.itemSoldOut : ''}`}
+                                >
+                                    <Link
+                                        href={detailHref}
+                                        className={styles.itemThumb}
+                                        aria-label={`${item.menuKorName} 상세 보기`}
+                                    >
                                         <Image
                                             src={cartItemImageSrc(item.menuImageUrl)}
                                             alt={item.menuKorName}
@@ -97,29 +106,42 @@ export default function CartPage() {
                                             height={72}
                                             className={styles.itemImage}
                                         />
-                                    </div>
+                                    </Link>
                                     <div className={styles.itemBody}>
                                         <div className={styles.itemTop}>
-                                            <span className={styles.itemName}>{item.menuKorName}</span>
-                                            <button
-                                                type="button"
-                                                className={styles.removeBtn}
-                                                aria-label="삭제"
-                                                onClick={() => removeItem(item.id)}
+                                            <Link
+                                                href={detailHref}
+                                                className={styles.itemName}
+                                                aria-label={`${item.menuKorName} 상세 보기`}
                                             >
-                                                <Trash2 size={18} />
-                                            </button>
+                                                {item.menuKorName}
+                                            </Link>
+                                            {soldOut && (
+                                                <span className={styles.soldOutBadge}>품절</span>
+                                            )}
+                                            {!soldOut && (
+                                                <button
+                                                    type="button"
+                                                    className={styles.removeBtn}
+                                                    aria-label="삭제"
+                                                    onClick={() => removeItem(item.id)}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            )}
                                         </div>
                                         {item.optionsDisplay && (
                                             <p className={styles.itemOptions}>{item.optionsDisplay}</p>
                                         )}
-                                        <button
-                                            type="button"
-                                            className={styles.optionChangeBtn}
-                                            onClick={() => setOptionModalItem(item)}
-                                        >
-                                            옵션변경
-                                        </button>
+                                        {!soldOut && (
+                                            <button
+                                                type="button"
+                                                className={styles.optionChangeBtn}
+                                                onClick={() => setOptionModalItem(item)}
+                                            >
+                                                옵션변경
+                                            </button>
+                                        )}
                                         <div className={styles.itemPriceRow}>
                                             <span className={styles.unitPrice}>
                                                 {unitPrice.toLocaleString()}원
@@ -128,7 +150,9 @@ export default function CartPage() {
                                                 <button
                                                     type="button"
                                                     aria-label="수량 줄이기"
+                                                    disabled={soldOut}
                                                     onClick={() =>
+                                                        !soldOut &&
                                                         updateQuantity(item.id, Math.max(1, item.quantity - 1))
                                                     }
                                                 >
@@ -138,7 +162,11 @@ export default function CartPage() {
                                                 <button
                                                     type="button"
                                                     aria-label="수량 늘리기"
-                                                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                    disabled={soldOut}
+                                                    onClick={() =>
+                                                        !soldOut &&
+                                                        updateQuantity(item.id, item.quantity + 1)
+                                                    }
                                                 >
                                                     <Plus size={14} />
                                                 </button>

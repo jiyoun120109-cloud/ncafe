@@ -23,4 +23,6 @@ public class MenuDetailResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String description;
+    /** 상품 정보 제공 고시 JSON */
+    private String productInfoJson;
 }

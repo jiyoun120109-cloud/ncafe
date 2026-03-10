@@ -72,6 +72,7 @@ public class MenuController {
             .price(result.getPrice())
             .isAvailable(result.getIsAvailable())
             .description(result.getDescription())
+            .productInfoJson(result.getProductInfoJson())
             .createdAt(result.getCreatedAt())
             .updatedAt(result.getUpdatedAt())
             .build();

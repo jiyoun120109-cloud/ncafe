@@ -71,6 +71,7 @@
     aspect-ratio: 4 / 3;
     background: #f5f0eb;
     overflow: hidden;
+    contain: layout paint;
 }
 
 .image {

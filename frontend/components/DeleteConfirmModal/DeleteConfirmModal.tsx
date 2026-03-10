@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Trash2 } from 'lucide-react';
 import styles from './DeleteConfirmModal.module.css';
 
@@ -37,8 +38,6 @@ export default function DeleteConfirmModal({
         };
     }, [open, onClose]);
 
-    if (!open) return null;
-
     const handleBackdropClick = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) onClose();
     };
@@ -55,7 +54,7 @@ export default function DeleteConfirmModal({
         }
     };
 
-    return (
+    const modalContent = (
         <div
             className={styles.backdrop}
             onClick={handleBackdropClick}
@@ -97,4 +96,10 @@ export default function DeleteConfirmModal({
             </div>
         </div>
     );
+
+    if (!open) return null;
+
+    return typeof document !== 'undefined'
+        ? createPortal(modalContent, document.body)
+        : null;
 }

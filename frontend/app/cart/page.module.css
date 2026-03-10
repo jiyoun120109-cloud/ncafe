@@ -147,6 +147,12 @@
     border-radius: 50%;
     overflow: hidden;
     background: rgba(0, 0, 0, 0.06);
+    display: block;
+    text-decoration: none;
+}
+
+.itemThumb:hover {
+    opacity: 0.9;
 }
 
 .itemImage {
@@ -174,6 +180,35 @@
     font-weight: 600;
     color: #1c1917;
     font-size: 1rem;
+    text-decoration: none;
+}
+
+.itemName:hover {
+    color: var(--color-primary-600, #8b5a2b);
+    text-decoration: underline;
+}
+
+.itemSoldOut .itemName,
+.itemSoldOut .itemName:hover {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+.itemSoldOut .itemThumb {
+    opacity: 0.7;
+}
+
+.soldOutBadge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #b91c1c;
+    background: rgba(185, 28, 28, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.quantity button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .itemOptions {

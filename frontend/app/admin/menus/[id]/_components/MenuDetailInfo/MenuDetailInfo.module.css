@@ -262,3 +262,22 @@
     font-size: 0.75rem;
     color: rgba(0, 0, 0, 0.3);
 }
+
+.loading, .error {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.error { color: #dc2626; }
+
+.storage {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.5);
+    margin-top: 0.5rem;
+}
+
+.noProductInfo {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.35);
+}

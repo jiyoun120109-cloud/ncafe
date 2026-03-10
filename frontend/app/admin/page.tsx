@@ -44,6 +44,7 @@ export default function AdminDashboardPage() {
                     {[
                         { href: '/admin/menus/new', label: 'Add Menu Item' },
                         { href: '/admin/menus',     label: 'Manage Menus' },
+                        { href: '/admin/rag',       label: 'RAG 관리' },
                         { href: '/admin/orders',    label: 'View Orders' },
                     ].map((link) => (
                         <a key={link.href} href={link.href} className={styles.quickLink}>

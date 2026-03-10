@@ -11,6 +11,7 @@ export interface UserMenuDetail {
     price: number;
     isAvailable: boolean;
     description: string;
+    productInfoJson: string | null;
     createdAt: string;
     updatedAt: string;
 }

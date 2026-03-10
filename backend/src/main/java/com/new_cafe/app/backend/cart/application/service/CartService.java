@@ -48,6 +48,7 @@ public class CartService implements CartUseCase {
         List<GetCartResult.CartItemResult> items = cart.getItems().stream()
             .map(item -> {
                 String imageUrl = getFirstMenuImageUrl(item.getMenuId());
+                boolean isSoldOut = isMenuSoldOut(item.getMenuId());
                 return GetCartResult.CartItemResult.builder()
                     .id(item.getId())
                     .menuId(item.getMenuId())
@@ -60,6 +61,7 @@ public class CartService implements CartUseCase {
                     .temperature(item.getOptionTemperature())
                     .beanOption(item.getOptionBean())
                     .decaf(item.getOptionDecaf())
+                    .isSoldOut(isSoldOut)
                     .build();
             })
             .collect(Collectors.toList());
@@ -177,6 +179,12 @@ public class CartService implements CartUseCase {
         if (menuId == null) return null;
         List<MenuImage> images = menuImageRepositoryPort.findAllByMenuId(menuId);
         return images.isEmpty() ? null : images.get(0).getImageSrc();
+    }
+
+    private boolean isMenuSoldOut(Long menuId) {
+        if (menuId == null) return true;
+        Menu menu = menuRepositoryPort.findById(menuId);
+        return menu == null || !Boolean.TRUE.equals(menu.getIsAvailable());
     }
 
     private static String normalizeTemperature(String temperature) {

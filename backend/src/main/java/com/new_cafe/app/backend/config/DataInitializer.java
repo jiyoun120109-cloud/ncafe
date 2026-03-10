@@ -50,7 +50,10 @@ public class DataInitializer {
              Statement st = conn.createStatement()) {
             for (String stmt : statements) {
                 String s = stmt.trim();
-                if (s.isEmpty() || s.startsWith("--")) continue;
+                if (s.isEmpty()) continue;
+                // 문장 앞에 붙은 주석 줄만 제거 (-- 로 시작하는 줄). INSERT 등이 주석 다음에 오는 경우 실행되도록.
+                s = stripLeadingCommentLines(s);
+                if (s.isEmpty()) continue;
                 try {
                     st.execute(s);
                 } catch (Exception e) {
@@ -116,6 +119,22 @@ public class DataInitializer {
                 return false;
         }
         return true;
+    }
+
+    /** 문장 앞에 있는 '--' 주석 줄만 제거 */
+    private String stripLeadingCommentLines(String s) {
+        StringBuilder out = new StringBuilder();
+        boolean foundNonComment = false;
+        for (String line : s.split("\n")) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty() || trimmed.startsWith("--")) {
+                if (!foundNonComment) continue;
+            }
+            foundNonComment = true;
+            if (out.length() > 0) out.append('\n');
+            out.append(line);
+        }
+        return out.toString().trim();
     }
 
     private boolean inString(String script, int semicolonIndex) {

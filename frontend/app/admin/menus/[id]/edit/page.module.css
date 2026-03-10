@@ -61,6 +61,12 @@
     font-size: 0.875rem;
 }
 
+.error {
+    color: var(--color-error-600, #b91c1c);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
 @media (max-width: 640px) {
     .formCard { padding: 1.25rem; }
 }

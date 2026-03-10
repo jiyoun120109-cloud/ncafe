@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import MenuCard from '../MenuCard';
@@ -21,10 +22,23 @@ export default function SortableMenuCard({ menu, onUpdated }: SortableMenuCardPr
         isDragging,
     } = useSortable({ id: menu.id, data: { menu } });
 
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
+    const style = useMemo(
+        () => ({
+            transform: CSS.Transform.toString(transform),
+            transition,
+            opacity: isDragging ? 0 : 1,
+            visibility: isDragging ? ('hidden' as const) : ('visible' as const),
+        }),
+        [transform, transition, isDragging]
+    );
+
+    const dragHandleProps = useMemo(
+        () => ({
+            listeners: listeners as Record<string, unknown> | undefined,
+            attributes: attributes as unknown as Record<string, unknown>,
+        }),
+        [listeners, attributes]
+    );
 
     return (
         <div
@@ -35,10 +49,7 @@ export default function SortableMenuCard({ menu, onUpdated }: SortableMenuCardPr
             <MenuCard
                 menu={menu}
                 onUpdated={onUpdated}
-                dragHandleProps={{
-                    listeners: listeners as Record<string, unknown> | undefined,
-                    attributes: attributes as unknown as Record<string, unknown>,
-                }}
+                dragHandleProps={dragHandleProps}
             />
         </div>
     );

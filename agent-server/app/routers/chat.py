@@ -4,6 +4,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from sse_starlette.sse import EventSourceResponse
 
+from app.config import RAG_DATABASE_URL
 from app.models.schemas import ChatRequest, Message
 from app.services import gemini
 
@@ -13,6 +14,28 @@ def to_gemini_messages(messages: list[Message]) -> list[dict]:
         {"role": m.role, "parts": [{"text": m.content}]}
         for m in messages
     ]
+
+
+def get_rag_context(last_user_text: str, top_k: int = 5) -> str | None:
+    """마지막 사용자 메시지로 유사 문서 검색 후 참고 문맥 문자열 반환. RAG 미사용 또는 검색 결과 없으면 None."""
+    if not RAG_DATABASE_URL or not last_user_text or not last_user_text.strip():
+        return None
+    try:
+        from app.services import embedding as embedding_svc
+        from app.services import rag_store
+        query_vec = embedding_svc.encode_query(last_user_text.strip())
+        docs = rag_store.search_documents(query_vec, top_k=top_k)
+        if not docs:
+            return None
+        parts = []
+        for i, d in enumerate(docs, 1):
+            title = d.get("title") or f"자료 {i}"
+            content = (d.get("content") or "").strip()
+            if content:
+                parts.append(f"[{title}]\n{content}")
+        return "\n\n---\n\n".join(parts) if parts else None
+    except Exception:
+        return None
 
 
 router = APIRouter()
@@ -28,17 +51,19 @@ async def post_chat(body: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
+    last_user = next((m for m in reversed(body.messages) if m.role == "user"), None)
+    rag_context = get_rag_context(last_user.content if last_user else "") if last_user else None
+
     try:
         if not body.stream:
-            content = gemini.chat(gemini_messages)
+            content = gemini.chat(gemini_messages, rag_context=rag_context)
             return {"content": content}
     except ValueError as e:
-        # GEMINI_API_KEY 미설정 등
         raise HTTPException(status_code=503, detail=str(e)) from e
 
     async def event_stream():
         try:
-            for token in gemini.chat_stream(gemini_messages):
+            for token in gemini.chat_stream(gemini_messages, rag_context=rag_context):
                 yield {"data": json.dumps({"content": token})}
                 await asyncio.sleep(0)
             yield {"data": "[DONE]"}

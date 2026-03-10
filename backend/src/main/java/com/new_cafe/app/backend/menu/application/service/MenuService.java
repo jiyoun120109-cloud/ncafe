@@ -73,6 +73,7 @@ public class MenuService implements UserMenuUseCase {
                 .price(menu.getPrice())
                 .categoryName(categoryName)
                 .isAvailable(menu.getIsAvailable())
+                .productInfoJson(menu.getProductInfoJson())
                 .createdAt(menu.getCreatedAt())
                 .updatedAt(menu.getUpdatedAt())
                 .build();

@@ -1,5 +1,24 @@
 // types/menu.ts
 
+/** 상품 정보 제공 고시 - 영양정보·알레르기 등 */
+export interface ProductInfo {
+  weightG?: number;
+  calorieKcal?: number;
+  nutrition?: {
+    sodiumMg?: number;
+    carbsG?: number;
+    sugarsG?: number;
+    fatG?: number;
+    transFatG?: number;
+    saturatedFatG?: number;
+    cholesterolMg?: number;
+    proteinG?: number;
+  };
+  allergens?: string[];
+  ingredients?: string;
+  storage?: string;
+}
+
 export interface Menu {
   id: number;
   korName: string;
@@ -12,6 +31,7 @@ export interface Menu {
   isSoldOut: boolean;
   sortOrder: number;
   options: MenuOption[];
+  productInfo?: ProductInfo | null;
   createdAt: Date;
   updatedAt: Date;
 }

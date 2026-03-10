@@ -22,6 +22,10 @@ public class AdminMenu {
     private Boolean isAvailable;
     private Boolean isSoldOut;
     private Integer sortOrder;
+    /** JSON 배열 문자열 (옵션 목록) */
+    private String optionsJson;
+    /** 상품 정보 제공 고시 JSON (영양정보, 알레르기정보 등) */
+    private String productInfoJson;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -9,6 +9,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import { Coffee, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -35,7 +36,7 @@ export default function MenuList({
     onPageChange,
     pageSize = DEFAULT_PAGE_SIZE,
 }: MenuListProps) {
-    const { menus, refetch } = useMenus({ categoryId: selectedCategory, searchQuery });
+    const { menus, setMenus, refetch } = useMenus({ categoryId: selectedCategory, searchQuery });
     const [activeMenu, setActiveMenu] = useState<MenuResponse | null>(null);
 
     const total = menus.length;
@@ -45,7 +46,7 @@ export default function MenuList({
     const pageMenus = menus.slice(start, start + pageSize);
 
     const reorderAndSave = useCallback(
-        async (orderedIds: number[]) => {
+        async (orderedIds: number[], previousMenus: MenuResponse[]) => {
             try {
                 const res = await fetch(`${getApiBase()}/admin/menus/reorder`, {
                     method: 'PUT',
@@ -54,13 +55,14 @@ export default function MenuList({
                     body: JSON.stringify({ orderedIds }),
                 });
                 if (!res.ok) throw new Error('순서 저장에 실패했습니다.');
-                refetch();
+                // 성공 시 refetch 하지 않음 — 낙관적 업데이트로 이미 반영됨
             } catch (err) {
                 console.error(err);
+                setMenus(previousMenus);
                 alert(err instanceof Error ? err.message : '순서 저장에 실패했습니다.');
             }
         },
-        [refetch]
+        [setMenus]
     );
 
     const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -70,13 +72,18 @@ export default function MenuList({
 
     const handleDragEnd = useCallback(
         (event: DragEndEvent) => {
-            setActiveMenu(null);
             const { active, over } = event;
-            if (!over || active.id === over.id) return;
+            if (!over || active.id === over.id) {
+                setActiveMenu(null);
+                return;
+            }
 
             const oldIndex = pageMenus.findIndex((m) => m.id === active.id);
             const newIndex = pageMenus.findIndex((m) => m.id === over.id);
-            if (oldIndex === -1 || newIndex === -1) return;
+            if (oldIndex === -1 || newIndex === -1) {
+                setActiveMenu(null);
+                return;
+            }
 
             const reorderedPage = arrayMove(pageMenus, oldIndex, newIndex);
             const fullOrder = [
@@ -85,9 +92,13 @@ export default function MenuList({
                 ...menus.slice(start + reorderedPage.length),
             ];
             const orderedIds = fullOrder.map((m) => m.id);
-            reorderAndSave(orderedIds);
+            const previousMenus = menus.slice();
+
+            setMenus(fullOrder);
+            setActiveMenu(null);
+            reorderAndSave(orderedIds, previousMenus);
         },
-        [pageMenus, menus, start, pageSize, reorderAndSave]
+        [pageMenus, menus, start, reorderAndSave, setMenus]
     );
 
     const sensors = useSensors(
@@ -119,7 +130,15 @@ export default function MenuList({
                             </div>
                         </SortableContext>
 
-                        <DragOverlay dropAnimation={null}>
+                        <DragOverlay
+                            dropAnimation={{
+                                duration: 200,
+                                easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+                                sideEffects: defaultDropAnimationSideEffects({
+                                    styles: { active: { opacity: '0.5' } },
+                                }),
+                            }}
+                        >
                             {activeMenu ? (
                                 <div className={styles.overlayItem}>
                                     <MenuCard menu={activeMenu} />

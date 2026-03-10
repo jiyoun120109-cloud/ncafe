@@ -29,4 +29,6 @@ public class CartItemResponseDto {
     private String beanOption;
     /** 디카페인 여부 */
     private Boolean decaf;
+    /** 품절 여부 */
+    private Boolean isSoldOut;
 }

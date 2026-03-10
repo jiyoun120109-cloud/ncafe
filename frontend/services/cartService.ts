@@ -30,6 +30,8 @@ export interface CartItemDto {
     temperature?: string | null;
     beanOption?: string | null;
     decaf?: boolean | null;
+    /** 품절 여부 (true면 품절) */
+    isSoldOut?: boolean;
 }
 
 export interface CartResponse {

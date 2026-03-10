@@ -3,17 +3,20 @@ import { getSession } from '@/lib/session';
 import { getBackendCsrfToken, isStateChangingMethod } from '@/lib/backendCsrf';
 
 const API_BASE = process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
+const AGENT_SERVER_BASE = process.env.AGENT_SERVER_URL || 'http://localhost:8000';
 
 /**
  * Catch-all API 프록시
- *
+ * - /api/rag/* → agent-server (Python, 임베딩·pgvector)
+ * - 그 외 → backend (Java)
  * BFF 인증: JWT를 Bearer로, CSRF 토큰을 X-XSRF-TOKEN + Cookie로 백엔드에 전달.
  */
 async function proxyRequest(req: NextRequest) {
     const session = await getSession();
     const path = req.nextUrl.pathname;
     const search = req.nextUrl.search;
-    const targetUrl = `${API_BASE}${path}${search}`;
+    const base = path.startsWith('/api/rag') ? AGENT_SERVER_BASE.replace(/\/$/, '') : API_BASE;
+    const targetUrl = `${base}${path}${search}`;
 
     const headers: Record<string, string> = {};
 
