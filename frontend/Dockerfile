@@ -28,6 +28,7 @@ COPY --from=builder /app/next.config.ts ./
 
 EXPOSE 3011
 ENV PORT=3011
+# next start -p 3011 (package.json)으로 포트 고정. ENV PORT만으로는 Next 16에서 3035로 listen하는 경우 있음.
 # 이미지 rewrite/프록시가 Docker 내부에서 backend:8011 로 가도록 기본값 설정 (docker-compose에서 덮어쓸 수 있음)
 ENV API_BASE_URL=http://backend:8011
 ENV BACKEND_URL=http://backend:8011
