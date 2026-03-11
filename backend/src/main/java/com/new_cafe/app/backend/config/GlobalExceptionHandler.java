@@ -1,6 +1,5 @@
 package com.new_cafe.app.backend.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,8 +17,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         String message = "요청 본문을 읽을 수 없습니다.";
-        if (ex.getCause() instanceof JsonProcessingException jpe) {
-            message = "JSON 형식 오류: " + jpe.getOriginalMessage();
+        Throwable cause = ex.getCause();
+        if (cause != null && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+            message = "JSON 형식 오류: " + cause.getMessage();
         } else if (ex.getMessage() != null && !ex.getMessage().isBlank()) {
             message = ex.getMessage();
         }
