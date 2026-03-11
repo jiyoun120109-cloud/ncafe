@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useForm, useFieldArray, Control, FieldValues } from 'react-hook-form';
+import { useForm, useFieldArray, Control } from 'react-hook-form';
 import { Menu, MenuCategory, ProductInfo } from '@/types/menu';
 import { Plus, Trash2, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Button from '@/components/common/Button';
@@ -62,7 +62,7 @@ function OptionItemList({
     control,
     optionIndex,
 }: {
-    control: Control<FieldValues>;
+    control: Control<any>;
     optionIndex: number;
 }) {
     const { fields, append, remove } = useFieldArray({
