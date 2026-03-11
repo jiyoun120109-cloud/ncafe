@@ -5,6 +5,7 @@ import com.new_cafe.app.backend.admin.menu.application.command.CreateMenuCommand
 import com.new_cafe.app.backend.admin.menu.application.command.UpdateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.DeleteMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenusCommand;
+import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenuImagesCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.MenuListCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuImageListCommand;
@@ -16,6 +17,7 @@ import com.new_cafe.app.backend.admin.menu.application.result.UpdateMenuResult;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.CreateMenuRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.MenuListRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.ReorderMenusRequestDto;
+import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.ReorderMenuImagesRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.req.UpdateMenuRequestDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.CreateMenuResponseDto;
 import com.new_cafe.app.backend.admin.menu.adapter.in.web.dto.res.MenuDetailResponseDto;
@@ -177,6 +179,15 @@ public class AdminMenuController {
         Path target = dir.resolve(safeName);
         file.transferTo(target);
         adminMenuUseCase.addMenuImage(id, safeName, 0);
+    }
+
+    @PutMapping("/{id}/menu-images/order")
+    public void reorderMenuImages(@PathVariable Long id, @RequestBody ReorderMenuImagesRequestDto request) {
+        ReorderMenuImagesCommand command = ReorderMenuImagesCommand.builder()
+                .menuId(id)
+                .orderedImageIds(request.getOrderedImageIds() != null ? request.getOrderedImageIds() : java.util.Collections.emptyList())
+                .build();
+        adminMenuUseCase.reorderMenuImages(command);
     }
 
     @GetMapping("/{id}/menu-images")

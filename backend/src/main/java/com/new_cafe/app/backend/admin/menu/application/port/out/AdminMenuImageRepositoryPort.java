@@ -5,5 +5,6 @@ import java.util.List;
 
 public interface AdminMenuImageRepositoryPort {
     List<AdminMenuImage> findAllByMenuId(Long menuId);
+    AdminMenuImage findById(Long id);
     AdminMenuImage save(AdminMenuImage image);
 }

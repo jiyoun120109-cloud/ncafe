@@ -5,6 +5,7 @@ import com.new_cafe.app.backend.admin.menu.application.command.CreateMenuCommand
 import com.new_cafe.app.backend.admin.menu.application.command.UpdateMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.DeleteMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenusCommand;
+import com.new_cafe.app.backend.admin.menu.application.command.ReorderMenuImagesCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.MenuListCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuCommand;
 import com.new_cafe.app.backend.admin.menu.application.command.GetMenuImageListCommand;
@@ -234,13 +235,33 @@ public class AdminMenuService implements AdminMenuUseCase {
         if (adminMenuRepositoryPort.findById(menuId) == null) {
             throw new IllegalArgumentException("Menu not found: " + menuId);
         }
+        List<GetMenuImageListResult.MenuImageInfo> existing = getMenuImages(menuId);
+        int nextOrder = existing.size();
         AdminMenuImage image = AdminMenuImage.builder()
             .id(null)
             .menuId(menuId)
             .imageSrc(imageSrc)
-            .sortOrder(sortOrder)
+            .sortOrder(nextOrder)
             .build();
         adminMenuImageRepositoryPort.save(image);
+    }
+
+    @Override
+    public void reorderMenuImages(ReorderMenuImagesCommand command) {
+        if (command.getOrderedImageIds() == null || command.getOrderedImageIds().isEmpty()) return;
+        for (int i = 0; i < command.getOrderedImageIds().size(); i++) {
+            Long imageId = command.getOrderedImageIds().get(i);
+            AdminMenuImage image = adminMenuImageRepositoryPort.findById(imageId);
+            if (image != null && command.getMenuId().equals(image.getMenuId())) {
+                AdminMenuImage updated = AdminMenuImage.builder()
+                    .id(image.getId())
+                    .menuId(image.getMenuId())
+                    .imageSrc(image.getImageSrc())
+                    .sortOrder(i)
+                    .build();
+                adminMenuImageRepositoryPort.save(updated);
+            }
+        }
     }
 
     /**

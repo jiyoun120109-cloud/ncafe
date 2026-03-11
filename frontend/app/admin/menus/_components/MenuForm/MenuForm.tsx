@@ -134,21 +134,35 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
         control,
         name: 'options',
     });
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageFiles, setImageFiles] = useState<File[]>([]);
+    const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setImageFile(file);
-            const reader = new FileReader();
-            reader.onload = () => setImagePreview(reader.result as string);
-            reader.readAsDataURL(file);
-        } else {
-            setImageFile(null);
-            setImagePreview(null);
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        if (files.length === 0) return;
+        const maxAdd = 10 - imageFiles.length;
+        if (maxAdd <= 0) {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            return;
         }
+        const toAdd = files.slice(0, maxAdd);
+        Promise.all(
+            toAdd.map((file) => new Promise<string>((res) => {
+                const r = new FileReader();
+                r.onload = () => res(r.result as string);
+                r.readAsDataURL(file);
+            }))
+        ).then((urls) => {
+            setImageFiles((prev) => [...prev, ...toAdd].slice(0, 10));
+            setImagePreviews((prev) => [...prev, ...urls].slice(0, 10));
+        });
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const removeImageAt = (index: number) => {
+        setImageFiles((prev) => prev.filter((_, i) => i !== index));
+        setImagePreviews((prev) => prev.filter((_, i) => i !== index));
     };
 
     const num = (v: unknown): number | undefined => {
@@ -203,7 +217,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
         const optionsJson = optionsForJson.length ? JSON.stringify(optionsForJson) : undefined;
         onSubmit({
             ...data,
-            imageFile: imageFile ?? undefined,
+            imageFiles: imageFiles.length > 0 ? imageFiles : undefined,
             productInfoJson,
             optionsJson,
             options: data.options,
@@ -271,14 +285,15 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                 </div>
             </section>
 
-            {/* Image Upload Section */}
+            {/* Image Upload Section — 여러 장 등록 가능, 상세에서 대표 선택 */}
             <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>이미지 등록</h2>
+                <h2 className={styles.sectionTitle}>이미지 등록 (최대 10장)</h2>
                 <div className={styles.imageUploadGrid}>
                     <input
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={handleImageChange}
                         className={styles.fileInput}
                         aria-label="이미지 선택"
@@ -291,23 +306,24 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                         onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
                     >
                         <Upload size={24} />
-                        <span>이미지 업로드</span>
-                        <p>클릭하여 선택</p>
+                        <span>이미지 추가</span>
+                        <p>여러 장 선택 가능</p>
                     </div>
-                    {imagePreview ? (
-                        <div className={styles.imagePreview}>
-                            <img src={imagePreview} alt="미리보기" className={styles.previewImg} />
-                            <span className={styles.badge}>대표</span>
+                    {imagePreviews.map((src, index) => (
+                        <div key={index} className={styles.imagePreview}>
+                            <img src={src} alt={`미리보기 ${index + 1}`} className={styles.previewImg} />
+                            <span className={styles.badge}>{index === 0 ? '1번=대표' : index + 1}</span>
                             <button
                                 type="button"
                                 className={styles.removeImg}
-                                onClick={() => { setImageFile(null); setImagePreview(null); }}
-                                aria-label="이미지 제거"
+                                onClick={() => removeImageAt(index)}
+                                aria-label={`이미지 ${index + 1} 제거`}
                             >
                                 <X size={14} />
                             </button>
                         </div>
-                    ) : (
+                    ))}
+                    {imagePreviews.length === 0 && (
                         <div className={styles.imagePreviewPlaceholder}>
                             <ImageIcon size={32} />
                             <span>선택된 이미지 없음</span>
@@ -326,7 +342,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                     </label>
                     <label className={styles.checkboxLabel}>
                         <input type="checkbox" {...register('isNew')} />
-                        뉴
+                        NEW
                     </label>
                     <label className={styles.checkboxLabel}>
                         <input type="checkbox" {...register('isRecommended')} />

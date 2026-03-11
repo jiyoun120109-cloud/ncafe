@@ -164,19 +164,21 @@ export default function EditMenuPage() {
                 const errText = await res.text();
                 throw new Error(errText || '메뉴 수정에 실패했습니다.');
             }
-            if (data.imageFile) {
-                const formData = new FormData();
-                formData.append('file', data.imageFile);
-                const imgRes = await fetch(`${getApiBase()}/admin/menus/${id}/images`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    body: formData,
-                });
-                if (!imgRes.ok) {
-                    success('메뉴 정보가 수정되었습니다. 이미지 업로드에 실패했습니다.');
-                } else {
-                    success('메뉴 정보가 수정되었습니다.');
+            if (Array.isArray(data.imageFiles) && data.imageFiles.length > 0) {
+                for (const file of data.imageFiles) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const imgRes = await fetch(`${getApiBase()}/admin/menus/${id}/images`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData,
+                    });
+                    if (!imgRes.ok) {
+                        success('메뉴 정보가 수정되었습니다. 일부 이미지 업로드에 실패했습니다.');
+                        break;
+                    }
                 }
+                success('메뉴 정보가 수정되었습니다.');
             } else {
                 success('메뉴 정보가 수정되었습니다.');
             }

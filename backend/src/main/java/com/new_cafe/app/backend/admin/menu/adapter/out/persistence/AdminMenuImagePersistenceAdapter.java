@@ -24,30 +24,54 @@ public class AdminMenuImagePersistenceAdapter implements AdminMenuImageRepositor
     public List<AdminMenuImage> findAllByMenuId(Long menuId) {
         List<MenuImageEntity> entities = menuImageJpaRepository.findAllByMenuIdOrderBySortOrderAsc(menuId);
         return entities.stream()
-            .map(e -> AdminMenuImage.builder()
-                .id(e.getId())
-                .menuId(e.getMenuId())
-                .imageSrc(e.getImageSrc())
-                .sortOrder(e.getSortOrder())
-                .build())
+            .map(this::toAdminMenuImage)
             .collect(Collectors.toList());
     }
 
     @Override
-    public AdminMenuImage save(AdminMenuImage image) {
-        MenuImageEntity entity = MenuImageEntity.builder()
-            .id(image.getId())
-            .menuId(image.getMenuId())
-            .imageSrc(image.getImageSrc())
-            .createdAt(LocalDateTime.now())
-            .sortOrder(image.getSortOrder() != null ? image.getSortOrder() : 0)
-            .build();
-        MenuImageEntity saved = menuImageJpaRepository.save(entity);
+    public AdminMenuImage findById(Long id) {
+        if (id == null) return null;
+        return menuImageJpaRepository.findById(id)
+            .map(this::toAdminMenuImage)
+            .orElse(null);
+    }
+
+    private AdminMenuImage toAdminMenuImage(MenuImageEntity e) {
         return AdminMenuImage.builder()
-            .id(saved.getId())
-            .menuId(saved.getMenuId())
-            .imageSrc(saved.getImageSrc())
-            .sortOrder(saved.getSortOrder())
+            .id(e.getId())
+            .menuId(e.getMenuId())
+            .imageSrc(e.getImageSrc())
+            .sortOrder(e.getSortOrder())
             .build();
+    }
+
+    @Override
+    public AdminMenuImage save(AdminMenuImage image) {
+        int sortOrder = image.getSortOrder() != null ? image.getSortOrder() : 0;
+        MenuImageEntity saved;
+        if (image.getId() != null) {
+            MenuImageEntity existing = menuImageJpaRepository.findById(image.getId()).orElse(null);
+            if (existing != null) {
+                existing.setSortOrder(sortOrder);
+                saved = menuImageJpaRepository.save(existing);
+            } else {
+                saved = menuImageJpaRepository.save(MenuImageEntity.builder()
+                    .id(null)
+                    .menuId(image.getMenuId())
+                    .imageSrc(image.getImageSrc())
+                    .createdAt(LocalDateTime.now())
+                    .sortOrder(sortOrder)
+                    .build());
+            }
+        } else {
+            saved = menuImageJpaRepository.save(MenuImageEntity.builder()
+                .id(null)
+                .menuId(image.getMenuId())
+                .imageSrc(image.getImageSrc())
+                .createdAt(LocalDateTime.now())
+                .sortOrder(sortOrder)
+                .build());
+        }
+        return toAdminMenuImage(saved);
     }
 }

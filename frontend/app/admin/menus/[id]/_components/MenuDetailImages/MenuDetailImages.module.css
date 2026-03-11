@@ -46,14 +46,27 @@
 
 .thumbnailGrid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
     gap: 0.5rem;
     margin-top: 0.75rem;
+}
+
+.thumbnailWrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.thumbnailWrap.activeThumbnail .thumbnail {
+    border-color: #2a2825;
 }
 
 .thumbnail {
     position: relative;
     aspect-ratio: 1;
+    width: 100%;
     border-radius: 5px;
     overflow: hidden;
     border: 2px solid transparent;
@@ -63,4 +76,66 @@
 
 .thumbnail img { object-fit: cover; }
 
-.activeThumbnail { border-color: #2a2825; }
+.repBadge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.04em;
+}
+
+.repBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #5c4033;
+    background: rgba(139, 90, 43, 0.1);
+    border: 1px solid rgba(139, 90, 43, 0.25);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.repBtn:hover {
+    background: rgba(139, 90, 43, 0.18);
+    border-color: rgba(139, 90, 43, 0.4);
+}
+
+.uploadRow {
+    margin-top: 0.75rem;
+}
+
+.fileInput {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.addImageBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #5c4033;
+    background: #fff;
+    border: 1px dashed rgba(139, 90, 43, 0.35);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.addImageBtn:hover:not(:disabled) {
+    background: rgba(139, 90, 43, 0.06);
+    border-color: rgba(139, 90, 43, 0.5);
+}
+
+.addImageBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

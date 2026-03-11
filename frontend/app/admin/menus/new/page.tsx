@@ -90,16 +90,19 @@ export default function NewMenuPage() {
             const result = await res.json();
             const menuId = result?.id;
             success('새로운 메뉴가 등록되었습니다.');
-            if (menuId && data.imageFile) {
-                const formData = new FormData();
-                formData.append('file', data.imageFile);
-                const imgRes = await fetch(`${getApiBase()}/admin/menus/${menuId}/images`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    body: formData,
-                });
-                if (!imgRes.ok) {
-                    success('메뉴는 등록되었습니다. 이미지 업로드에 실패했습니다.');
+            if (menuId && Array.isArray(data.imageFiles) && data.imageFiles.length > 0) {
+                for (const file of data.imageFiles) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const imgRes = await fetch(`${getApiBase()}/admin/menus/${menuId}/images`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData,
+                    });
+                    if (!imgRes.ok) {
+                        success('메뉴는 등록되었습니다. 일부 이미지 업로드에 실패했습니다.');
+                        break;
+                    }
                 }
             }
             router.push('/admin/menus');
