@@ -33,30 +33,59 @@ export default function NewMenuPage() {
 
     const handleSubmit = async (data: any) => {
         try {
-            const res = await fetch(`${getApiBase()}/admin/menus/`, {
+            const rawCategory = data.category != null && data.category !== '' ? Number(data.category) : NaN;
+            const categoryId = Number.isFinite(rawCategory) ? rawCategory : (categories[0]?.id ?? 1);
+            const priceVal = Number(data.price);
+            const price = Number.isFinite(priceVal) && priceVal >= 0 ? priceVal : 0;
+
+            const num = (v: unknown): number | null => {
+                if (v == null || v === '') return null;
+                const n = Number(v);
+                return Number.isFinite(n) ? n : null;
+            };
+
+            const body: Record<string, unknown> = {
+                korName: typeof data.korName === 'string' ? data.korName : '',
+                engName: typeof data.engName === 'string' ? data.engName : '',
+                description: typeof data.description === 'string' ? data.description : '',
+                price,
+                categoryId: categoryId,
+                isAvailable: Boolean(!data.isSoldOut),
+                isPopular: Boolean(data.isPopular),
+                isNew: Boolean(data.isNew),
+                isRecommended: Boolean(data.isRecommended),
+                displayPriority: num(data.displayPriority) ?? 0,
+                likeCount: num(data.likeCount) ?? 0,
+                viewCount: num(data.viewCount) ?? 0,
+            };
+            if (data.optionsJson != null && data.optionsJson !== '') body.optionsJson = data.optionsJson;
+            else if (Array.isArray(data.options) && data.options.length > 0) {
+                body.optionsJson = JSON.stringify(data.options.map((o: { name?: string; type?: string; required?: boolean; items?: { name?: string; priceDelta?: number }[] }) => ({
+                    name: o.name ?? '',
+                    type: o.type === 'checkbox' ? 'checkbox' : 'radio',
+                    required: Boolean(o.required),
+                    items: (o.items ?? []).map((it: { name?: string; priceDelta?: number }) => ({ name: it.name ?? '', priceDelta: Number(it.priceDelta) || 0 })),
+                })));
+            }
+            if (data.productInfoJson != null && data.productInfoJson !== '') body.productInfoJson = data.productInfoJson;
+
+            const res = await fetch(`${getApiBase()}/admin/menus`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({
-                    korName: data.korName,
-                    engName: data.engName,
-                    description: data.description ?? '',
-                    price: Number(data.price) || 0,
-                    categoryId: Number(data.category) || categories[0]?.id || 1,
-                    isAvailable: !data.isSoldOut,
-                    optionsJson: data.optionsJson ?? (data.options?.length ? JSON.stringify(data.options) : undefined),
-                    productInfoJson: data.productInfoJson ?? undefined,
-                    isPopular: data.isPopular ?? false,
-                    isNew: data.isNew ?? false,
-                    isRecommended: data.isRecommended ?? false,
-                    displayPriority: data.displayPriority ?? 0,
-                    likeCount: data.likeCount ?? 0,
-                    viewCount: data.viewCount ?? 0,
-                }),
+                body: JSON.stringify(body),
             });
             if (!res.ok) {
                 const errText = await res.text();
-                throw new Error(errText || '메뉴 등록에 실패했습니다.');
+                let message = '메뉴 등록에 실패했습니다.';
+                try {
+                    const errJson = JSON.parse(errText);
+                    if (errJson.message) message = errJson.message;
+                    else if (errJson.error) message = errJson.error;
+                } catch {
+                    if (errText.trim()) message = errText;
+                }
+                throw new Error(message);
             }
             const result = await res.json();
             const menuId = result?.id;
