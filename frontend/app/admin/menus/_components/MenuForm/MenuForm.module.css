@@ -345,6 +345,10 @@
 }
 
 @media (max-width: 640px) {
+    .form {
+        gap: 1.5rem;
+    }
+
     .grid {
         grid-template-columns: 1fr;
     }
@@ -356,5 +360,42 @@
     .optionRow {
         grid-template-columns: 1fr;
         gap: 0.5rem;
+    }
+
+    .input,
+    .select,
+    .textarea {
+        min-height: 44px;
+        padding: 0.75rem 0.875rem;
+    }
+
+    .textarea {
+        min-height: 120px;
+    }
+
+    .actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .cancelBtn,
+    .submitBtn {
+        min-height: 44px;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .imageUploadGrid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}
+
+@media (max-width: 380px) {
+    .sectionTitle {
+        font-size: 0.7rem;
+    }
+
+    .addBtn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
     }
 }

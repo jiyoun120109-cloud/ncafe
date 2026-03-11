@@ -26,6 +26,8 @@ jobs:
           echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
           echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> .env
+          # RAG: agent-server가 같은 DB(ncafedb)에 pgvector로 문서 임베딩 저장. 미설정 시 메모리만 사용해 배포에서 문서 저장이 동작하지 않음.
+          echo "RAG_DATABASE_URL=postgresql://ncafe:${DB_PASSWORD}@db:5432/ncafedb" >> .env
         env:
           COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
           USER_ID: ${{ vars.USER_ID }}

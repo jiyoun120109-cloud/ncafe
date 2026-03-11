@@ -3,6 +3,7 @@
     flex-direction: column;
     gap: 2rem;
     max-width: 960px;
+    padding: 0 0.5rem;
 }
 
 .pageHeader {
@@ -86,6 +87,17 @@
     resize: vertical;
 }
 
+@media (max-width: 640px) {
+    .input {
+        max-width: none;
+        min-height: 44px;
+    }
+
+    .textarea {
+        min-height: 140px;
+    }
+}
+
 .textarea::placeholder {
     color: rgba(0, 0, 0, 0.35);
 }
@@ -100,6 +112,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s ease;
+    min-height: 44px;
 }
 
 .submitBtn:hover:not(:disabled) {
@@ -291,8 +304,146 @@
     background: rgba(0, 0, 0, 0.04);
 }
 
+/* ── 모바일: 문서 카드 목록 (테이블 대신) ── */
+.cardList {
+    display: none;
+}
+
+.cardItem {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.cardItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardItemId {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.45);
+    font-variant-numeric: tabular-nums;
+}
+
+.cardItemTitle {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1c1917;
+    flex: 1;
+    min-width: 0;
+}
+
+.cardItemPreview {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.cardItemMeta {
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.45);
+    margin-bottom: 0.75rem;
+}
+
+.cardItemActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.cardItemActions .actionBtn {
+    min-height: 40px;
+    padding: 0.5rem 0.75rem;
+}
+
 @media (max-width: 768px) {
-    .tableWrap { font-size: 0.8rem; }
-    .th, .td { padding: 0.5rem 0.75rem; }
-    .contentPreview { max-width: 180px; }
+    .page {
+        padding: 0 0.75rem;
+        gap: 1.5rem;
+    }
+
+    .pageTitle {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .tableWrap {
+        font-size: 0.8rem;
+    }
+
+    .th,
+    .td {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .contentPreview {
+        max-width: 180px;
+    }
+
+    .overlay {
+        padding: 0.75rem;
+        align-items: flex-end;
+    }
+
+    .modal {
+        max-height: 85vh;
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .page {
+        padding: 0 1rem;
+        gap: 1.25rem;
+    }
+
+    .pageTitle {
+        font-size: 1.35rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .tableWrap {
+        display: none;
+    }
+
+    .cardList {
+        display: block;
+    }
+
+    .sectionTitle {
+        font-size: 0.8rem;
+    }
+
+    .actionBtn {
+        min-height: 44px;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: none;
+        border-radius: 12px 12px 0 0;
+        max-height: 88vh;
+    }
+
+    .cancelBtn {
+        min-height: 44px;
+    }
 }

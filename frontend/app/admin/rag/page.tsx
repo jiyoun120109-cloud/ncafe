@@ -190,73 +190,129 @@ export default function AdminRagPage() {
                 ) : documents.length === 0 ? (
                     <div className={styles.emptyList}>저장된 문서가 없습니다. 위에서 문서를 추가해 보세요.</div>
                 ) : (
-                    <div className={styles.tableWrap}>
-                        <table className={styles.table}>
-                            <thead>
-                                <tr>
-                                    <th className={styles.th}>ID</th>
-                                    <th className={styles.th}>제목</th>
-                                    <th className={styles.th}>내용 미리보기</th>
-                                    <th className={styles.th}>저장일시</th>
-                                    <th className={styles.th}>관리</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {documents.map((doc) => (
-                                    <tr key={doc.id} className={styles.tr}>
-                                        <td className={`${styles.td} ${styles.idCell}`}>{doc.id}</td>
-                                        <td className={styles.td}>{doc.title || '—'}</td>
-                                        <td className={styles.td}>
-                                            <span className={styles.contentPreview}>
-                                                {doc.content || '—'}
-                                            </span>
-                                        </td>
-                                        <td className={`${styles.td} ${styles.dateCell}`}>
-                                            {formatDate(doc.createdAt)}
-                                        </td>
-                                        <td className={styles.td}>
-                                            <div className={styles.actions}>
-                                                <button
-                                                    type="button"
-                                                    className={styles.actionBtn}
-                                                    onClick={() => openEdit(doc)}
-                                                >
-                                                    수정
-                                                </button>
-                                                {deleteConfirmId === doc.id ? (
-                                                    <>
-                                                        <span className={styles.dateCell}>삭제할까요?</span>
+                    <>
+                        {/* 데스크톱: 테이블 */}
+                        <div className={styles.tableWrap}>
+                            <table className={styles.table}>
+                                <thead>
+                                    <tr>
+                                        <th className={styles.th}>ID</th>
+                                        <th className={styles.th}>제목</th>
+                                        <th className={styles.th}>내용 미리보기</th>
+                                        <th className={styles.th}>저장일시</th>
+                                        <th className={styles.th}>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {documents.map((doc) => (
+                                        <tr key={doc.id} className={styles.tr}>
+                                            <td className={`${styles.td} ${styles.idCell}`}>{doc.id}</td>
+                                            <td className={styles.td}>{doc.title || '—'}</td>
+                                            <td className={styles.td}>
+                                                <span className={styles.contentPreview}>
+                                                    {doc.content || '—'}
+                                                </span>
+                                            </td>
+                                            <td className={`${styles.td} ${styles.dateCell}`}>
+                                                {formatDate(doc.createdAt)}
+                                            </td>
+                                            <td className={styles.td}>
+                                                <div className={styles.actions}>
+                                                    <button
+                                                        type="button"
+                                                        className={styles.actionBtn}
+                                                        onClick={() => openEdit(doc)}
+                                                    >
+                                                        수정
+                                                    </button>
+                                                    {deleteConfirmId === doc.id ? (
+                                                        <>
+                                                            <span className={styles.dateCell}>삭제할까요?</span>
+                                                            <button
+                                                                type="button"
+                                                                className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                                                                onClick={() => handleDelete(doc.id)}
+                                                            >
+                                                                예
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                className={styles.actionBtn}
+                                                                onClick={() => setDeleteConfirmId(null)}
+                                                            >
+                                                                아니오
+                                                            </button>
+                                                        </>
+                                                    ) : (
                                                         <button
                                                             type="button"
                                                             className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
-                                                            onClick={() => handleDelete(doc.id)}
+                                                            onClick={() => setDeleteConfirmId(doc.id)}
                                                         >
-                                                            예
+                                                            삭제
                                                         </button>
-                                                        <button
-                                                            type="button"
-                                                            className={styles.actionBtn}
-                                                            onClick={() => setDeleteConfirmId(null)}
-                                                        >
-                                                            아니오
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <button
-                                                        type="button"
-                                                        className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
-                                                        onClick={() => setDeleteConfirmId(doc.id)}
-                                                    >
-                                                        삭제
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* 모바일: 카드 목록 */}
+                        <div className={styles.cardList}>
+                            {documents.map((doc) => (
+                                <div key={doc.id} className={styles.cardItem}>
+                                    <div className={styles.cardItemHeader}>
+                                        <span className={styles.cardItemId}>ID {doc.id}</span>
+                                        <span className={styles.cardItemTitle}>{doc.title || '—'}</span>
+                                    </div>
+                                    <div className={styles.cardItemPreview}>
+                                        {doc.content || '—'}
+                                    </div>
+                                    <div className={styles.cardItemMeta}>
+                                        {formatDate(doc.createdAt)}
+                                    </div>
+                                    <div className={styles.cardItemActions}>
+                                        <button
+                                            type="button"
+                                            className={styles.actionBtn}
+                                            onClick={() => openEdit(doc)}
+                                        >
+                                            수정
+                                        </button>
+                                        {deleteConfirmId === doc.id ? (
+                                            <>
+                                                <span className={styles.dateCell}>삭제할까요?</span>
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                                                    onClick={() => handleDelete(doc.id)}
+                                                >
+                                                    예
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={styles.actionBtn}
+                                                    onClick={() => setDeleteConfirmId(null)}
+                                                >
+                                                    아니오
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                                                onClick={() => setDeleteConfirmId(doc.id)}
+                                            >
+                                                삭제
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>
                 )}
             </section>
 
