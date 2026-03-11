@@ -26,6 +26,12 @@ public class AdminMenu {
     private String optionsJson;
     /** 상품 정보 제공 고시 JSON (영양정보, 알레르기정보 등) */
     private String productInfoJson;
+    private Boolean isPopular;
+    private Boolean isNew;
+    private Boolean isRecommended;
+    private Integer displayPriority;
+    private Integer likeCount;
+    private Integer viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

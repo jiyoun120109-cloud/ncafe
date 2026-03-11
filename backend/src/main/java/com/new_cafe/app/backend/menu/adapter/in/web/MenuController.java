@@ -35,6 +35,7 @@ public class MenuController {
         MenuListCommand command = MenuListCommand.builder()
             .categoryId(request.getCategoryId())
             .searchQuery(request.getSearchQuery())
+            .sortBy(request.getSort() != null && !request.getSort().isBlank() ? request.getSort().trim() : "priority")
             .build();
 
         // UseCase 실행
@@ -73,6 +74,7 @@ public class MenuController {
             .isAvailable(result.getIsAvailable())
             .description(result.getDescription())
             .productInfoJson(result.getProductInfoJson())
+            .optionsJson(result.getOptionsJson())
             .createdAt(result.getCreatedAt())
             .updatedAt(result.getUpdatedAt())
             .build();
@@ -114,6 +116,10 @@ public class MenuController {
             .imageSrc(menuInfo.getImageSrc())
             .isAvailable(menuInfo.getIsAvailable())
             .description(menuInfo.getDescription())
+            .badgeTypes(menuInfo.getBadgeTypes())
+            .displayPriority(menuInfo.getDisplayPriority())
+            .likeCount(menuInfo.getLikeCount())
+            .viewCount(menuInfo.getViewCount())
             .createdAt(menuInfo.getCreatedAt())
             .updatedAt(menuInfo.getUpdatedAt())
             .build();

@@ -106,6 +106,13 @@ export default function MenuCard({ menu }: MenuCardProps) {
                         <span className={styles.soldOutBadge}>품절</span>
                     </div>
                 )}
+                {menu.badgeTypes && menu.badgeTypes.length > 0 && (
+                    <div className={styles.badgeWrap}>
+                        {menu.badgeTypes.includes('popular') && <span className={styles.badgePopular}>인기</span>}
+                        {menu.badgeTypes.includes('new') && <span className={styles.badgeNew}>뉴</span>}
+                        {menu.badgeTypes.includes('recommended') && <span className={styles.badgeRecommended}>추천</span>}
+                    </div>
+                )}
             </div>
 
             {/* 컨텐츠 */}

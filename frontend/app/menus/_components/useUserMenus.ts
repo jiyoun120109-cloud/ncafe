@@ -12,6 +12,9 @@ export interface UserMenuResponse {
     categoryName: string;
     imageSrc: string;
     isAvailable: boolean;
+    badgeTypes?: string[];
+    likeCount?: number;
+    viewCount?: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -24,6 +27,8 @@ export interface UserMenuListResponse {
 export interface UserMenuListRequest {
     categoryId: number | null;
     searchQuery: string;
+    /** 정렬: priority | likes | views | price_asc | price_desc */
+    sort?: string;
 }
 
 export function useUserMenus(request: UserMenuListRequest) {
@@ -37,6 +42,9 @@ export function useUserMenus(request: UserMenuListRequest) {
         }
         if (request.searchQuery) {
             url.searchParams.set('searchQuery', request.searchQuery);
+        }
+        if (request.sort) {
+            url.searchParams.set('sort', request.sort);
         }
         let cancelled = false;
         fetch(url.toString())
@@ -57,7 +65,7 @@ export function useUserMenus(request: UserMenuListRequest) {
                 if (!cancelled) setLoading(false);
             });
         return () => { cancelled = true; };
-    }, [request.categoryId, request.searchQuery]);
+    }, [request.categoryId, request.searchQuery, request.sort]);
 
     return { menus, loading };
 }

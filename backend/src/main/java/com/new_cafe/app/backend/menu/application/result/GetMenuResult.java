@@ -25,4 +25,6 @@ public class GetMenuResult {
     private String description;
     /** 상품 정보 제공 고시 JSON */
     private String productInfoJson;
+    /** 옵션 목록 JSON (메뉴 디테일에서 선택) */
+    private String optionsJson;
 }

@@ -8,12 +8,21 @@ import MenuList from './_components/MenuList/MenuList';
 import { useUserCategories } from './_components/useUserCategories';
 import styles from './page.module.css';
 
+const SORT_OPTIONS = [
+    { value: 'priority', label: '우선순위순' },
+    { value: 'likes', label: '좋아요순' },
+    { value: 'views', label: '조회순' },
+    { value: 'price_asc', label: '가격 낮은순' },
+    { value: 'price_desc', label: '가격 높은순' },
+] as const;
+
 function MenusPageContent() {
     const searchParams = useSearchParams();
     const categoryParam = searchParams.get('category');
     const { categories } = useUserCategories();
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sort, setSort] = useState<string>('priority');
     const [page, setPage] = useState(1);
 
     useEffect(() => {
@@ -24,7 +33,7 @@ function MenusPageContent() {
 
     useEffect(() => {
         setPage(1);
-    }, [selectedCategory, searchQuery]);
+    }, [selectedCategory, searchQuery, sort]);
 
     return (
         <div className={styles.pageLayout}>
@@ -41,10 +50,29 @@ function MenusPageContent() {
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                     />
+                    <div className={styles.sortWrap}>
+                        <label htmlFor="menu-sort" className={styles.sortLabel}>
+                            정렬
+                        </label>
+                        <select
+                            id="menu-sort"
+                            className={styles.sortSelect}
+                            value={sort}
+                            onChange={(e) => setSort(e.target.value)}
+                            aria-label="메뉴 정렬"
+                        >
+                            {SORT_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 <MenuList
                     selectedCategory={selectedCategory}
                     searchQuery={searchQuery}
+                    sort={sort}
                     page={page}
                     onPageChange={setPage}
                     pageSize={12}

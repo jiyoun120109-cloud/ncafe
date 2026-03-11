@@ -25,4 +25,6 @@ public class MenuDetailResponseDto {
     private String description;
     /** 상품 정보 제공 고시 JSON */
     private String productInfoJson;
+    /** 옵션 목록 JSON */
+    private String optionsJson;
 }

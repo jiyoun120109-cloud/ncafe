@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Control, FieldValues } from 'react-hook-form';
 import { Menu, MenuCategory, ProductInfo } from '@/types/menu';
 import { Plus, Trash2, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Button from '@/components/common/Button';
@@ -57,6 +57,49 @@ function productInfoFromInitial(p?: ProductInfo | null): ProductInfo & { allerge
     };
 }
 
+/** 옵션별 항목(예: 레귤러 +0원) 리스트 - options[index].items */
+function OptionItemList({
+    control,
+    optionIndex,
+}: {
+    control: Control<FieldValues>;
+    optionIndex: number;
+}) {
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: `options.${optionIndex}.items`,
+    });
+    return (
+        <div className={styles.optionItemList}>
+            {fields.map((item, idx) => (
+                <div key={item.id} className={styles.optionItemRow}>
+                    <input
+                        className={styles.input}
+                        {...control.register(`options.${optionIndex}.items.${idx}.name` as const)}
+                        placeholder="항목명 (예: 레귤러)"
+                    />
+                    <input
+                        type="number"
+                        className={styles.input}
+                        {...control.register(`options.${optionIndex}.items.${idx}.priceDelta` as const, {
+                            valueAsNumber: true,
+                            setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)),
+                        })}
+                        placeholder="가격 추가"
+                    />
+                    <span className={styles.optionItemUnit}>원</span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => remove(idx)} className={styles.deleteBtn}>
+                        <Trash2 size={14} />
+                    </Button>
+                </div>
+            ))}
+            <Button type="button" variant="ghost" size="sm" onClick={() => append({ name: '', priceDelta: 0 })} leftIcon={<Plus size={14} />}>
+                항목 추가
+            </Button>
+        </div>
+    );
+}
+
 export default function MenuForm({ initialData, categories, onSubmit, onCancel }: MenuFormProps) {
     const {
         register,
@@ -71,7 +114,18 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
             description: initialData?.description || '',
             category: initialData?.category || categories[0]?.id || '',
             isSoldOut: initialData?.isSoldOut || false,
-            options: initialData?.options || [],
+            isPopular: (initialData as any)?.isPopular ?? false,
+            isNew: (initialData as any)?.isNew ?? false,
+            isRecommended: (initialData as any)?.isRecommended ?? false,
+            displayPriority: (initialData as any)?.displayPriority ?? 0,
+            likeCount: (initialData as any)?.likeCount ?? 0,
+            viewCount: (initialData as any)?.viewCount ?? 0,
+            options: initialData?.options?.length
+                ? initialData.options.map((o) => ({
+                      ...o,
+                      items: o.items?.length ? o.items : [],
+                  }))
+                : [],
             productInfo: productInfoFromInitial(initialData?.productInfo),
         },
     });
@@ -138,7 +192,28 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                 cleaned.storage;
             productInfoJson = hasAny ? JSON.stringify(cleaned) : undefined;
         }
-        onSubmit({ ...data, imageFile: imageFile ?? undefined, productInfoJson });
+        const optionsForJson = Array.isArray(data.options)
+            ? data.options.map((o: { name?: string; type?: string; required?: boolean; items?: { name?: string; priceDelta?: number }[] }) => ({
+                  name: o.name ?? '',
+                  type: o.type === 'checkbox' ? 'checkbox' : 'radio',
+                  required: Boolean(o.required),
+                  items: (o.items ?? []).map((it) => ({ name: it.name ?? '', priceDelta: Number(it.priceDelta) || 0 })),
+              }))
+            : [];
+        const optionsJson = optionsForJson.length ? JSON.stringify(optionsForJson) : undefined;
+        onSubmit({
+            ...data,
+            imageFile: imageFile ?? undefined,
+            productInfoJson,
+            optionsJson,
+            options: data.options,
+            isPopular: Boolean(data.isPopular),
+            isNew: Boolean(data.isNew),
+            isRecommended: Boolean(data.isRecommended),
+            displayPriority: num(data.displayPriority) ?? 0,
+            likeCount: num(data.likeCount) ?? 0,
+            viewCount: num(data.viewCount) ?? 0,
+        });
     };
 
     return (
@@ -241,6 +316,48 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                 </div>
             </section>
 
+            {/* Badge & Display Section */}
+            <section className={styles.section}>
+                <h2 className={styles.sectionTitle}>노출·배지</h2>
+                <div className={styles.badgeGrid}>
+                    <label className={styles.checkboxLabel}>
+                        <input type="checkbox" {...register('isPopular')} />
+                        인기
+                    </label>
+                    <label className={styles.checkboxLabel}>
+                        <input type="checkbox" {...register('isNew')} />
+                        뉴
+                    </label>
+                    <label className={styles.checkboxLabel}>
+                        <input type="checkbox" {...register('isRecommended')} />
+                        추천
+                    </label>
+                </div>
+                <div className={styles.grid}>
+                    <Input
+                        label="노출 우선순위 (숫자 작을수록 앞)"
+                        type="number"
+                        {...register('displayPriority', { setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)) })}
+                        placeholder="0"
+                        fullWidth
+                    />
+                    <Input
+                        label="좋아요 수"
+                        type="number"
+                        {...register('likeCount', { setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)) })}
+                        placeholder="0"
+                        fullWidth
+                    />
+                    <Input
+                        label="조회수"
+                        type="number"
+                        {...register('viewCount', { setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)) })}
+                        placeholder="0"
+                        fullWidth
+                    />
+                </div>
+            </section>
+
             {/* Options Section */}
             <section className={styles.section}>
                 <div className={styles.sectionHeader}>
@@ -262,7 +379,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                             <div className={styles.optionRow}>
                                 <Input
                                     {...register(`options.${index}.name` as const)}
-                                    placeholder="옵션명 (예: 사이즈, 샷 추가)"
+                                    placeholder="옵션명 (예: 온도, 사이즈)"
                                     fullWidth
                                 />
                                 <select {...register(`options.${index}.type` as const)} className={styles.select}>
@@ -283,6 +400,7 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                                     <Trash2 size={18} />
                                 </Button>
                             </div>
+                            <OptionItemList control={control} optionIndex={index} />
                         </div>
                     ))}
                     {optionFields.length === 0 && (

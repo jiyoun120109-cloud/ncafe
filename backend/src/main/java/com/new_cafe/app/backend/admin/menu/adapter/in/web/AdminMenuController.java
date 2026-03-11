@@ -74,6 +74,12 @@ public class AdminMenuController {
                 .isAvailable(request.getIsAvailable())
                 .optionsJson(request.getOptionsJson())
                 .productInfoJson(request.getProductInfoJson())
+                .isPopular(request.getIsPopular())
+                .isNew(request.getIsNew())
+                .isRecommended(request.getIsRecommended())
+                .displayPriority(request.getDisplayPriority())
+                .likeCount(request.getLikeCount())
+                .viewCount(request.getViewCount())
                 .build();
 
         CreateMenuResult result = adminMenuUseCase.createMenu(command);
@@ -94,6 +100,12 @@ public class AdminMenuController {
                 .isAvailable(request.getIsAvailable())
                 .optionsJson(request.getOptionsJson())
                 .productInfoJson(request.getProductInfoJson())
+                .isPopular(request.getIsPopular())
+                .isNew(request.getIsNew())
+                .isRecommended(request.getIsRecommended())
+                .displayPriority(request.getDisplayPriority())
+                .likeCount(request.getLikeCount())
+                .viewCount(request.getViewCount())
                 .build();
 
         UpdateMenuResult result = adminMenuUseCase.updateMenu(command);
@@ -136,6 +148,12 @@ public class AdminMenuController {
             .isAvailable(result.getIsAvailable())
             .optionsJson(result.getOptionsJson())
             .productInfoJson(result.getProductInfoJson())
+            .isPopular(result.getIsPopular())
+            .isNew(result.getIsNew())
+            .isRecommended(result.getIsRecommended())
+            .displayPriority(result.getDisplayPriority())
+            .likeCount(result.getLikeCount())
+            .viewCount(result.getViewCount())
             .createdAt(result.getCreatedAt())
             .updatedAt(result.getUpdatedAt())
             .build();

@@ -31,6 +31,10 @@ public class MenuListResult {
         private String categoryName;
         private String imageSrc;
         private Boolean isAvailable;
+        private java.util.List<String> badgeTypes;
+        private Integer displayPriority;
+        private Integer likeCount;
+        private Integer viewCount;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }

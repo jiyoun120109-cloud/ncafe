@@ -15,4 +15,6 @@ import lombok.NoArgsConstructor;
 public class MenuListCommand {
     private Integer categoryId;
     private String searchQuery;
+    /** 정렬: priority, likes, views, price_asc, price_desc */
+    private String sortBy;
 }

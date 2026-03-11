@@ -14,6 +14,7 @@ import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
 import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.menu.model.MenuImage;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,8 @@ public class MenuService implements UserMenuUseCase {
     public MenuListResult getMenus(MenuListCommand command) {
         List<Menu> menus = menuRepositoryPort.findAllByCategoryIdAndSearchQuery(
                 command.getCategoryId(),
-                command.getSearchQuery());
+                command.getSearchQuery(),
+                command.getSortBy());
 
         List<MenuInfo> menuInfos = menus.stream()
                 .map(this::convertToMenuInfo)
@@ -74,6 +76,7 @@ public class MenuService implements UserMenuUseCase {
                 .categoryName(categoryName)
                 .isAvailable(menu.getIsAvailable())
                 .productInfoJson(menu.getProductInfoJson())
+                .optionsJson(menu.getOptionsJson())
                 .createdAt(menu.getCreatedAt())
                 .updatedAt(menu.getUpdatedAt())
                 .build();
@@ -98,6 +101,10 @@ public class MenuService implements UserMenuUseCase {
         List<MenuImageInfo> images = getMenuImages(menu.getId());
         String mainImageSrc = images.isEmpty() ? null : images.get(0).getImageUrl();
         String categoryName = menu.getCategory() != null ? menu.getCategory().getName() : "";
+        List<String> badgeTypes = new ArrayList<>();
+        if (Boolean.TRUE.equals(menu.getIsPopular())) badgeTypes.add("popular");
+        if (Boolean.TRUE.equals(menu.getIsNew())) badgeTypes.add("new");
+        if (Boolean.TRUE.equals(menu.getIsRecommended())) badgeTypes.add("recommended");
 
         return MenuInfo.builder()
                 .id(menu.getId())
@@ -108,6 +115,10 @@ public class MenuService implements UserMenuUseCase {
                 .categoryName(categoryName)
                 .imageSrc(mainImageSrc)
                 .isAvailable(menu.getIsAvailable())
+                .badgeTypes(badgeTypes)
+                .displayPriority(menu.getDisplayPriority())
+                .likeCount(menu.getLikeCount() != null ? menu.getLikeCount() : 0)
+                .viewCount(menu.getViewCount() != null ? menu.getViewCount() : 0)
                 .createdAt(menu.getCreatedAt())
                 .updatedAt(menu.getUpdatedAt())
                 .build();

@@ -76,6 +76,42 @@
     border-radius: 3px;
 }
 
+/* 배지 (인기/뉴/추천) */
+.badgeWrap {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    z-index: 5;
+}
+
+.badgePopular,
+.badgeNew,
+.badgeRecommended {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.badgePopular {
+    background: #dc2626;
+    color: #fff;
+}
+
+.badgeNew {
+    background: #2563eb;
+    color: #fff;
+}
+
+.badgeRecommended {
+    background: #16a34a;
+    color: #fff;
+}
+
 /* ── 컨텐츠 영역 ── */
 .content {
     padding: 1.1rem 1.1rem 1rem;

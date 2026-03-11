@@ -62,6 +62,16 @@
     margin-bottom: 0.4rem;
 }
 
+.requiredMark {
+    color: #dc2626;
+}
+
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .temperatureRow {
     display: flex;
     gap: 0.5rem;

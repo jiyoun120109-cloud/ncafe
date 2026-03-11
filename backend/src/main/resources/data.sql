@@ -72,6 +72,24 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'product_info_json') THEN
         ALTER TABLE menus ADD COLUMN product_info_json TEXT;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'is_popular') THEN
+        ALTER TABLE menus ADD COLUMN is_popular BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'is_new') THEN
+        ALTER TABLE menus ADD COLUMN is_new BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'is_recommended') THEN
+        ALTER TABLE menus ADD COLUMN is_recommended BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'display_priority') THEN
+        ALTER TABLE menus ADD COLUMN display_priority INT DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'like_count') THEN
+        ALTER TABLE menus ADD COLUMN like_count INT DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'menus' AND column_name = 'view_count') THEN
+        ALTER TABLE menus ADD COLUMN view_count INT DEFAULT 0;
+    END IF;
 END $$;
 
 -- 메뉴 삽입 (category_id: 1=커피, 2=라떼, 6=베이커리. 디테일 페이지 옵션(온도/원두/디카페인)은 커피(1)만 적용)
@@ -118,6 +136,15 @@ UPDATE menus SET product_info_json = '{"weightG":190,"calorieKcal":420,"nutritio
 UPDATE menus SET product_info_json = '{"weightG":200,"calorieKcal":400,"nutrition":{"sodiumMg":950,"carbsG":36,"sugarsG":4,"fatG":16,"transFatG":0,"saturatedFatG":5,"cholesterolMg":60,"proteinG":26},"allergens":["밀","닭고기","우유","대두"],"storage":"냉장보관(0~10℃)"}' WHERE id = 18;
 UPDATE menus SET product_info_json = '{"weightG":85,"calorieKcal":380,"nutrition":{"sodiumMg":220,"carbsG":38,"sugarsG":12,"fatG":22,"transFatG":0,"saturatedFatG":12,"cholesterolMg":45,"proteinG":6},"allergens":["밀","우유","달걀","대두"],"storage":"상온보관"}' WHERE id = 19;
 UPDATE menus SET product_info_json = '{"weightG":120,"calorieKcal":320,"nutrition":{"sodiumMg":80,"carbsG":35,"sugarsG":28,"fatG":18,"transFatG":0,"saturatedFatG":10,"cholesterolMg":95,"proteinG":5},"allergens":["우유","달걀","대두"],"storage":"냉장보관(0~10℃)"}' WHERE id = 20;
+
+-- 배지·우선순위·좋아요·조회수 시드 (인기/뉴/추천, 노출 우선순위)
+UPDATE menus SET is_popular = true, display_priority = 10, like_count = 120, view_count = 850 WHERE id = 1;
+UPDATE menus SET is_new = true, display_priority = 9, like_count = 80, view_count = 420 WHERE id = 6;
+UPDATE menus SET is_recommended = true, display_priority = 8, like_count = 95, view_count = 610 WHERE id = 2;
+UPDATE menus SET is_popular = true, is_recommended = true, display_priority = 7, like_count = 110, view_count = 720 WHERE id = 4;
+UPDATE menus SET is_new = true, display_priority = 6, like_count = 45, view_count = 280 WHERE id = 8;
+UPDATE menus SET like_count = 60, view_count = 390 WHERE id = 3;
+UPDATE menus SET like_count = 30, view_count = 180 WHERE id = 5;
 
 -- 장바구니 (비회원: guest_session_id, 회원: user_id)
 CREATE TABLE IF NOT EXISTS carts (

@@ -24,6 +24,10 @@ public class MenuResponseDto {
     private Boolean isAvailable;
     private Boolean isSoldOut;
     private Integer sortOrder;
+    private java.util.List<String> badgeTypes;
+    private Integer displayPriority;
+    private Integer likeCount;
+    private Integer viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

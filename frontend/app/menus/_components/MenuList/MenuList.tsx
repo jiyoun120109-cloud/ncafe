@@ -10,13 +10,14 @@ const DEFAULT_PAGE_SIZE = 12;
 interface MenuListProps {
     selectedCategory: number | null;
     searchQuery: string;
+    sort?: string;
     page?: number;
     onPageChange?: (page: number) => void;
     pageSize?: number;
 }
 
-export default function MenuList({ selectedCategory, searchQuery, page = 1, onPageChange, pageSize = DEFAULT_PAGE_SIZE }: MenuListProps) {
-    const { menus, loading } = useUserMenus({ categoryId: selectedCategory, searchQuery });
+export default function MenuList({ selectedCategory, searchQuery, sort = 'priority', page = 1, onPageChange, pageSize = DEFAULT_PAGE_SIZE }: MenuListProps) {
+    const { menus, loading } = useUserMenus({ categoryId: selectedCategory, searchQuery, sort });
     const total = menus.length;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
     const currentPage = Math.min(Math.max(1, page), totalPages);

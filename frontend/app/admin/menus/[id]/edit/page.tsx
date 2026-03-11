@@ -23,22 +23,30 @@ interface MenuDetailApiResponse {
     isAvailable: boolean;
     optionsJson: string | null;
     productInfoJson: string | null;
+    isPopular: boolean | null;
+    isNew: boolean | null;
+    isRecommended: boolean | null;
+    displayPriority: number | null;
+    likeCount: number | null;
+    viewCount: number | null;
     createdAt: string;
     updatedAt: string;
 }
 
-function apiResponseToInitialData(res: MenuDetailApiResponse): Partial<Menu> {
+function apiResponseToInitialData(res: MenuDetailApiResponse): Partial<Menu> & Record<string, unknown> {
     let options: MenuOption[] = [];
     if (res.optionsJson?.trim()) {
         try {
-            const parsed = JSON.parse(res.optionsJson) as { name?: string; type?: string; required?: boolean }[];
+            const parsed = JSON.parse(res.optionsJson) as { name?: string; type?: string; required?: boolean; items?: { name?: string; priceDelta?: number }[] }[];
             options = Array.isArray(parsed)
                 ? parsed.map((o, i) => ({
                       id: i,
                       name: o.name ?? '',
                       type: (o.type === 'checkbox' ? 'checkbox' : 'radio') as MenuOption['type'],
                       required: Boolean(o.required),
-                      items: [],
+                      items: Array.isArray(o.items)
+                          ? o.items.map((it, j) => ({ id: j, name: it.name ?? '', priceDelta: Number(it.priceDelta) || 0 }))
+                          : [],
                   }))
                 : [];
         } catch {
@@ -66,6 +74,12 @@ function apiResponseToInitialData(res: MenuDetailApiResponse): Partial<Menu> {
         productInfo,
         images: [],
         sortOrder: 0,
+        isPopular: res.isPopular ?? false,
+        isNew: res.isNew ?? false,
+        isRecommended: res.isRecommended ?? false,
+        displayPriority: res.displayPriority ?? 0,
+        likeCount: res.likeCount ?? 0,
+        viewCount: res.viewCount ?? 0,
     };
 }
 
@@ -136,8 +150,14 @@ export default function EditMenuPage() {
                     price: Number(data.price) || 0,
                     categoryId: Number(data.category) ?? menu?.category ?? categories[0]?.id,
                     isAvailable: !data.isSoldOut,
-                    optionsJson: data.options?.length ? JSON.stringify(data.options) : null,
+                    optionsJson: data.optionsJson ?? (data.options?.length ? JSON.stringify(data.options) : null),
                     productInfoJson: data.productInfoJson ?? null,
+                    isPopular: data.isPopular ?? false,
+                    isNew: data.isNew ?? false,
+                    isRecommended: data.isRecommended ?? false,
+                    displayPriority: data.displayPriority ?? 0,
+                    likeCount: data.likeCount ?? 0,
+                    viewCount: data.viewCount ?? 0,
                 }),
             });
             if (!res.ok) {

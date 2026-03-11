@@ -44,8 +44,14 @@ export default function NewMenuPage() {
                     price: Number(data.price) || 0,
                     categoryId: Number(data.category) || categories[0]?.id || 1,
                     isAvailable: !data.isSoldOut,
-                    optionsJson: data.options?.length ? JSON.stringify(data.options) : undefined,
+                    optionsJson: data.optionsJson ?? (data.options?.length ? JSON.stringify(data.options) : undefined),
                     productInfoJson: data.productInfoJson ?? undefined,
+                    isPopular: data.isPopular ?? false,
+                    isNew: data.isNew ?? false,
+                    isRecommended: data.isRecommended ?? false,
+                    displayPriority: data.displayPriority ?? 0,
+                    likeCount: data.likeCount ?? 0,
+                    viewCount: data.viewCount ?? 0,
                 }),
             });
             if (!res.ok) {

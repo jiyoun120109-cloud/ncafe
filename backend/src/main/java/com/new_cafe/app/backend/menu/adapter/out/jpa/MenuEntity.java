@@ -62,6 +62,24 @@ public class MenuEntity {
     @Column(name = "product_info_json", length = 4000)
     private String productInfoJson;
 
+    @Column(name = "is_popular")
+    private Boolean isPopular;
+
+    @Column(name = "is_new")
+    private Boolean isNew;
+
+    @Column(name = "is_recommended")
+    private Boolean isRecommended;
+
+    @Column(name = "display_priority")
+    private Integer displayPriority;
+
+    @Column(name = "like_count")
+    private Integer likeCount;
+
+    @Column(name = "view_count")
+    private Integer viewCount;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
