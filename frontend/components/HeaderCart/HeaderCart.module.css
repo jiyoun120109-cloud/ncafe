@@ -41,3 +41,14 @@
     background: var(--color-primary-600, #8b5a2b);
     border-radius: 8px;
 }
+
+.textLabel {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.textCount {
+    font-size: 0.85em;
+    opacity: 0.85;
+}

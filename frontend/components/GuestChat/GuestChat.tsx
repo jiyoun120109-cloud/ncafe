@@ -165,14 +165,16 @@ export default function GuestChat() {
 
   return (
     <>
-      <button
-        type="button"
-        className={styles.fab}
-        onClick={() => setOpen((o) => !o)}
-        aria-label={open ? '채팅 닫기' : '채팅 열기'}
-      >
-        {open ? <X size={24} /> : <MessageCircle size={24} />}
-      </button>
+      {(!isMobileView || !open) && (
+        <button
+          type="button"
+          className={styles.fab}
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? '채팅 닫기' : '채팅 열기'}
+        >
+          {open ? <X size={24} /> : <MessageCircle size={24} />}
+        </button>
+      )}
 
       {open && (
         <div
@@ -182,6 +184,16 @@ export default function GuestChat() {
           <div className={styles.panelHeader}>
             <span className={styles.panelTitle}>NCafe 문의</span>
             <span className={styles.panelBadge}>채팅</span>
+            {isMobileView && (
+              <button
+                type="button"
+                className={styles.panelCloseBtn}
+                onClick={() => setOpen(false)}
+                aria-label="채팅 닫기"
+              >
+                <X size={22} />
+              </button>
+            )}
           </div>
           <div className={styles.panelList} ref={listRef}>
             {messages.map((m) => (

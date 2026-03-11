@@ -73,6 +73,54 @@
     color: #1a1a1a;
 }
 
+/* 헤더 우측: 모바일에서 장바구니 아이콘 + 햄버거 */
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cartIconBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    position: relative;
+    transition: background 0.2s, color 0.2s;
+}
+.cartIconBtn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+.cartIconBtnScrolled {
+    color: rgba(0, 0, 0, 0.6);
+}
+.cartIconBtnScrolled:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: #1a1a1a;
+}
+.cartIconBadge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+    color: #fff;
+    background: var(--color-primary-600, #8b5a2b);
+    border-radius: 8px;
+}
+
 /* 모바일 햄버거 — 768px 이하에서 표시 */
 .navMobileTrigger {
     display: none;
@@ -329,16 +377,40 @@
     .footer { padding: 1.5rem 2rem; }
 }
 
+.navAuthWrap {
+    display: inline-flex;
+}
+
 @media (max-width: 768px) {
     .headerInner {
         padding: 0.875rem 1rem;
         min-height: 56px;
     }
     .headerScrolled .headerInner { padding: 0.75rem 1rem; }
+    .cartIconBtn {
+        display: flex;
+        position: relative;
+        z-index: 101;
+        text-decoration: none;
+    }
     .navMobileTrigger {
         display: flex;
         position: relative;
         z-index: 101;
+    }
+    /* 모바일 드로어: 사용자명·로그아웃 줄바꿈 */
+    .headerMobileOpen .navAuthWrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+    .headerMobileOpen .navAuthWrap > * {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+        width: 100%;
     }
     .brand { position: relative; z-index: 101; }
     .navOverlay {

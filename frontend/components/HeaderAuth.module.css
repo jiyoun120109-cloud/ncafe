@@ -53,6 +53,14 @@
     flex-shrink: 0;
 }
 
+.userNameLink {
+    text-decoration: none;
+    cursor: pointer;
+}
+.userNameLink:hover {
+    text-decoration: underline;
+}
+
 .logoutBtnCompact {
     font-size: 0.7rem;
     letter-spacing: 0.08em;
@@ -63,6 +71,7 @@
     cursor: pointer;
     padding: 0.3rem 0.6rem;
     opacity: 0.9;
+    color: inherit;
 }
 
 .logoutBtnCompact:hover {

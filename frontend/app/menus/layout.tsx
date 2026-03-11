@@ -3,21 +3,32 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Coffee, ArrowLeft, Menu, X } from 'lucide-react';
+import { Coffee, ArrowLeft, Menu, X, ShoppingCart } from 'lucide-react';
 import HeaderAuth from '@/components/HeaderAuth';
 import HeaderCart from '@/components/HeaderCart';
+import { useCart } from '@/contexts/CartContext';
 import styles from './layout.module.css';
 
 export default function MenusLayout({ children }: { children: React.ReactNode }) {
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const pathname = usePathname();
     const isDetail = pathname !== '/menus';
+    const { totalQuantity } = useCart();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 50);
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 768px)');
+        const update = () => setIsMobile(mq.matches);
+        update();
+        mq.addEventListener('change', update);
+        return () => mq.removeEventListener('change', update);
     }, []);
 
     const closeMobileMenu = () => setMobileMenuOpen(false);
@@ -32,15 +43,31 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
                         <span className={styles.brandText}>Cafe</span>
                     </Link>
 
-                    <button
-                        type="button"
-                        className={styles.navMobileTrigger}
-                        onClick={() => setMobileMenuOpen((o) => !o)}
-                        aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
-                        aria-expanded={mobileMenuOpen}
-                    >
-                        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+                    <div className={styles.headerRight}>
+                        {isMobile && (
+                            <Link
+                                href="/cart"
+                                className={`${styles.cartIconBtn} ${scrolled ? styles.cartIconBtnScrolled : ''}`}
+                                aria-label={`장바구니 ${totalQuantity > 0 ? `총 ${totalQuantity}개` : ''}`}
+                            >
+                                <ShoppingCart size={22} strokeWidth={1.8} />
+                                {totalQuantity > 0 && (
+                                    <span className={styles.cartIconBadge} aria-hidden>
+                                        {totalQuantity > 99 ? '99+' : totalQuantity}
+                                    </span>
+                                )}
+                            </Link>
+                        )}
+                        <button
+                            type="button"
+                            className={styles.navMobileTrigger}
+                            onClick={() => setMobileMenuOpen((o) => !o)}
+                            aria-label={mobileMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+                            aria-expanded={mobileMenuOpen}
+                        >
+                            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
 
                     <nav className={styles.navLinks}>
                         <Link href="/#features" className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`} onClick={closeMobileMenu}>
@@ -55,11 +82,14 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
                         <HeaderCart
                             className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}
                             scrolled={scrolled}
+                            textOnly={isMobile}
                         />
-                        <HeaderAuth
-                            loginLinkClassName={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ''}`}
-                            authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}
-                        />
+                        <span className={styles.navAuthWrap}>
+                            <HeaderAuth
+                                loginLinkClassName={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ''}`}
+                                authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ''}`}
+                            />
+                        </span>
                     </nav>
                 </div>
             </header>

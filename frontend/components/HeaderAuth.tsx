@@ -53,19 +53,26 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
 
     if (user) {
         const displayName = compact ? (user.username ?? user.name ?? '') : (user.name || user.username);
+        const isAdmin = user.role?.toUpperCase() === 'ADMIN';
         if (compact) {
             return (
                 <span className={`${styles.compactWrapper} ${wrapperClassName}`.trim()}>
                     <span className={styles.avatar} aria-hidden>
                         {(user.username ?? user.name ?? '?')[0].toUpperCase()}
                     </span>
-                    <span className={`${styles.userName} ${authClassName}`.trim()}>
-                        {displayName}
-                    </span>
+                    {isAdmin ? (
+                        <Link href="/admin" className={`${styles.userName} ${styles.userNameLink} ${authClassName}`.trim()}>
+                            {displayName}
+                        </Link>
+                    ) : (
+                        <span className={`${styles.userName} ${authClassName}`.trim()}>
+                            {displayName}
+                        </span>
+                    )}
                     <button
                         type="button"
                         onClick={handleLogout}
-                        className={styles.logoutBtnCompact}
+                        className={`${styles.logoutBtnCompact} ${authClassName}`.trim()}
                         title="로그아웃"
                     >
                         로그아웃

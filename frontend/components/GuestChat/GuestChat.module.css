@@ -55,6 +55,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 .panelTitle {
   font-weight: var(--font-semibold);
@@ -63,6 +64,23 @@
 .panelBadge {
   font-size: var(--text-xs);
   opacity: 0.9;
+}
+.panelCloseBtn {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.panelCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .panelList {
@@ -115,9 +133,11 @@
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
   border-top: 1px solid var(--color-gray-200);
   background: var(--bg-primary);
   position: relative;
+  flex-shrink: 0;
 }
 .formRow {
   display: flex;
