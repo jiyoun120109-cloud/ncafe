@@ -44,3 +44,28 @@
 
 - 호스트 볼륨 디렉터리 생성 단계 추가: `/home/yun/upload`, `/home/yun/data` (최초 배포 시 컨테이너 기동 실패 방지)
 - 상단 주석에 Variables / Secrets 구분 정리
+
+## 6. 트러블슈팅
+
+### DB 로그: collation version mismatch
+
+PostgreSQL 로그에 `database "ncafedb" has a collation version mismatch` (2.41 vs 2.36) 가 나오는 경우, 호스트/이미지의 glibc 로케일 버전이 DB 생성 시와 다를 때 발생합니다.
+
+**조치(배포 서버에서 한 번만 실행):**
+
+```bash
+# DB 컨테이너에 접속 후
+docker exec -it <db컨테이너이름> psql -U ncafe -d ncafedb -c "ALTER DATABASE ncafedb REFRESH COLLATION VERSION;"
+```
+
+실행 후 DB(또는 postgres 프로세스) 재시작이 필요할 수 있습니다. 문제가 계속되면 `REINDEX DATABASE ncafedb;` 후 다시 시도하세요.
+
+### 프론트엔드: ECONNREFUSED 172.x.x.x:8011
+
+프론트(BFF)가 백엔드(8011)로 연결할 수 없다는 뜻입니다. **백엔드 컨테이너가 떠 있지 않거나 기동에 실패한 상태**입니다.
+
+1. 컨테이너 상태 확인: `docker compose ps` → backend가 `Up`인지 확인
+2. 백엔드 로그 확인: `docker logs <backend컨테이너이름> --tail 150`  
+   - DataInitializer(coupons INSERT) 오류가 있으면 최신 코드(data.sql에 `coupons.user_id` nullable 처리) 반영 후 재배포
+   - 그 외 스택 트레이스가 있으면 해당 오류 기준으로 수정
+3. 백엔드가 정상 기동되면 8011 포트는 Docker 내부에서만 사용되며, 프론트는 같은 네트워크에서 `backend:8011`로 접속하므로 ECONNREFUSED가 사라져야 합니다.

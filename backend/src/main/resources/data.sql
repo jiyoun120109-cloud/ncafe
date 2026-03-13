@@ -473,6 +473,15 @@ BEGIN
   END IF;
 END $$;
 
+-- 배포 DB: coupons에 user_id 컬럼이 있으면 nullable로 (템플릿 쿠폰 시드는 user_id 없음)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'coupons' AND column_name = 'user_id') THEN
+    ALTER TABLE coupons ALTER COLUMN user_id DROP NOT NULL;
+  END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
 -- 스탬프 리워드 쿠폰 시드 (아메리카노 무료: menu_id=1)
 DO $$
 BEGIN
