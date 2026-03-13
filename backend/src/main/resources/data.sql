@@ -407,6 +407,20 @@ BEGIN
 END $$;
 
 -- 찜 (회원만)
+-- 배포 DB: favorites.user_id가 UUID로 되어 있으면 DROP 후 아래 CREATE로 재생성 (엔티티는 bigint 사용)
+DO $$
+DECLARE
+  col_type text;
+BEGIN
+  SELECT data_type INTO col_type
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'favorites' AND column_name = 'user_id';
+  IF col_type = 'uuid' THEN
+    DROP TABLE IF EXISTS favorites CASCADE;
+  END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS favorites (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
