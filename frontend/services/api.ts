@@ -2,6 +2,9 @@
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8011';
 export const API_URL = `${API_BASE_URL}/api`;
 
+/** 프로필/업로드 이미지 등 정적 파일 URL (백엔드 루트 기준) */
+export const getImageBase = () => API_BASE_URL;
+
 /**
  * API 베이스 URL. 항상 BFF 경유.
  * - 브라우저: 같은 출처 /api (window.location.origin + '/api')

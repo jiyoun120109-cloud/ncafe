@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -29,11 +30,31 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 로그인 아이디 (unique) */
     @Column(name = "nickname", nullable = false, unique = true)
     private String nickname;
 
     @Column(name = "password", nullable = false)
     private String password;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+
+    /** 서비스에서 보여줄 닉네임 */
+    @Column(name = "display_nickname", length = 100)
+    private String displayNickname;
+
+    @Column(name = "email", length = 255)
+    private String email;
+
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
 
     @Column(name = "role", nullable = false)
     private String role;

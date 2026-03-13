@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AlertCircle, CheckCircle, Coffee, UtensilsCrossed } from 'lucide-react';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import LoginForm from './_components/LoginForm/LoginForm';
 import styles from './page.module.css';
 
@@ -11,6 +12,10 @@ function LoginPageContent() {
     const [error, setError] = useState('');
     const searchParams = useSearchParams();
     const registered = searchParams.get('registered') === '1';
+    const returnUrl = searchParams.get('returnUrl') || '';
+    const { siteName } = useSiteSettings();
+    const brandMark = siteName?.charAt(0) ?? 'N';
+    const brandText = siteName?.slice(1) ?? 'Cafe';
 
     return (
         <div className={styles.root}>
@@ -19,8 +24,8 @@ function LoginPageContent() {
                 <div className={styles.visualOverlay} />
                 <div className={styles.visualContent}>
                     <Link href="/" className={styles.brand}>
-                        <span className={styles.brandMark}>N</span>
-                        <span className={styles.brandText}>Cafe</span>
+                        <span className={styles.brandMark}>{brandMark}</span>
+                        <span className={styles.brandText}>{brandText}</span>
                     </Link>
                     <p className={styles.brandTagline}>Specialty Coffee &amp; Brunch</p>
 
@@ -66,7 +71,7 @@ function LoginPageContent() {
                         <div className={styles.formIconWrap}>
                             <Coffee size={28} />
                         </div>
-                        <h1 className={styles.formTitle}>NCafe</h1>
+                        <h1 className={styles.formTitle}>{siteName || 'NCafe'}</h1>
                         <p className={styles.formSubtitle}>관리자 로그인</p>
                     </div>
 
@@ -86,10 +91,10 @@ function LoginPageContent() {
                     )}
 
                     {/* 로그인 폼 */}
-                    <LoginForm onError={setError} />
+                    <LoginForm onError={setError} returnUrl={returnUrl} />
                 </div>
 
-                <p className={styles.copyright}>© 2024 NCafe. All rights reserved.</p>
+                <p className={styles.copyright}>© {new Date().getFullYear()} {siteName || 'NCafe'}. All rights reserved.</p>
             </div>
         </div>
     );

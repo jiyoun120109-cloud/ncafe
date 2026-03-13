@@ -1,0 +1,173 @@
+/* RAG 관리와 동일: 카드형 등록/수정/디테일 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 960px;
+  padding: 0 0.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pageLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.pageTitle {
+  font-family: var(--font-serif, 'Georgia', serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: #1c1917;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.loading {
+  padding: 2rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* 정보 카드 */
+.card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 1rem;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.infoRow dt {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.infoRow dd {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #1c1917;
+}
+
+/* 역할 섹션 카드 */
+.roleSection {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.roleHeading {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.roleDesc {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.4);
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.45;
+}
+
+.roleForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.roleLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.roleSelect {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+  min-width: 140px;
+}
+
+.saveBtn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: var(--color-primary-700, #6d4520);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: #166534;
+}
+
+.footer {
+  padding-top: 0.5rem;
+}
+
+.backLink {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+}
+
+.backLink:hover {
+  color: #1c1917;
+  text-decoration: underline;
+}

@@ -9,10 +9,13 @@ export interface AuthUser {
 
 interface AuthState {
     user: AuthUser | null;
+    /** 헤더 등에서 표시할 프로필 이미지 URL (상대 경로). 프로필 조회/업로드 시 갱신 */
+    profileImageUrl: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
 
     setUser: (user: AuthUser) => void;
+    setProfileImageUrl: (url: string | null) => void;
     clearUser: () => void;
     setLoading: (loading: boolean) => void;
 }
@@ -26,10 +29,12 @@ interface AuthState {
  */
 export const useAuthStore = create<AuthState>()((set) => ({
     user: null,
+    profileImageUrl: null,
     isAuthenticated: false,
     isLoading: false,
 
     setUser: (user) => set({ user, isAuthenticated: true }),
-    clearUser: () => set({ user: null, isAuthenticated: false }),
+    setProfileImageUrl: (url) => set({ profileImageUrl: url }),
+    clearUser: () => set({ user: null, profileImageUrl: null, isAuthenticated: false }),
     setLoading: (loading) => set({ isLoading: loading }),
 }));

@@ -55,9 +55,28 @@ export const authAPI = {
     getSession: () =>
         fetchAPI<{ user: { id: number; username: string; name: string | null; role: string } | null }>('/auth/session'),
 
-    signup: (username: string, password: string) =>
+    signup: (body: {
+        username: string;
+        password: string;
+        name?: string;
+        birthDate?: string;
+        phone?: string;
+        displayNickname?: string;
+        email?: string;
+    }) =>
         fetchAPI<{ success: boolean; message: string }>('/auth/signup', {
             method: 'POST',
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({
+                username: body.username,
+                password: body.password,
+                name: body.name || null,
+                birthDate: body.birthDate || null,
+                phone: body.phone || null,
+                displayNickname: body.displayNickname || null,
+                email: body.email || null,
+            }),
         }),
+
+    checkUsername: (username: string) =>
+        fetchAPI<{ available: boolean }>(`/auth/check-username?username=${encodeURIComponent(username)}`),
 };

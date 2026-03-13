@@ -6,4 +6,6 @@ import java.util.List;
 public interface CategoryRepositoryPort {
     List<Category> findAll();
     Category findById(Long id);
+    Category save(Category category);
+    void deleteById(Long id);
 }

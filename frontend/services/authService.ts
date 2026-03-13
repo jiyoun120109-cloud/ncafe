@@ -32,12 +32,31 @@ export async function logoutApi(): Promise<void> {
     await authAPI.logout();
 }
 
+export interface SignupParams {
+    username: string;
+    password: string;
+    name?: string;
+    birthDate?: string;
+    phone?: string;
+    displayNickname?: string;
+    email?: string;
+}
+
+/**
+ * 아이디 사용 가능 여부 확인
+ * GET /api/auth/check-username?username=xxx
+ */
+export async function checkUsernameApi(username: string): Promise<boolean> {
+    const data = await authAPI.checkUsername(username);
+    return !!data?.available;
+}
+
 /**
  * 회원가입
  * POST /api/auth/signup → Next.js BFF → Spring Boot
  */
-export async function signupApi(username: string, password: string): Promise<{ success: boolean; message: string }> {
-    const data = await authAPI.signup(username, password);
+export async function signupApi(params: SignupParams): Promise<{ success: boolean; message: string }> {
+    const data = await authAPI.signup(params);
     return { success: !!data?.success, message: data?.message ?? '' };
 }
 

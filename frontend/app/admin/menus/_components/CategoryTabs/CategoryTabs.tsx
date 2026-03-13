@@ -1,50 +1,56 @@
 'use client';
 
 import { useCategories, CategoryResponseDto } from './useCategories';
-import { Plus } from 'lucide-react';
+import type { AdminCategoryDto } from '../useAdminCategories';
 import styles from './CategoryTabs.module.css';
-import { useState } from 'react';
-import { useMenus } from '../MenuList/useMenus';
 
+interface CategoryTabsProps {
+    selectedCategory: number | null;
+    setSelectedCategory: (id: number | null) => void;
+    adminCategories?: AdminCategoryDto[];
+    totalCount?: number;
+    menuCountByCategoryName?: Record<string, number>;
+}
 
-export default function CategoryTabs({ selectedCategory, setSelectedCategory }: { selectedCategory: number | null, setSelectedCategory: (id: number | null) => void }) {
-    const { categories, categoryCount } = useCategories();
-    // 컴포넌트 상단에 추가
-    const { menus, setMenus } = useMenus({ categoryId: selectedCategory, searchQuery: '' });
-    // const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+export default function CategoryTabs({
+    selectedCategory,
+    setSelectedCategory,
+    adminCategories,
+    totalCount,
+    menuCountByCategoryName = {},
+}: CategoryTabsProps) {
+    const { categories: publicCategories, categoryCount: publicTotalCount } = useCategories();
 
+    const categories = adminCategories ?? publicCategories;
+    const totalCountDisplay = totalCount ?? publicTotalCount ?? 0;
+
+    const getMenuCount = (cat: { id: number; name: string }) => {
+        if (adminCategories && menuCountByCategoryName) {
+            return menuCountByCategoryName[cat.name] ?? 0;
+        }
+        return (cat as CategoryResponseDto).menuCount ?? 0;
+    };
 
     return (
         <nav className={styles.tabs}>
             <button
                 className={`${styles.tab} ${selectedCategory === null ? styles.active : ''}`}
-                onClick={() => {
-                    setSelectedCategory(null);
-                    // onCategoryChange(null);
-                }}
+                onClick={() => setSelectedCategory(null)}
             >
                 <span>전체</span>
-                {categoryCount !== null && categoryCount > 0 && <span className={styles.count}>{categoryCount}</span>}
+                {totalCountDisplay > 0 && <span className={styles.count}>{totalCountDisplay}</span>}
             </button>
 
-            {categories.map((category: CategoryResponseDto) => (
+            {categories.map((category) => (
                 <button
                     key={category.id}
                     className={`${styles.tab} ${selectedCategory === category.id ? styles.active : ''}`}
-                    onClick={() => {
-                        setSelectedCategory(category.id);
-                        // onCategoryChange(category.id);
-                        console.log('클릭한 카테고리 ID:', category.id);
-                    }}
+                    onClick={() => setSelectedCategory(category.id)}
                 >
                     <span>{category.name}</span>
-                    <span className={styles.count}>{category.menuCount}</span>
+                    <span className={styles.count}>{getMenuCount(category)}</span>
                 </button>
             ))}
-
-            <button className={styles.addCategoryBtn} title="카테고리 추가">
-                <Plus size={18} />
-            </button>
         </nav>
     );
 }

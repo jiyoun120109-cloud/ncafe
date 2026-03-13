@@ -1,0 +1,133 @@
+package com.new_cafe.app.backend.payment.application.service;
+
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponEntity;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponJpaRepository;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponEntity;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampEntity;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampJpaRepository;
+import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
+import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
+import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.payment.adapter.out.jpa.PaymentEntity;
+import com.new_cafe.app.backend.payment.adapter.out.jpa.PaymentJpaRepository;
+import com.new_cafe.app.backend.payment.adapter.out.portone.PortOneClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * 결제 서비스. 포트원(아임포트) 테스트 결제 연동.
+ * 결제 완료 시 회원이면 스탬프 1개 적립, 10개 모이면 아메리카노 무료 쿠폰 발급.
+ */
+@Service
+public class PaymentService {
+
+    private final PaymentJpaRepository paymentJpaRepository;
+    private final GetOrderUseCase getOrderUseCase;
+    private final OrderRepositoryPort orderRepositoryPort;
+    private final UserStampJpaRepository userStampJpaRepository;
+    private final UserCouponJpaRepository userCouponJpaRepository;
+    private final CouponJpaRepository couponJpaRepository;
+    private final PortOneClient portOneClient;
+
+    @Value("${kakao.pay.redirect-url:}")
+    private String kakaoPayRedirectUrl;
+
+    public PaymentService(PaymentJpaRepository paymentJpaRepository, GetOrderUseCase getOrderUseCase,
+                          OrderRepositoryPort orderRepositoryPort,
+                          UserStampJpaRepository userStampJpaRepository,
+                          UserCouponJpaRepository userCouponJpaRepository,
+                          CouponJpaRepository couponJpaRepository,
+                          PortOneClient portOneClient) {
+        this.paymentJpaRepository = paymentJpaRepository;
+        this.getOrderUseCase = getOrderUseCase;
+        this.orderRepositoryPort = orderRepositoryPort;
+        this.userStampJpaRepository = userStampJpaRepository;
+        this.userCouponJpaRepository = userCouponJpaRepository;
+        this.couponJpaRepository = couponJpaRepository;
+        this.portOneClient = portOneClient;
+    }
+
+    @Transactional
+    public Map<String, Object> ready(Long orderId, String method) {
+        Optional<Order> orderOpt = getOrderUseCase.getById(orderId);
+        if (orderOpt.isEmpty()) {
+            throw new IllegalArgumentException("주문을 찾을 수 없습니다.");
+        }
+        Order order = orderOpt.get();
+        PaymentEntity payment = PaymentEntity.builder()
+                .orderId(orderId)
+                .method(method != null ? method : "PORTONE")
+                .status("PENDING")
+                .amount(order.getTotalAmount())
+                .createdAt(LocalDateTime.now())
+                .build();
+        payment = paymentJpaRepository.save(payment);
+        Map<String, Object> result = new HashMap<>();
+        result.put("paymentId", payment.getId());
+        result.put("orderId", orderId);
+        result.put("amount", order.getTotalAmount());
+        result.put("redirectUrl", (kakaoPayRedirectUrl != null && !kakaoPayRedirectUrl.isEmpty())
+                ? kakaoPayRedirectUrl
+                : "/order/complete?orderId=" + orderId);
+        return result;
+    }
+
+    @Transactional
+    public void complete(Long orderId, String pgTid) {
+        if (portOneClient.isConfigured()) {
+            if (pgTid == null || pgTid.isBlank()) {
+                throw new IllegalArgumentException("결제 거래번호가 없습니다. 포트원 결제 후 다시 시도해 주세요.");
+            }
+            portOneClient.verifyPayment(pgTid, orderId, getOrderUseCase);
+        }
+        paymentJpaRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
+            p.setStatus("DONE");
+            p.setPgTid(pgTid);
+            p.setPaidAt(LocalDateTime.now());
+            paymentJpaRepository.save(p);
+        });
+        getOrderUseCase.getById(orderId).ifPresent(order -> {
+            order.setStatus("PAID");
+            orderRepositoryPort.save(order);
+        });
+        Optional<Order> orderOpt = getOrderUseCase.getById(orderId);
+        if (orderOpt.isEmpty() || orderOpt.get().getUserId() == null) return;
+        Order order = orderOpt.get();
+        Long userId = order.getUserId();
+        if (order.getAppliedUserCouponId() != null) {
+            userCouponJpaRepository.findById(order.getAppliedUserCouponId()).ifPresent(uc -> {
+                uc.setUsedAt(LocalDateTime.now());
+                userCouponJpaRepository.save(uc);
+            });
+        }
+        LocalDateTime now = LocalDateTime.now();
+        UserStampEntity stamp = userStampJpaRepository.findByUserId(userId).orElse(null);
+        if (stamp == null) {
+            stamp = UserStampEntity.builder().userId(userId).stampCount(1).createdAt(now).updatedAt(now).build();
+        } else {
+            stamp.setStampCount(stamp.getStampCount() + 1);
+            stamp.setUpdatedAt(now);
+        }
+        userStampJpaRepository.save(stamp);
+        List<CouponEntity> stampRewards = couponJpaRepository.findAll().stream()
+                .filter(c -> "STAMP_REWARD".equals(c.getCouponType()) && c.getRequiredStamps() != null).toList();
+        for (CouponEntity coupon : stampRewards) {
+            if (stamp.getStampCount() >= coupon.getRequiredStamps()) {
+                UserCouponEntity uc = UserCouponEntity.builder()
+                        .userId(userId).couponId(coupon.getId()).issuedAt(now).build();
+                userCouponJpaRepository.save(uc);
+                stamp.setStampCount(stamp.getStampCount() - coupon.getRequiredStamps());
+                stamp.setUpdatedAt(now);
+                userStampJpaRepository.save(stamp);
+            }
+        }
+    }
+}

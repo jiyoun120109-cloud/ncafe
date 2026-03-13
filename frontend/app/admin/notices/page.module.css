@@ -1,0 +1,461 @@
+/* RAG 관리와 동일: 위 카드 + 아래 테이블 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 960px;
+  padding: 0 0.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pageLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.pageTitle {
+  font-family: var(--font-serif, 'Georgia', serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: #1c1917;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.card {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.cardTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 1rem;
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: rgba(0, 0, 0, 0.4);
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.searchForm {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.searchInput {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  min-width: 180px;
+  background: #fff;
+}
+
+.searchBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.searchBtn:hover {
+  background: var(--color-primary-700, #6d4520);
+}
+
+.toolbarActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.registerBtn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.registerBtn:hover {
+  background: var(--color-primary-700, #6d4520);
+}
+
+.deleteSelectedBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: #b91c1c;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.deleteSelectedBtn:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.deleteSelectedBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 1rem;
+}
+
+.loading,
+.empty {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.875rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #1c1917;
+  vertical-align: middle;
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: #fafaf9;
+}
+
+.idCell {
+  width: 4rem;
+  color: rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+}
+
+.dateCell {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: #1c1917;
+}
+
+.cellTitle a {
+  color: #1c1917;
+  text-decoration: none;
+}
+
+.cellTitle a:hover {
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.actionBtn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  background: #fff;
+  color: rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.actionBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1c1917;
+}
+
+.actionBtnDelete {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+}
+
+.actionBtnDelete:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.pageBtn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f5f5f4;
+}
+
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Form (new / edit) */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 640px;
+}
+
+.formLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.required {
+  color: #b91c1c;
+}
+
+.checkboxRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.input,
+.textarea,
+.select {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+.select {
+  width: fit-content;
+  min-width: 120px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.previewToggleBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: #1c1917;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.previewToggleBtn:hover {
+  background: #f5f5f4;
+}
+
+.cancelBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: #1c1917;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  text-decoration: none;
+  background: #fff;
+}
+
+.cancelBtn:hover {
+  background: #f5f5f4;
+}
+
+.submitBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  background: #1c1917;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #44403c;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  font-size: 0.9rem;
+  color: #b91c1c;
+}
+
+.previewWrap {
+  margin-top: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fafaf9;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #f5f5f4;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.previewClose {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.previewClose:hover {
+  background: #f5f5f4;
+}
+
+.previewBody {
+  padding: 1rem 1.25rem;
+}
+
+.previewTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1c1917;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.previewContent {
+  line-height: 1.7;
+  color: #1c1917;
+  word-break: break-word;
+}
+
+.previewContent p { margin: 0 0 0.75em; }
+.previewContent ul, .previewContent ol { margin: 0 0 0.75em; padding-left: 1.5em; }
+.previewContent img { max-width: 100%; height: auto; border-radius: 6px; }
+.previewContent a { color: #1c1917; text-decoration: underline; }
+.previewContent a:hover { color: #44403c; }
+.previewContent blockquote { margin: 0.75em 0; padding-left: 1em; border-left: 3px solid rgba(0,0,0,0.15); color: rgba(0,0,0,0.7); }
+.previewContent pre, .previewContent code { background: #e7e5e4; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
+.previewContent pre { padding: 0.75em; overflow-x: auto; }
+
+.previewEmpty {
+  color: #78716c;
+  font-size: 0.9rem;
+}

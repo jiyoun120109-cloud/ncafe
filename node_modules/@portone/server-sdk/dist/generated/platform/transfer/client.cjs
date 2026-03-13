@@ -1,0 +1,284 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.GetPlatformTransferSummariesError = exports.GetPlatformTransferError = exports.DownloadPlatformTransferSheetError = exports.DeletePlatformTransferError = exports.CreatePlatformOrderTransferError = exports.CreatePlatformOrderCancelTransferError = exports.CreatePlatformManualTransferError = void 0;
+exports.TransferClient = TransferClient;
+var _TransferError = require("./TransferError.cjs");
+var _client = require("../../../client.cjs");
+function TransferClient(init) {
+  const baseUrl = init.baseUrl ?? "https://api.portone.io";
+  const secret = init.secret;
+  return {
+    downloadPlatformTransferSheet: async options => {
+      const test = options?.test;
+      const filter = options?.filter;
+      const fields = options?.fields;
+      const requestBody = JSON.stringify({
+        filter,
+        fields
+      });
+      const query = [["test", test], ["requestBody", requestBody]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfer-summaries/sheet-file?${query}`, baseUrl), {
+        method: "GET",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        }
+      });
+      if (!response.ok) {
+        throw new DownloadPlatformTransferSheetError(await response.json());
+      }
+      return response.text();
+    },
+    getPlatformTransferSummaries: async options => {
+      const test = options?.test;
+      const page = options?.page;
+      const filter = options?.filter;
+      const requestBody = JSON.stringify({
+        page,
+        filter
+      });
+      const query = [["test", test], ["requestBody", requestBody]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfer-summaries?${query}`, baseUrl), {
+        method: "GET",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        }
+      });
+      if (!response.ok) {
+        throw new GetPlatformTransferSummariesError(await response.json());
+      }
+      return response.json();
+    },
+    createPlatformManualTransfer: async options => {
+      const {
+        test,
+        partnerId,
+        memo,
+        settlementAmount,
+        settlementTaxFreeAmount,
+        settlementDate,
+        isForTest,
+        userDefinedProperties
+      } = options;
+      const requestBody = JSON.stringify({
+        partnerId,
+        memo,
+        settlementAmount,
+        settlementTaxFreeAmount,
+        settlementDate,
+        isForTest,
+        userDefinedProperties
+      });
+      const query = [["test", test]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfers/manual?${query}`, baseUrl), {
+        method: "POST",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        },
+        body: requestBody
+      });
+      if (!response.ok) {
+        throw new CreatePlatformManualTransferError(await response.json());
+      }
+      return response.json();
+    },
+    createPlatformOrderCancelTransfer: async options => {
+      const {
+        test,
+        partnerId,
+        paymentId,
+        transferId,
+        cancellationId,
+        memo,
+        orderDetail,
+        taxFreeAmount,
+        discounts,
+        settlementStartDate,
+        settlementDate,
+        externalCancellationDetail,
+        isForTest,
+        userDefinedProperties
+      } = options;
+      const requestBody = JSON.stringify({
+        partnerId,
+        paymentId,
+        transferId,
+        cancellationId,
+        memo,
+        orderDetail,
+        taxFreeAmount,
+        discounts,
+        settlementStartDate,
+        settlementDate,
+        externalCancellationDetail,
+        isForTest,
+        userDefinedProperties
+      });
+      const query = [["test", test]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfers/order-cancel?${query}`, baseUrl), {
+        method: "POST",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        },
+        body: requestBody
+      });
+      if (!response.ok) {
+        throw new CreatePlatformOrderCancelTransferError(await response.json());
+      }
+      return response.json();
+    },
+    createPlatformOrderTransfer: async options => {
+      const {
+        test,
+        partnerId,
+        contractId,
+        memo,
+        paymentId,
+        orderDetail,
+        taxFreeAmount,
+        settlementStartDate,
+        settlementDate,
+        discounts,
+        additionalFees,
+        externalPaymentDetail,
+        isForTest,
+        parameters,
+        userDefinedProperties
+      } = options;
+      const requestBody = JSON.stringify({
+        partnerId,
+        contractId,
+        memo,
+        paymentId,
+        orderDetail,
+        taxFreeAmount,
+        settlementStartDate,
+        settlementDate,
+        discounts,
+        additionalFees,
+        externalPaymentDetail,
+        isForTest,
+        parameters,
+        userDefinedProperties
+      });
+      const query = [["test", test]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfers/order?${query}`, baseUrl), {
+        method: "POST",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        },
+        body: requestBody
+      });
+      if (!response.ok) {
+        throw new CreatePlatformOrderTransferError(await response.json());
+      }
+      return response.json();
+    },
+    getPlatformTransfer: async options => {
+      const {
+        id,
+        test
+      } = options;
+      const query = [["test", test]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfers/${encodeURIComponent(id)}?${query}`, baseUrl), {
+        method: "GET",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        }
+      });
+      if (!response.ok) {
+        throw new GetPlatformTransferError(await response.json());
+      }
+      return response.json();
+    },
+    deletePlatformTransfer: async options => {
+      const {
+        id,
+        test
+      } = options;
+      const query = [["test", test]].flatMap(([key, value]) => value == null ? [] : `${key}=${encodeURIComponent(value)}`).join("&");
+      const response = await fetch(new URL(`/platform/transfers/${encodeURIComponent(id)}?${query}`, baseUrl), {
+        method: "DELETE",
+        headers: {
+          Authorization: `PortOne ${secret}`,
+          "User-Agent": _client.USER_AGENT
+        }
+      });
+      if (!response.ok) {
+        throw new DeletePlatformTransferError(await response.json());
+      }
+      return response.json();
+    }
+  };
+}
+class DownloadPlatformTransferSheetError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, DownloadPlatformTransferSheetError.prototype);
+    this.name = "DownloadPlatformTransferSheetError";
+  }
+}
+exports.DownloadPlatformTransferSheetError = DownloadPlatformTransferSheetError;
+class GetPlatformTransferSummariesError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, GetPlatformTransferSummariesError.prototype);
+    this.name = "GetPlatformTransferSummariesError";
+  }
+}
+exports.GetPlatformTransferSummariesError = GetPlatformTransferSummariesError;
+class CreatePlatformManualTransferError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, CreatePlatformManualTransferError.prototype);
+    this.name = "CreatePlatformManualTransferError";
+  }
+}
+exports.CreatePlatformManualTransferError = CreatePlatformManualTransferError;
+class CreatePlatformOrderCancelTransferError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, CreatePlatformOrderCancelTransferError.prototype);
+    this.name = "CreatePlatformOrderCancelTransferError";
+  }
+}
+exports.CreatePlatformOrderCancelTransferError = CreatePlatformOrderCancelTransferError;
+class CreatePlatformOrderTransferError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, CreatePlatformOrderTransferError.prototype);
+    this.name = "CreatePlatformOrderTransferError";
+  }
+}
+exports.CreatePlatformOrderTransferError = CreatePlatformOrderTransferError;
+class GetPlatformTransferError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, GetPlatformTransferError.prototype);
+    this.name = "GetPlatformTransferError";
+  }
+}
+exports.GetPlatformTransferError = GetPlatformTransferError;
+class DeletePlatformTransferError extends _TransferError.TransferError {
+  /** @ignore */
+  constructor(data) {
+    super(data);
+    Object.setPrototypeOf(this, DeletePlatformTransferError.prototype);
+    this.name = "DeletePlatformTransferError";
+  }
+}
+exports.DeletePlatformTransferError = DeletePlatformTransferError;

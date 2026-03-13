@@ -27,7 +27,7 @@ export interface UserMenuListResponse {
 export interface UserMenuListRequest {
     categoryId: number | null;
     searchQuery: string;
-    /** 정렬: priority | likes | views | price_asc | price_desc */
+    /** 정렬: price_desc | price_asc | likes | name */
     sort?: string;
 }
 

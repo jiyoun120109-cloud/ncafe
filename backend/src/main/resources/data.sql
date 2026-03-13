@@ -16,6 +16,29 @@ EXCEPTION
     WHEN duplicate_object THEN NULL;
 END $$;
 
+-- 회원 확장 컬럼 (이름, 생년월일, 핸드폰, 닉네임)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'name') THEN
+        ALTER TABLE users ADD COLUMN name VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'birth_date') THEN
+        ALTER TABLE users ADD COLUMN birth_date DATE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'phone') THEN
+        ALTER TABLE users ADD COLUMN phone VARCHAR(20);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'display_nickname') THEN
+        ALTER TABLE users ADD COLUMN display_nickname VARCHAR(100);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'email') THEN
+        ALTER TABLE users ADD COLUMN email VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'profile_image_url') THEN
+        ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(500);
+    END IF;
+END $$;
+
 -- 사용자 시드: admin(비밀번호 admin123), hong/user(비밀번호 1234) — BCrypt. ON CONFLICT로 매번 비밀번호 갱신.
 INSERT INTO users (nickname, password, role, created_at, updated_at)
 VALUES ('admin', '$2b$10$PuCgAovNP0kXGhAhx/9Y7.PE.EUt5XbkW09Eeyk7361ivsG/kseAq', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
@@ -259,3 +282,181 @@ INSERT INTO images (menu_id, src_url, sort_order, created_at) VALUES
 (20, 'chocolate-mousse1.png', 2, CURRENT_TIMESTAMP),
 (20, 'chocolateMousse.png',   3, CURRENT_TIMESTAMP),
 (1,  'blank.png',            3, CURRENT_TIMESTAMP);
+
+-- ========== 주문·결제·쿠폰·공지·1:1문의·찜·알림 ==========
+-- 주문 (회원: user_id, 비회원: guest_email/guest_phone)
+CREATE TABLE IF NOT EXISTS orders (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT,
+    guest_email VARCHAR(255),
+    guest_phone VARCHAR(50),
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    total_amount INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    menu_id BIGINT NOT NULL,
+    menu_name VARCHAR(255),
+    quantity INT NOT NULL DEFAULT 1,
+    unit_price INT NOT NULL DEFAULT 0,
+    option_extra_price INT DEFAULT 0,
+    options_display VARCHAR(255)
+);
+
+-- 결제 (카카오페이 등)
+CREATE TABLE IF NOT EXISTS payments (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    method VARCHAR(30) NOT NULL DEFAULT 'KAKAOPAY',
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
+    pg_tid VARCHAR(255),
+    amount INT NOT NULL DEFAULT 0,
+    paid_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 쿠폰 종류 (스탬프 10개 = 아메리카노 무료 등)
+CREATE TABLE IF NOT EXISTS coupons (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    coupon_type VARCHAR(50) NOT NULL DEFAULT 'STAMP_REWARD',
+    required_stamps INT DEFAULT 10,
+    menu_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 회원별 스탬프 (커피 1잔 = 1스탬프, 10개 모이면 무료 아메리카노)
+CREATE TABLE IF NOT EXISTS user_stamps (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    stamp_count INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id)
+);
+
+-- 회원이 보유한 쿠폰 (발급/사용)
+CREATE TABLE IF NOT EXISTS user_coupons (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    coupon_id BIGINT NOT NULL REFERENCES coupons(id) ON DELETE CASCADE,
+    used_at TIMESTAMP,
+    issued_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 공지사항
+CREATE TABLE IF NOT EXISTS notices (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    content TEXT,
+    author_id BIGINT,
+    notice_type VARCHAR(50),
+    view_count INT DEFAULT 0,
+    is_pinned BOOLEAN DEFAULT FALSE,
+    pinned_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notices' AND column_name = 'notice_type') THEN
+        ALTER TABLE notices ADD COLUMN notice_type VARCHAR(50);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notices' AND column_name = 'view_count') THEN
+        ALTER TABLE notices ADD COLUMN view_count INT DEFAULT 0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notices' AND column_name = 'is_pinned') THEN
+        ALTER TABLE notices ADD COLUMN is_pinned BOOLEAN DEFAULT FALSE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'notices' AND column_name = 'pinned_at') THEN
+        ALTER TABLE notices ADD COLUMN pinned_at TIMESTAMP;
+    END IF;
+END $$;
+
+-- 1:1 문의 (비밀글 가능)
+CREATE TABLE IF NOT EXISTS inquiries (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(500) NOT NULL,
+    content TEXT,
+    is_private BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1:1 문의 답변 (답변 달리면 알림)
+CREATE TABLE IF NOT EXISTS inquiry_replies (
+    id BIGSERIAL PRIMARY KEY,
+    inquiry_id BIGINT NOT NULL REFERENCES inquiries(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    author_id BIGINT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'inquiry_replies' AND column_name = 'parent_reply_id') THEN
+        ALTER TABLE inquiry_replies ADD COLUMN parent_reply_id BIGINT REFERENCES inquiry_replies(id) ON DELETE CASCADE;
+    END IF;
+END $$;
+
+-- 찜 (회원만)
+CREATE TABLE IF NOT EXISTS favorites (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    menu_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, menu_id)
+);
+
+-- 알림 (공지 등록 시 회원 알림, 문의 답변 시 문의자 알림)
+CREATE TABLE IF NOT EXISTS notifications (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    ref_id BIGINT,
+    title VARCHAR(500),
+    message TEXT,
+    read_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 방문 로그 (대시보드 방문자 수 집계용)
+CREATE TABLE IF NOT EXISTS visitor_logs (
+    id BIGSERIAL PRIMARY KEY,
+    visited_at TIMESTAMP NOT NULL
+);
+
+-- 관리자 설정 (키-값)
+CREATE TABLE IF NOT EXISTS site_settings (
+    key VARCHAR(100) PRIMARY KEY,
+    value TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM site_settings LIMIT 1) THEN
+    INSERT INTO site_settings (key, value) VALUES
+      ('siteName', 'NCafe'),
+      ('businessHours', '평일 09:00 - 21:00 / 주말 10:00 - 22:00'),
+      ('contactPhone', '02-1234-5678'),
+      ('contactEmail', 'contact@ncafe.com'),
+      ('address', '서울시 강남구 테헤란로 123'),
+      ('maintenanceMode', 'false');
+  END IF;
+END $$;
+
+-- 스탬프 리워드 쿠폰 시드 (아메리카노 무료: menu_id=1)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM coupons LIMIT 1) THEN
+    INSERT INTO coupons (name, coupon_type, required_stamps, menu_id, created_at)
+    VALUES ('아메리카노 1잔 무료', 'STAMP_REWARD', 10, 1, CURRENT_TIMESTAMP);
+  END IF;
+END $$;

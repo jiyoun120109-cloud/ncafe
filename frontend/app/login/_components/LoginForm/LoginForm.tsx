@@ -16,9 +16,10 @@ interface LoginFormValues {
 
 interface LoginFormProps {
     onError: (message: string) => void;
+    returnUrl?: string;
 }
 
-export default function LoginForm({ onError }: LoginFormProps) {
+export default function LoginForm({ onError, returnUrl = '' }: LoginFormProps) {
     const router = useRouter();
     const { setUser } = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
@@ -37,9 +38,11 @@ export default function LoginForm({ onError }: LoginFormProps) {
         try {
             const user = await loginApi(data.username, data.password);
             setUser(user);
-            // 관리자만 /admin으로, 그 외에는 홈으로
-            if (user.role === 'ADMIN') {
+            // 관리자만 /admin으로, returnUrl 있으면 해당 경로로, 없으면 홈
+            if (user.role === 'ADMIN' && !returnUrl) {
                 router.push('/admin');
+            } else if (returnUrl && returnUrl.startsWith('/')) {
+                router.push(returnUrl);
             } else {
                 router.push('/');
             }

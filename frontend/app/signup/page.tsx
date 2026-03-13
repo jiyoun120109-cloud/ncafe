@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, Coffee, UserPlus, UtensilsCrossed } from 'lucide-react';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import SignupForm from './_components/SignupForm/SignupForm';
 import styles from './page.module.css';
 
 export default function SignupPage() {
     const [error, setError] = useState('');
+    const { siteName } = useSiteSettings();
+    const brandMark = siteName?.charAt(0) ?? 'N';
+    const brandText = siteName?.slice(1) ?? 'Cafe';
 
     return (
         <div className={styles.root}>
@@ -15,8 +19,8 @@ export default function SignupPage() {
                 <div className={styles.visualOverlay} />
                 <div className={styles.visualContent}>
                     <Link href="/" className={styles.brand}>
-                        <span className={styles.brandMark}>N</span>
-                        <span className={styles.brandText}>Cafe</span>
+                        <span className={styles.brandMark}>{brandMark}</span>
+                        <span className={styles.brandText}>{brandText}</span>
                     </Link>
                     <p className={styles.brandTagline}>Specialty Coffee &amp; Brunch</p>
                     <blockquote className={styles.quote}>
@@ -57,7 +61,7 @@ export default function SignupPage() {
                         <div className={styles.formIconWrap}>
                             <UserPlus size={28} />
                         </div>
-                        <h1 className={styles.formTitle}>NCafe</h1>
+                        <h1 className={styles.formTitle}>{siteName || 'NCafe'}</h1>
                         <p className={styles.formSubtitle}>회원가입</p>
                     </div>
 
@@ -71,7 +75,7 @@ export default function SignupPage() {
                     <SignupForm onError={setError} />
                 </div>
 
-                <p className={styles.copyright}>© 2024 NCafe. All rights reserved.</p>
+                <p className={styles.copyright}>© {new Date().getFullYear()} {siteName || 'NCafe'}. All rights reserved.</p>
             </div>
         </div>
     );

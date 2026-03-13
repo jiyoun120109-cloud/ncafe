@@ -1,7 +1,9 @@
 package com.new_cafe.app.backend.category.application.port.in;
 
+import com.new_cafe.app.backend.category.application.command.CreateCategoryCommand;
 import com.new_cafe.app.backend.category.application.command.GetAllCategoriesCommand;
 import com.new_cafe.app.backend.category.application.command.GetCategoryCommand;
+import com.new_cafe.app.backend.category.application.command.UpdateCategoryCommand;
 import com.new_cafe.app.backend.category.application.result.CategoryListResult;
 import com.new_cafe.app.backend.category.application.result.GetCategoryResult;
 
@@ -13,9 +15,9 @@ public interface AdminCategoryUseCase {
 
     GetCategoryResult getById(GetCategoryCommand command);
 
-    void createCategory();
+    GetCategoryResult createCategory(CreateCategoryCommand command);
 
-    void updateCategory();
+    GetCategoryResult updateCategory(UpdateCategoryCommand command);
 
-    void deleteCategory();
+    void deleteCategory(Long id);
 }

@@ -1,5 +1,6 @@
 package com.new_cafe.app.backend.config;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -26,5 +27,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", "Bad Request", "message", message));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = "해당 리소스를 참조하는 데이터가 있어 삭제할 수 없습니다.";
+        if (ex.getMessage() != null && ex.getMessage().contains("category")) {
+            message = "해당 카테고리에 메뉴가 있어 삭제할 수 없습니다.";
+        }
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "Conflict", "message", message));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "리소스를 찾을 수 없습니다.";
+        boolean isValidation = msg.contains("이름을 입력") || msg.contains("이름을 입력해");
+        return ResponseEntity
+                .status(isValidation ? HttpStatus.BAD_REQUEST : HttpStatus.NOT_FOUND)
+                .body(Map.of("error", isValidation ? "Bad Request" : "Not Found", "message", msg));
     }
 }

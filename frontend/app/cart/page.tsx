@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, ChevronLeft, Minus, Plus, Trash2, CreditCard } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Trash2, CreditCard } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import CartItemOptionModal from './_components/CartItemOptionModal';
 import styles from './page.module.css';
 import type { CartItemDto } from '@/services/cartService';
@@ -41,25 +42,14 @@ export default function CartPage() {
 
     if (loading) {
         return (
-            <main className={styles.main}>
+            <CheckoutLayout currentStep="cart">
                 <div className={styles.loading}>장바구니를 불러오는 중...</div>
-            </main>
+            </CheckoutLayout>
         );
     }
 
     return (
-        <main className={styles.main}>
-            <div className={styles.header}>
-                <Link href="/menus" className={styles.backLink}>
-                    <ChevronLeft size={18} />
-                    메뉴로 돌아가기
-                </Link>
-                <h1 className={styles.title}>
-                    <ShoppingCart size={28} />
-                    장바구니
-                </h1>
-            </div>
-
+        <CheckoutLayout currentStep="cart">
             {items.length === 0 ? (
                 <div className={styles.empty}>
                     <ShoppingCart size={48} className={styles.emptyIcon} />
@@ -212,6 +202,6 @@ export default function CartPage() {
                     </div>
                 </div>
             )}
-        </main>
+        </CheckoutLayout>
     );
 }

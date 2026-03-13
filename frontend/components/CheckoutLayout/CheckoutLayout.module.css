@@ -1,0 +1,132 @@
+/* ================================================================
+   Checkout Layout — 장바구니 · 주문 · 결제 (공통 사이트 헤더 아래)
+   모던·고급스러운 상단 스트립 + 단계 표시
+   ================================================================ */
+
+.root {
+  min-height: 100vh;
+  background: var(--color-primary-50, #faf8f6);
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;
+}
+
+.hero {
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 1.75rem 1.5rem 2rem;
+}
+
+.heroInner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.stepWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.stepSep {
+  color: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(0, 0, 0, 0.45);
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.stepLink {
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.stepLink:hover {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.stepActive {
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+.stepPast {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.stepPast.stepLink {
+  color: var(--color-primary-600, #8b5a2b);
+}
+
+.stepPast.stepLink:hover {
+  color: var(--color-primary-700);
+}
+
+.heroTitle {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(1.35rem, 3.5vw, 1.6rem);
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.heroSub {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .root {
+    padding-top: 72px;
+  }
+
+  .hero {
+    padding: 1.25rem 1rem 1.5rem;
+  }
+
+  .steps {
+    margin-bottom: 0.85rem;
+  }
+
+  .step {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .main {
+    padding: 1.5rem 1rem 2.5rem;
+  }
+}

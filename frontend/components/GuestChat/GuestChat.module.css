@@ -6,10 +6,10 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
-  color: #fff;
+  background: linear-gradient(145deg, #e8d5c4 0%, #d4a574 50%, #c4956a 100%);
+  color: #5c4033;
   border: none;
-  box-shadow: 0 4px 14px rgba(139, 90, 60, 0.4);
+  box-shadow: 0 4px 16px rgba(139, 90, 60, 0.35), 0 0 0 3px rgba(255, 255, 255, 0.4);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -17,8 +17,12 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .fab:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(139, 90, 60, 0.45);
+  transform: scale(1.08);
+  box-shadow: 0 6px 22px rgba(139, 90, 60, 0.45), 0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+.fabIcon {
+  font-size: 1.75rem;
+  line-height: 1;
 }
 
 .panel {
@@ -50,12 +54,16 @@
 
 .panelHeader {
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  background: linear-gradient(135deg, #c4956a 0%, #a67c52 50%, #8b6b47 100%);
   color: #fff;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+.panelTitleIcon {
+  font-size: 1.35rem;
+  line-height: 1;
 }
 .panelTitle {
   font-weight: var(--font-semibold);
@@ -89,17 +97,63 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  background: var(--color-gray-50);
+  gap: 0.85rem;
+  background: linear-gradient(180deg, #faf6f2 0%, #f5efe8 100%);
 }
 
+/* 메시지 행: 아바타 + 말풍선 */
+.msgRowBot {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 95%;
+}
+.msgRowUser {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: 95%;
+  margin-left: auto;
+  flex-direction: row;
+}
+.avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e8d5c4, #d4a574);
+  color: #5c4033;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(139, 90, 60, 0.2);
+}
+.avatarUser {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a8c5e0, #7ba3c9);
+  color: #2c5282;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
 .msgUser {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  min-width: 0;
 }
 .msgBot {
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: 85%;
 }
 .msgBubble {
   max-width: 85%;
@@ -113,6 +167,7 @@
   background: var(--color-primary-600);
   color: #fff;
   border-bottom-right-radius: 4px;
+  min-width: 10rem; /* 짧은 문장이 공백에서 두 줄로 나뉘지 않도록 */
 }
 .msgBot .msgBubble {
   background: var(--bg-primary);
@@ -120,12 +175,165 @@
   border: 1px solid var(--color-gray-200);
   border-bottom-left-radius: 4px;
 }
-.msgBubbleLoading {
-  animation: bubblePulse 1s ease-in-out infinite;
+.msgBubbleLoadingWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
 }
+.msgBubbleLoading {
+  animation: bubblePulse 1.8s ease-in-out infinite;
+}
+/* 로딩 말풍선: 살짝 통통 튀는 느낌 + 부드러운 그림자 */
 @keyframes bubblePulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 1px 3px rgba(139, 90, 60, 0.08);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(139, 90, 60, 0.12);
+  }
+}
+/* 로딩 시 귀여운 타이핑 점 3개 애니메이션 (통통 튀는 효과) */
+.typingDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+}
+.typingDots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c4956a, #a67c52);
+  animation: typingBounce 0.8s ease-in-out infinite both;
+  box-shadow: 0 1px 2px rgba(139, 90, 60, 0.2);
+}
+.typingDots span:nth-child(1) { animation-delay: 0s; }
+.typingDots span:nth-child(2) { animation-delay: 0.15s; }
+.typingDots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-4px) scale(1.1);
+    opacity: 1;
+  }
+}
+
+/* 도구 액션 (이동 링크, 장바구니 담기 버튼) */
+.toolActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+.toolLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-primary-600);
+  background: rgba(139, 90, 60, 0.1);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.toolLink:hover {
+  background: rgba(139, 90, 60, 0.18);
+  color: var(--color-primary-700);
+}
+.toolButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.toolButton:hover:not(:disabled) {
+  background: var(--color-primary-700);
+}
+.toolButton:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* 검색 결과 목록 */
+.searchResults {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+.searchResultItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  color: var(--color-gray-800);
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.searchResultItem:hover {
+  background: var(--color-gray-50);
+  border-color: var(--color-primary-300);
+  color: var(--color-primary-700);
+}
+.searchResultName {
+  flex: 1;
+  font-weight: 500;
+}
+.searchResultPrice {
+  font-size: 0.8rem;
+  color: var(--color-gray-500);
+}
+
+/* 자주 쓰는 문구 칩 */
+.quickPhrases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem 0;
+  border-top: 1px solid rgba(139, 90, 60, 0.12);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+.quickChip {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  color: #5c4033;
+  background: linear-gradient(145deg, #f5efe8, #ebe2d8);
+  border: 1px solid rgba(139, 90, 60, 0.2);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.quickChip:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(139, 90, 60, 0.15);
+  background: linear-gradient(145deg, #ebe2d8, #e8d5c4);
+}
+.quickChip:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .panelForm {
@@ -134,7 +342,7 @@
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  border-top: 1px solid var(--color-gray-200);
+  border-top: 1px solid rgba(139, 90, 60, 0.08);
   background: var(--bg-primary);
   position: relative;
   flex-shrink: 0;

@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import Toast from "@/components/common/Toast";
 import ChatWidget from "@/components/GuestChat/ChatWidget";
 import CartProviderWrapper from "@/components/providers/CartProviderWrapper";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
+import SiteHeaderConditional from "@/components/SiteHeader/SiteHeaderConditional";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,10 +38,13 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable}`}>
         <Toast />
-        <CartProviderWrapper>
-          {children}
-        </CartProviderWrapper>
-        <ChatWidget />
+        <SiteSettingsProvider>
+          <CartProviderWrapper>
+            <SiteHeaderConditional />
+            {children}
+            <ChatWidget />
+          </CartProviderWrapper>
+        </SiteSettingsProvider>
       </body>
     </html>
   );

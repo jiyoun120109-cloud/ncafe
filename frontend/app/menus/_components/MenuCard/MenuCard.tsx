@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, ArrowRight, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/hooks/useFavorites';
 import AddToCartModal from '@/components/AddToCartModal';
 import styles from './MenuCard.module.css';
 
@@ -48,7 +49,9 @@ const MAX_QTY = 99;
 export default function MenuCard({ menu }: MenuCardProps) {
     const router = useRouter();
     const { addItem } = useCart();
+    const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
     const [imgError, setImgError] = useState(false);
+    const favorite = isFavorite(menu.id);
     const [quantity, setQuantity] = useState(1);
     const [cartModalOpen, setCartModalOpen] = useState(false);
     const [cartModalMenuName, setCartModalMenuName] = useState<string | undefined>();
@@ -60,6 +63,15 @@ export default function MenuCard({ menu }: MenuCardProps) {
     const handleQtyChange = (e: React.MouseEvent, delta: number) => {
         e.stopPropagation();
         setQuantity((q) => Math.min(MAX_QTY, Math.max(MIN_QTY, q + delta)));
+    };
+
+    const handleToggleFavorite = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!isAuthenticated) {
+            router.push(`/login?returnUrl=${encodeURIComponent('/menus')}`);
+            return;
+        }
+        toggleFavorite(menu.id);
     };
 
     const handleAddToCart = (e: React.MouseEvent) => {
@@ -113,6 +125,19 @@ export default function MenuCard({ menu }: MenuCardProps) {
                         {menu.badgeTypes.includes('recommended') && <span className={styles.badgeRecommended}>추천</span>}
                     </div>
                 )}
+                <button
+                    type="button"
+                    className={styles.favoriteBtn}
+                    aria-label={!isAuthenticated ? '로그인 후 찜하기' : favorite ? `${menu.korName} 찜 해제` : `${menu.korName} 찜하기`}
+                    onClick={handleToggleFavorite}
+                    title={!isAuthenticated ? '로그인 후 찜할 수 있어요' : favorite ? '찜 해제' : '찜하기'}
+                >
+                    <Heart
+                        size={20}
+                        className={favorite ? styles.heartFilled : ''}
+                        fill={favorite ? 'currentColor' : 'none'}
+                    />
+                </button>
             </div>
 
             {/* 컨텐츠 */}

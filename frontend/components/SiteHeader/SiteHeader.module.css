@@ -1,0 +1,529 @@
+/* ================================================================
+   SiteHeader — 관리자 제외 모든 페이지 공통
+   About | Info(공지사항, 1:1문의) | Menu | 마이페이지 | 장바구니 | 로그인
+   ================================================================ */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  transition: background 0.5s ease, box-shadow 0.5s ease, padding 0.5s ease;
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 4rem;
+  transition: padding 0.5s ease;
+}
+
+.headerScrolled {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.headerScrolled .headerInner {
+  padding: 1rem 4rem;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: color 0.5s ease;
+}
+
+.brand:hover {
+  color: #fff;
+  opacity: 0.9;
+}
+
+.brandMark {
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 700;
+  font-size: 2rem;
+  font-style: italic;
+}
+
+.brandText {
+  font-weight: 400;
+  font-size: 1.65rem;
+  letter-spacing: 0.02em;
+}
+
+.brandScrolled {
+  color: #1a1a1a;
+}
+
+.brandScrolled:hover {
+  color: #1a1a1a;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cartIconBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+}
+
+.cartIconBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.cartIconBtnScrolled {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.cartIconBtnScrolled:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+.cartIconBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border-radius: 8px;
+}
+
+.notificationIconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  position: relative;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+}
+
+.notificationIconBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.notificationIconBtnScrolled {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.notificationIconBtnScrolled:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+.notificationIconBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+  color: #fff;
+  background: #dc2626;
+  border-radius: 8px;
+}
+
+.navMobileTrigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.navMobileTrigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.headerScrolled .navMobileTrigger {
+  color: #1a1a1a;
+}
+
+.headerScrolled .navMobileTrigger:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.navOverlay {
+  display: none;
+}
+
+.navLinks {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.navLink {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.navLink:hover {
+  color: #fff;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+.navLinkScrolled {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.navLinkScrolled:hover {
+  color: #1a1a1a;
+}
+
+.navLinkActive {
+  color: #fff !important;
+}
+
+.navLinkActive::after {
+  width: 100%;
+}
+
+.headerScrolled .navLinkActive {
+  color: var(--color-primary-700) !important;
+}
+
+/* Info 드롭다운 */
+.infoWrap {
+  position: relative;
+}
+
+.infoChevron {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.infoWrapOpen .infoChevron {
+  transform: rotate(180deg);
+}
+
+.infoWrap button.navLink .infoChevron {
+  margin-left: 0.1rem;
+}
+
+.infoDropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.5rem);
+  min-width: 160px;
+  padding: 0.5rem 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  z-index: 200;
+}
+
+.infoDropdownOpen {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0.25rem);
+}
+
+.infoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  text-align: left;
+  letter-spacing: 0.02em;
+}
+
+.infoItem:hover {
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+}
+
+.navCta {
+  padding: 0.55rem 1.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.navCta:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #1a1a1a;
+}
+
+.navCtaScrolled {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.navCtaScrolled:hover {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.navAuthWrap {
+  display: inline-flex;
+}
+
+/* ============== 모바일 (768px 이하) ============== */
+@media (max-width: 768px) {
+  .headerInner {
+    padding: 0.875rem 1rem;
+    min-height: 56px;
+  }
+
+  .headerScrolled .headerInner {
+    padding: 0.75rem 1rem;
+  }
+
+  .cartIconBtn {
+    display: flex;
+    position: relative;
+    z-index: 101;
+  }
+
+  .navMobileTrigger {
+    display: flex;
+    position: relative;
+    z-index: 101;
+  }
+
+  .brand {
+    position: relative;
+    z-index: 101;
+  }
+
+  .navOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    transition: opacity 0.25s ease;
+  }
+
+  .navOverlay.navOverlayOpen {
+    display: block;
+  }
+
+  .navLinks {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: auto;
+    bottom: 0;
+    width: min(280px, 85vw);
+    max-width: 280px;
+    background: #2a2825;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    padding: 5rem 0 2rem;
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .headerMobileOpen .navLinks {
+    transform: translateX(0);
+  }
+
+  .navLink,
+  .navLinkScrolled,
+  .navCta,
+  .navCtaScrolled {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.95rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: left;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .navLink::after {
+    display: none;
+  }
+
+  .navCta,
+  .navCtaScrolled {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    width: calc(100% - 3rem);
+    padding: 0.75rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+  }
+
+  .navCta:hover,
+  .navCtaScrolled:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  .headerMobileOpen .brand,
+  .headerMobileOpen .brandScrolled {
+    color: #fff;
+  }
+
+  .headerMobileOpen .navMobileTrigger {
+    color: #fff;
+  }
+
+  /* 모바일에서 Info 드롭다운 */
+  .infoWrap {
+    width: 100%;
+  }
+
+  .infoWrap button.navLink {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .infoDropdown {
+    position: static;
+    transform: none;
+    min-width: auto;
+    margin: 0 1.5rem 0.5rem;
+    padding: 0.25rem 0;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    box-shadow: none;
+    border: none;
+  }
+
+  .infoDropdownOpen {
+    transform: none;
+  }
+
+  .infoItem {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .infoItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  .headerMobileOpen .navAuthWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .headerMobileOpen .navAuthWrap > * {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .headerInner {
+    padding: 1.25rem 2rem;
+  }
+
+  .headerScrolled .headerInner {
+    padding: 0.875rem 2rem;
+  }
+}

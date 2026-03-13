@@ -54,11 +54,11 @@
     height: 22px;
 }
 
-/* 품절 오버레이 */
+/* 품절 오버레이 — 미니멀 고급 톤 */
 .soldOutOverlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.48);
+    background: rgba(26, 26, 26, 0.52);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -66,21 +66,24 @@
 }
 
 .soldOutBadge {
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.65rem;
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 0.7rem;
     font-weight: 500;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    padding: 0.3rem 0.875rem;
-    border-radius: 3px;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 0.4rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* 배지 (인기/뉴/추천) — 카페 톤 소프트 필 */
+/* 배지 (인기 / NEW / 추천) — 렌더링 페이지 인기메뉴카드와 동일한 pill 스타일 */
 .badgeWrap {
     position: absolute;
-    top: 0.625rem;
-    left: 0.625rem;
+    top: 0.875rem;
+    left: 0.875rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
@@ -90,30 +93,50 @@
 .badgePopular,
 .badgeNew,
 .badgeRecommended {
-    font-size: 0.625rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    padding: 0.32rem 0.6rem;
-    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #5a4535;
 }
 
-.badgePopular {
-    background: linear-gradient(135deg, rgba(199, 108, 80, 0.92) 0%, rgba(180, 90, 65, 0.95) 100%);
-    color: #fff;
+/* 즐겨찾기 하트 */
+.favoriteBtn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 5;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.1);
 }
 
-.badgeNew {
-    background: linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.94) 100%);
-    color: #fff;
+.favoriteBtn:hover {
+    background: #fff;
+    color: #b91c1c;
+    transform: scale(1.05);
 }
 
-.badgeRecommended {
-    background: linear-gradient(135deg, rgba(101, 133, 110, 0.9) 0%, rgba(72, 115, 88, 0.94) 100%);
-    color: #fff;
+.favoriteBtn .heartFilled,
+.favoriteBtn:focus-visible .heartFilled {
+    color: #b91c1c;
+}
+
+.favoriteBtn:focus-visible {
+    outline: 2px solid var(--color-primary-600, #8b5a2b);
+    outline-offset: 2px;
 }
 
 /* ── 컨텐츠 영역 (카드 높이 통일) ── */

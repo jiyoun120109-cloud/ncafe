@@ -1,0 +1,137 @@
+/* 메뉴 페이지 히어로 — 시그니처 3종 풀사이즈 이미지 슬라이드 + 영어 문구 오버레이 */
+
+.hero {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.sliderWrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.slideTrack {
+  display: flex;
+  width: 100%;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.slideOuter {
+  flex: 0 0 100%;
+  width: 100%;
+  min-width: 0;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  min-height: 280px;
+  max-height: 56vh;
+}
+
+.slideImageWrap {
+  position: absolute;
+  inset: 0;
+}
+
+.slideImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.slideOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.2) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.slideCaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease 0.15s, transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
+}
+
+.slideCaptionActive {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slideLabel {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(1.75rem, 5vw, 3rem);
+  font-weight: 400;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.02em;
+}
+
+/* 인디케이터 점 */
+.dots {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.dotActive {
+  background: #fff;
+  transform: scale(1.15);
+}
+
+@media (max-width: 768px) {
+  .slide {
+    aspect-ratio: 4 / 3;
+    min-height: 240px;
+    max-height: 50vh;
+  }
+
+  .slideCaption {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .dots {
+    bottom: 1rem;
+  }
+}

@@ -37,19 +37,31 @@ public class MenuPersistenceAdapter implements MenuRepositoryPort {
             .map(this::toDomain)
             .collect(Collectors.toList());
 
-        // 1) display_priority DESC (높을수록 앞), 2) sortBy 적용
-        Comparator<Menu> byPriority = Comparator.comparing(Menu::getDisplayPriority,
-            Comparator.nullsLast(Comparator.reverseOrder()));
-        if ("likes".equalsIgnoreCase(sortBy)) {
-            list.sort(byPriority.thenComparing(Menu::getLikeCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
-        } else if ("views".equalsIgnoreCase(sortBy)) {
-            list.sort(byPriority.thenComparing(Menu::getViewCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
+        // 선택한 기준으로만 정렬, 동일 값이면 이름순(한글명 오름차순)으로 2차 정렬
+        Comparator<Menu> byNameAsc = Comparator.comparing(Menu::getKorName, Comparator.nullsLast(Comparator.naturalOrder()));
+        if ("price_desc".equalsIgnoreCase(sortBy)) {
+            list.sort(Comparator.comparing(Menu::getPrice, Comparator.nullsLast(Comparator.reverseOrder())).thenComparing(byNameAsc));
         } else if ("price_asc".equalsIgnoreCase(sortBy)) {
-            list.sort(byPriority.thenComparing(Menu::getPrice, Comparator.nullsFirst(Comparator.naturalOrder())));
-        } else if ("price_desc".equalsIgnoreCase(sortBy)) {
-            list.sort(byPriority.thenComparing(Menu::getPrice, Comparator.nullsFirst(Comparator.naturalOrder())).reversed());
+            list.sort(Comparator.comparing(Menu::getPrice, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(byNameAsc));
+        } else if ("likes".equalsIgnoreCase(sortBy)) {
+            list.sort(Comparator.comparing(Menu::getLikeCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed().thenComparing(byNameAsc));
+        } else if ("views".equalsIgnoreCase(sortBy)) {
+            list.sort(Comparator.comparing(Menu::getViewCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed().thenComparing(byNameAsc));
+        } else if ("name".equalsIgnoreCase(sortBy) || "name_asc".equalsIgnoreCase(sortBy)) {
+            list.sort(byNameAsc);
         } else {
-            list.sort(byPriority.thenComparing(Menu::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            // 기본: 인기·뉴·추천 배지 있는 메뉴 우선, 그 다음 좋아요 많은 순, 동점이면 이름순
+            Comparator<Menu> byBadgeScore = Comparator.comparing((Menu m) -> {
+                int s = 0;
+                if (Boolean.TRUE.equals(m.getIsPopular())) s += 4;
+                if (Boolean.TRUE.equals(m.getIsNew())) s += 2;
+                if (Boolean.TRUE.equals(m.getIsRecommended())) s += 1;
+                return s;
+            }, Comparator.reverseOrder());
+            Comparator<Integer> byLikeCountDesc = Comparator.nullsFirst(Comparator.<Integer>naturalOrder()).reversed();
+            list.sort(byBadgeScore
+                .thenComparing(Menu::getLikeCount, byLikeCountDesc)
+                .thenComparing(byNameAsc));
         }
         return list;
     }

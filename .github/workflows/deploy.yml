@@ -1,5 +1,10 @@
 # DeplyGuid: main push 또는 workflow_dispatch 시 self-hosted에서 배포
-# GitHub Secrets: COMPOSE_PROJECT_NAME, USER_ID, BACKEND_PORT, FRONTEND_PORT, DB_PORT, SESSION_SECRET, JWT_SECRET, DB_PASSWORD, GEMINI_API_KEY
+# GitHub Variables (Settings → Secrets and variables → Actions → Variables):
+#   COMPOSE_PROJECT_NAME, USER_ID, FRONTEND_PORT, NEXT_PUBLIC_API_URL
+# GitHub Secrets (Settings → Secrets and variables → Actions → Secrets):
+#   SESSION_SECRET, JWT_SECRET, DB_PASSWORD, GEMINI_API_KEY,
+#   NEXT_PUBLIC_KAKAO_MAP_APP_KEY, NEXT_PUBLIC_PORTONE_STORE_ID, NEXT_PUBLIC_PORTONE_PG,
+#   PORTONE_API_KEY, PORTONE_API_SECRET
 name: Deploy
 
 on:
@@ -17,6 +22,11 @@ jobs:
       - name: Ensure backend/upload for Docker build
         run: mkdir -p backend/upload && touch backend/upload/.gitkeep
 
+      - name: Ensure host volume directories
+        run: |
+          mkdir -p /home/yun/upload /home/yun/data
+          chmod 755 /home/yun/upload /home/yun/data 2>/dev/null || true
+
       - name: Create .env file
         run: |
           echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-yun_ncafe}" > .env
@@ -26,16 +36,28 @@ jobs:
           echo "JWT_SECRET=${JWT_SECRET}" >> .env
           echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
           echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> .env
+          echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" >> .env
+          echo "NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}" >> .env
+          echo "NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}" >> .env
+          echo "NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}" >> .env
+          echo "PORTONE_API_KEY=${PORTONE_API_KEY}" >> .env
+          echo "PORTONE_API_SECRET=${PORTONE_API_SECRET}" >> .env
           # RAG: agent-server가 같은 DB(ncafedb)에 pgvector로 문서 임베딩 저장. 미설정 시 메모리만 사용해 배포에서 문서 저장이 동작하지 않음.
           echo "RAG_DATABASE_URL=postgresql://ncafe:${DB_PASSWORD}@db:5432/ncafedb" >> .env
         env:
           COMPOSE_PROJECT_NAME: ${{ vars.COMPOSE_PROJECT_NAME }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           USER_ID: ${{ vars.USER_ID }}
           FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEXT_PUBLIC_KAKAO_MAP_APP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_APP_KEY }}
+          NEXT_PUBLIC_PORTONE_STORE_ID: ${{ secrets.NEXT_PUBLIC_PORTONE_STORE_ID }}
+          NEXT_PUBLIC_PORTONE_PG: ${{ secrets.NEXT_PUBLIC_PORTONE_PG }}
+          PORTONE_API_KEY: ${{ secrets.PORTONE_API_KEY }}
+          PORTONE_API_SECRET: ${{ secrets.PORTONE_API_SECRET }}
 
       - name: Build and Deploy
         run: docker compose --profile with-db up --build -d

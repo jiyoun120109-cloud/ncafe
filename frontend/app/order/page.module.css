@@ -1,0 +1,424 @@
+/* ================================================================
+   Order Page — NCafe 컨셉 (따뜻한 커피 톤, 세리프 타이틀)
+   ================================================================ */
+
+/* Loading */
+.loadingWrap {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.loadingWrap p {
+  margin-top: 1rem;
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid var(--color-primary-200, #eaddd7);
+  border-top-color: var(--color-primary-600, #8b5a3c);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.emptyCard {
+  background: #fff;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.emptyText {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--color-gray-800);
+  margin: 0 0 0.5rem;
+}
+
+.emptySub {
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+  margin: 0 0 1.5rem;
+}
+
+.emptyCta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a3c);
+  border-radius: var(--radius-md, 8px);
+  text-decoration: none;
+  transition: background 0.2s ease;
+  margin-bottom: 0.75rem;
+}
+
+.emptyCta:hover {
+  background: var(--color-primary-700, #6f4a31);
+}
+
+.emptyLink {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+  text-decoration: none;
+}
+
+.emptyLink:hover {
+  color: var(--color-primary-600);
+}
+
+/* Login banner */
+.loginBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  background: rgba(139, 90, 60, 0.08);
+  border: 1px solid rgba(139, 90, 60, 0.2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+  margin-bottom: 1.5rem;
+}
+
+.loginLink {
+  color: var(--color-primary-600);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.loginLink:hover {
+  color: var(--color-primary-700);
+}
+
+/* Sections */
+.section {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin: 0 0 1rem;
+}
+
+.sectionTitle svg {
+  color: var(--color-primary-600);
+  flex-shrink: 0;
+}
+
+/* Order items list — 장바구니 스타일 (이미지·옵션·수량·삭제) */
+.itemList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-gray-100, #f5f5f5);
+}
+
+.item:last-of-type {
+  border-bottom: none;
+}
+
+.itemThumb {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-gray-100);
+  display: block;
+  text-decoration: none;
+}
+
+.itemThumb:hover {
+  opacity: 0.9;
+}
+
+.itemImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.itemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.itemName {
+  font-weight: 600;
+  color: var(--color-gray-900);
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.itemName:hover {
+  color: var(--color-primary-600);
+  text-decoration: underline;
+}
+
+.itemSoldOut .itemName {
+  color: var(--color-gray-500);
+}
+
+.itemSoldOut .itemThumb {
+  opacity: 0.7;
+}
+
+.itemOptions {
+  font-size: 0.8rem;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.optionChangeBtn {
+  align-self: flex-start;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-primary-600);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.optionChangeBtn:hover {
+  color: var(--color-primary-700);
+}
+
+.itemPriceRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.unitPrice {
+  font-size: 0.8rem;
+  color: var(--color-gray-500);
+}
+
+.itemSubtotal {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-left: auto;
+}
+
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quantity button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  color: var(--color-gray-600);
+}
+
+.quantity button:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.quantity button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantity span {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.removeBtn {
+  padding: 0.35rem;
+  border: none;
+  background: none;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.removeBtn:hover {
+  color: var(--color-error);
+  background: var(--color-error-light);
+}
+
+/* Member info */
+.memberInfo {
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+}
+
+.memberInfo strong {
+  color: var(--color-gray-900);
+}
+
+/* Guest form */
+.guestForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: var(--text-base);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--color-gray-900);
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: var(--color-gray-400);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.15);
+}
+
+/* Summary */
+.summaryRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+}
+
+.totalAmount {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+/* Submit form */
+.submitForm {
+  margin-top: 1.5rem;
+}
+
+.error {
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-error-light);
+  border-radius: var(--radius-md);
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  min-height: 52px;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary-600);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 90, 60, 0.25);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--color-primary-700);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: 1rem 1.25rem;
+  }
+
+  .submitBtn {
+    min-height: 48px;
+  }
+}

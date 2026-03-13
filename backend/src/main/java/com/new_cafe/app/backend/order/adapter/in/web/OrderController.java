@@ -1,0 +1,176 @@
+package com.new_cafe.app.backend.order.adapter.in.web;
+
+import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
+import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
+import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
+import com.new_cafe.app.backend.order.application.result.CreateOrderResult;
+import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.adapter.in.web.dto.CreateOrderRequestDto;
+import com.new_cafe.app.backend.payment.application.service.PaymentService;
+import io.jsonwebtoken.Claims;
+import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/api/orders")
+public class OrderController {
+
+    private final CreateOrderUseCase createOrderUseCase;
+    private final GetOrderUseCase getOrderUseCase;
+    private final JwtService jwtService;
+    private final PaymentService paymentService;
+    private final ApplyCouponToOrderService applyCouponToOrderService;
+
+    public OrderController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase,
+                          JwtService jwtService, PaymentService paymentService,
+                          ApplyCouponToOrderService applyCouponToOrderService) {
+        this.createOrderUseCase = createOrderUseCase;
+        this.getOrderUseCase = getOrderUseCase;
+        this.jwtService = jwtService;
+        this.paymentService = paymentService;
+        this.applyCouponToOrderService = applyCouponToOrderService;
+    }
+
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> createOrder(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody CreateOrderRequestDto request
+    ) {
+        Long userId = null;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            Claims claims = jwtService.parseToken(authorization);
+            if (claims != null) {
+                userId = Long.parseLong(claims.getSubject());
+            }
+        }
+        CreateOrderCommand command = CreateOrderCommand.builder()
+                .userId(userId)
+                .guestEmail(request.getGuestEmail())
+                .guestPhone(request.getGuestPhone())
+                .items(request.getItems() != null ? request.getItems().stream()
+                        .map(i -> new CreateOrderCommand.OrderItemDto(
+                                i.getMenuId(), i.getMenuName(), i.getQuantity(),
+                                i.getUnitPrice(), i.getOptionExtraPrice(), i.getOptionsDisplay()))
+                        .collect(Collectors.toList()) : List.of())
+                .build();
+        CreateOrderResult result = createOrderUseCase.createOrder(command);
+        Map<String, Object> body = new HashMap<>();
+        body.put("orderId", result.getOrderId());
+        body.put("totalAmount", result.getTotalAmount());
+        body.put("status", result.getStatus());
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Map<String, Object>>> myOrders(
+            @RequestHeader(value = "Authorization", required = false) String authorization
+    ) {
+        Claims claims = jwtService.parseToken(authorization);
+        if (claims == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+        List<Order> orders = getOrderUseCase.getByUserId(userId);
+        List<Map<String, Object>> list = orders.stream().map(this::orderToMap).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> getOrder(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        Optional<Order> orderOpt = getOrderUseCase.getById(id);
+        if (orderOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Order order = orderOpt.get();
+        if (order.getUserId() != null && authorization != null && authorization.startsWith("Bearer ")) {
+            Claims claims = jwtService.parseToken(authorization);
+            if (claims != null) {
+                Long userId = Long.parseLong(claims.getSubject());
+                if (!userId.equals(order.getUserId())) {
+                    return ResponseEntity.status(403).build();
+                }
+            }
+        }
+        return ResponseEntity.ok(orderToMap(order));
+    }
+
+    @PostMapping("/{orderId}/apply-coupon")
+    public ResponseEntity<Map<String, Object>> applyCoupon(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long orderId,
+            @RequestBody Map<String, Object> body
+    ) {
+        Claims claims = jwtService.parseToken(authorization);
+        if (claims == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+        Object ucIdObj = body != null ? body.get("userCouponId") : null;
+        if (ucIdObj == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Long userCouponId = ucIdObj instanceof Number ? ((Number) ucIdObj).longValue() : Long.parseLong(ucIdObj.toString());
+        try {
+            Order order = applyCouponToOrderService.apply(orderId, userId, userCouponId);
+            return ResponseEntity.ok(orderToMap(order));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    private Map<String, Object> orderToMap(Order order) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("id", order.getId());
+        m.put("userId", order.getUserId());
+        m.put("guestEmail", order.getGuestEmail());
+        m.put("guestPhone", order.getGuestPhone());
+        m.put("status", order.getStatus());
+        m.put("totalAmount", order.getTotalAmount());
+        if (order.getAppliedUserCouponId() != null) {
+            m.put("appliedUserCouponId", order.getAppliedUserCouponId());
+        }
+        m.put("createdAt", order.getCreatedAt());
+        m.put("items", order.getItems().stream().map(item -> {
+            Map<String, Object> im = new HashMap<>();
+            im.put("id", item.getId());
+            im.put("menuId", item.getMenuId());
+            im.put("menuName", item.getMenuName());
+            im.put("quantity", item.getQuantity());
+            im.put("unitPrice", item.getUnitPrice());
+            im.put("optionExtraPrice", item.getOptionExtraPrice());
+            im.put("optionsDisplay", item.getOptionsDisplay());
+            return im;
+        }).collect(Collectors.toList()));
+        return m;
+    }
+
+    @PostMapping("/{orderId}/payments/ready")
+    public ResponseEntity<Map<String, Object>> paymentReady(
+            @PathVariable Long orderId,
+            @RequestBody(required = false) Map<String, String> body
+    ) {
+        String method = body != null && body.containsKey("method") ? body.get("method") : "KAKAOPAY";
+        Map<String, Object> result = paymentService.ready(orderId, method);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/{orderId}/payments/complete")
+    public ResponseEntity<Void> paymentComplete(
+            @PathVariable Long orderId,
+            @RequestBody(required = false) Map<String, String> body
+    ) {
+        String pgTid = body != null && body.get("pgTid") != null ? body.get("pgTid") : "";
+        paymentService.complete(orderId, pgTid);
+        return ResponseEntity.ok().build();
+    }
+}

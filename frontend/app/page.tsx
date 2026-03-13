@@ -15,11 +15,20 @@ import {
   Instagram,
   Check,
   Plus,
-  Menu,
-  X,
 } from "lucide-react";
-import HeaderAuth from "@/components/HeaderAuth";
+import { getApiBase } from "@/services/api";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import styles from "./page.module.css";
+
+/** 메인 페이지 방문 시 방문자 수 집계용 기록 (세션당 1회) */
+function useRecordVisit() {
+  const recorded = useRef(false);
+  useEffect(() => {
+    if (recorded.current) return;
+    recorded.current = true;
+    fetch(`${getApiBase()}/visit`, { method: "POST", credentials: "same-origin" }).catch(() => {});
+  }, []);
+}
 
 /* ------------------------------------------------------------------ */
 /*  Animation helpers                                                  */
@@ -153,15 +162,11 @@ function AnimatedSection({
 /*  Main Page Component                                                */
 /* ================================================================== */
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  useRecordVisit();
+  const { siteName, businessHours } = useSiteSettings();
   const [showcaseMenus, setShowcaseMenus] = useState<ShowcaseMenu[]>([]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const footerBrandMark = siteName?.charAt(0) ?? "N";
+  const footerBrandText = siteName?.slice(1) ?? "Cafe";
 
   useEffect(() => {
     let cancelled = false;
@@ -178,78 +183,8 @@ export default function Home() {
     return () => { cancelled = true; };
   }, []);
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
-
   return (
     <>
-      {/* ============== Navigation ============== */}
-      <nav
-        className={`${styles.nav} ${scrolled ? styles.navScrolled : ""} ${mobileMenuOpen ? styles.navMobileOpen : ""}`}
-        id="nav"
-      >
-        <a
-          href="#"
-          className={`${styles.navBrand} ${scrolled ? styles.navBrandScrolled : ""}`}
-        >
-          <span className={styles.navBrandMark}>N</span>
-          <span className={styles.navBrandText}>Cafe</span>
-        </a>
-
-        <button
-          type="button"
-          className={styles.navMobileTrigger}
-          onClick={() => setMobileMenuOpen((o) => !o)}
-          aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
-          aria-expanded={mobileMenuOpen}
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-
-        <div className={styles.navLinks}>
-          <a
-            href="#features"
-            className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
-            onClick={closeMobileMenu}
-          >
-            About
-          </a>
-          <Link
-            href="/menus"
-            className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
-            onClick={closeMobileMenu}
-          >
-            Menu
-          </Link>
-          <a
-            href="#about"
-            className={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
-            onClick={closeMobileMenu}
-          >
-            Story
-          </a>
-          <HeaderAuth
-            compact
-            wrapperClassName={scrolled ? styles.navLinkScrolled : ""}
-            loginLinkClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
-            authClassName={`${styles.navLink} ${scrolled ? styles.navLinkScrolled : ""}`}
-          />
-          <a
-            href="#visit"
-            className={`${styles.navCta} ${scrolled ? styles.navCtaScrolled : ""}`}
-            onClick={closeMobileMenu}
-          >
-            Reserve
-          </a>
-        </div>
-      </nav>
-
-      {/* 모바일 슬라이딩 메뉴: 오버레이 (클릭 시 닫기) */}
-      <div
-        className={`${styles.navOverlay} ${mobileMenuOpen ? styles.navOverlayOpen : ""}`}
-        onClick={closeMobileMenu}
-        aria-hidden
-      />
-
       {/* ============== Hero Section ============== */}
       <section className={styles.hero} id="hero">
         <div className={styles.heroBg} />
@@ -313,14 +248,14 @@ export default function Home() {
             variants={fadeUp}
             custom={0}
           >
-            Why NCafe
+            Why {siteName || "NCafe"}
           </motion.span>
           <motion.h2
             className={styles.sectionTitle}
             variants={fadeUp}
             custom={1}
           >
-            NCafe가 특별한 이유
+            {siteName || "NCafe"}가 특별한 이유
           </motion.h2>
           <motion.p
             className={styles.sectionSubtitle}
@@ -370,7 +305,7 @@ export default function Home() {
             variants={fadeUp}
             custom={2}
           >
-            신선한 재료로 매일 정성껏 준비하는 NCafe의 시그니처 메뉴
+            신선한 재료로 매일 정성껏 준비하는 {siteName || "NCafe"}의 시그니처 메뉴
           </motion.p>
         </div>
 
@@ -463,7 +398,7 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80"
-              alt="NCafe 매장 내부"
+              alt={`${siteName || "NCafe"} 매장 내부`}
               loading="lazy"
             />
             <div className={styles.aboutImageOverlay}>
@@ -500,14 +435,14 @@ export default function Home() {
               만드는 작은 행복
             </h2>
             <p className={styles.aboutText}>
-              NCafe는 &ldquo;좋은 커피, 좋은 시간&rdquo;이라는 철학으로
+              {siteName || "NCafe"}는 &ldquo;좋은 커피, 좋은 시간&rdquo;이라는 철학으로
               시작되었습니다. 우리는 에티오피아, 콜롬비아, 과테말라 등 세계 각지의
               농장에서 직접 선별한 그린빈을 소량씩 로스팅하여 가장 신선한 상태로
               여러분께 제공합니다.
             </p>
             <p className={styles.aboutText}>
               바쁜 일상 속에서도 커피 한 잔의 여유가 삶을 더 풍요롭게 만든다고
-              믿습니다. NCafe에서 당신만의 특별한 시간을 보내세요.
+              믿습니다. {siteName || "NCafe"}에서 당신만의 특별한 시간을 보내세요.
             </p>
 
             <div className={styles.aboutFeatures}>
@@ -530,7 +465,7 @@ export default function Home() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=960&q=80"
-            alt="NCafe 매장"
+            alt={`${siteName || "NCafe"} 매장`}
             loading="lazy"
           />
         </div>
@@ -562,14 +497,14 @@ export default function Home() {
           <motion.div variants={fadeUp} custom={2} className={styles.ctaDetails}>
             <span className={styles.ctaTime}>
               <Clock size={14} />
-              매일 08:00 – 22:00
+              {businessHours || "매일 08:00 – 22:00"}
             </span>
           </motion.div>
           <motion.div variants={fadeUp} custom={3}>
-            <a href="#visit" className={styles.ctaButton}>
+            <Link href="/location" className={styles.ctaButton}>
               <MapPin size={16} />
               Find Us
-            </a>
+            </Link>
           </motion.div>
         </motion.div>
       </AnimatedSection>
@@ -579,12 +514,12 @@ export default function Home() {
         <div className={styles.footerGrid}>
           <div>
             <div className={styles.footerBrand}>
-              <span className={styles.footerBrandMark}>N</span>Cafe
+              <span className={styles.footerBrandMark}>{footerBrandMark}</span>{footerBrandText}
             </div>
             <p className={styles.footerBrandDesc}>
               좋은 원두, 따뜻한 공간, 진심을 담은 한 잔.
               <br />
-              NCafe에서 당신만의 시간을 보내세요.
+              {siteName || "NCafe"}에서 당신만의 시간을 보내세요.
             </p>
           </div>
 
@@ -598,28 +533,24 @@ export default function Home() {
 
           <div>
             <h4 className={styles.footerColumnTitle}>안내</h4>
-            <Link href="/#visit" className={styles.footerLink}>매장 위치</Link>
+            <Link href="/location" className={styles.footerLink}>매장 위치</Link>
             <Link href="/#visit" className={styles.footerLink}>영업 시간</Link>
-            <a href="#" className={styles.footerLink}>이벤트</a>
-            <a href="#" className={styles.footerLink}>채용</a>
+            <Link href="/notices" className={styles.footerLink}>공지사항</Link>
+            <Link href="/inquiries" className={styles.footerLink}>1:1 문의</Link>
           </div>
 
           <div>
             <h4 className={styles.footerColumnTitle}>운영 시간</h4>
             <p className={styles.footerLink} style={{ cursor: "default" }}>
               <Clock size={13} style={{ display: "inline", verticalAlign: "-2px", marginRight: "6px" }} />
-              월-금 08:00 – 22:00
-            </p>
-            <p className={styles.footerLink} style={{ cursor: "default" }}>
-              <Clock size={13} style={{ display: "inline", verticalAlign: "-2px", marginRight: "6px" }} />
-              토-일 09:00 – 22:00
+              {businessHours || "월-금 08:00 – 22:00 / 토-일 09:00 – 22:00"}
             </p>
           </div>
         </div>
 
         <div className={styles.footerBottom}>
           <span className={styles.footerCopyright}>
-            © 2024 NCafe. All rights reserved.
+            © {new Date().getFullYear()} {siteName || "NCafe"}. All rights reserved.
           </span>
           <div className={styles.footerSocials}>
             <a href="#" className={styles.footerSocial} aria-label="Instagram">

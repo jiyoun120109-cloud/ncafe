@@ -6,6 +6,8 @@ import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryEntity;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryJpaRepository;
 
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,33 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
         return categoryJpaRepository.findById(id)
             .map(this::toDomain)
             .orElse(null);
+    }
+
+    @Override
+    public Category save(Category category) {
+        LocalDateTime now = LocalDateTime.now();
+        if (category.getId() == null) {
+            Integer nextOrder = categoryJpaRepository.findMaxDisplayOrder().orElse(0) + 1;
+            CategoryEntity entity = CategoryEntity.builder()
+                .name(category.getName())
+                .displayOrder(nextOrder)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
+            CategoryEntity saved = categoryJpaRepository.save(entity);
+            return toDomain(saved);
+        }
+        CategoryEntity existing = categoryJpaRepository.findById(category.getId())
+            .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category.getId()));
+        existing.setName(category.getName());
+        existing.setUpdatedAt(now);
+        CategoryEntity saved = categoryJpaRepository.save(existing);
+        return toDomain(saved);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        categoryJpaRepository.deleteById(id);
     }
 
     private Category toDomain(CategoryEntity e) {

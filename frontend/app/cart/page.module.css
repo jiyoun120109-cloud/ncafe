@@ -1,49 +1,17 @@
-.main {
-    min-height: 60vh;
-    max-width: 640px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-}
-
 .loading {
     text-align: center;
-    color: rgba(0, 0, 0, 0.5);
-    font-size: 0.9rem;
-}
-
-.header {
-    margin-bottom: 2rem;
-}
-
-.backLink {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.85rem;
-    color: rgba(0, 0, 0, 0.5);
-    text-decoration: none;
-    margin-bottom: 1rem;
-}
-
-.backLink:hover {
-    color: var(--color-primary-700, #6d4520);
-}
-
-.title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1c1917;
+    padding: 2rem 1rem;
+    color: var(--color-gray-500);
+    font-size: var(--text-sm);
 }
 
 .empty {
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 3rem 2rem;
     background: #fff;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
 }
 
 .emptyIcon {
@@ -81,9 +49,10 @@
 
 .content {
     background: #fff;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     overflow: hidden;
+    box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
 }
 
 .listHeader {

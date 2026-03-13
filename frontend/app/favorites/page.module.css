@@ -1,0 +1,71 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  transition: background 0.2s ease;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.itemLink {
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.itemName {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.itemPrice {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin-top: 0.2rem;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.removeBtn:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.removeBtn:disabled {
+  opacity: 0.5;
+}
+
+.loading, .empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+}

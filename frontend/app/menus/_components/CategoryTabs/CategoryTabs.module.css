@@ -1,48 +1,60 @@
 /* ================================================================
-   CategoryTabs — 데스크톱: 세로 사이드 목록 / 모바일: 수평 스크롤 탭
+   CategoryTabs — 고급·심플 포커스 (데스크: 세로 / 모바일: 수평)
    ================================================================ */
 
 .tabs {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.125rem;
 }
 
 .tab {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 0.65rem 0.85rem;
+    padding: 0.6rem 0.75rem;
     background: transparent;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 0.8125rem;
     font-weight: 500;
     color: rgba(0, 0, 0, 0.5);
     text-align: left;
     white-space: nowrap;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-    border-left: 3px solid transparent;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .tab:hover {
-    background: rgba(139, 90, 43, 0.06);
+    background: rgba(0, 0, 0, 0.04);
     color: #1c1917;
 }
 
 .tab.active {
-    background: linear-gradient(90deg, rgba(139, 90, 43, 0.1) 0%, rgba(139, 90, 43, 0.04) 100%);
-    color: #5c4033;
+    background: rgba(0, 0, 0, 0.05);
+    color: #1c1917;
     font-weight: 600;
-    border-left-color: var(--color-primary-600, #8b5a2b);
+    padding-left: 1rem;
+}
+
+.tab.active::before {
+    content: '';
+    position: absolute;
+    left: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 1rem;
+    background: #1c1917;
+    border-radius: 0 1px 1px 0;
 }
 
 .count {
     font-size: 0.7rem;
     font-weight: 500;
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 0.45rem;
     border-radius: 999px;
     background: rgba(0, 0, 0, 0.06);
     color: rgba(0, 0, 0, 0.5);
@@ -52,15 +64,15 @@
 }
 
 .tab.active .count {
-    background: rgba(139, 90, 43, 0.15);
-    color: #5c4033;
+    background: rgba(0, 0, 0, 0.1);
+    color: #1c1917;
 }
 
 /* ── 수평 스크롤 탭 (태블릿 이하) ── */
 @media (max-width: 900px) {
     .tabs {
         flex-direction: row;
-        gap: 0.5rem;
+        gap: 0.4rem;
         overflow-x: auto;
         overflow-y: hidden;
         padding-bottom: 0.35rem;
@@ -76,28 +88,30 @@
 
     .tab {
         flex-shrink: 0;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 0.9rem;
         border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 999px;
+        border-radius: 6px;
         justify-content: center;
         gap: 0.35rem;
-        border-left: none;
+    }
+
+    .tab::before {
+        display: none;
     }
 
     .tab:hover {
-        border-color: rgba(139, 90, 43, 0.35);
-        background: rgba(139, 90, 43, 0.05);
+        border-color: rgba(0, 0, 0, 0.18);
+        background: rgba(0, 0, 0, 0.03);
     }
 
     .tab.active {
-        background: linear-gradient(135deg, #8b5a2b 0%, #6f4a22 100%);
-        border-color: transparent;
+        background: #1c1917;
+        border-color: #1c1917;
         color: #fff;
-        box-shadow: 0 2px 8px rgba(139, 90, 43, 0.25);
     }
 
     .tab.active .count {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.2);
         color: #fff;
     }
 }

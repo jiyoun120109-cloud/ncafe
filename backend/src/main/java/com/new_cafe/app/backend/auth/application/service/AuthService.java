@@ -47,11 +47,14 @@ public class AuthService implements LoginUseCase, SignupUseCase {
             return LoginResult.failure("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 인증 성공
+        // 3. 인증 성공 (표시 이름: 닉네임 우선, 없으면 실명)
+        String displayName = member.getDisplayNickname() != null && !member.getDisplayNickname().isEmpty()
+            ? member.getDisplayNickname() : member.getName();
+        if (displayName == null || displayName.isEmpty()) displayName = member.getUsername();
         return LoginResult.success(
             member.getId(),
             member.getUsername(),
-            member.getName(),
+            displayName,
             member.getRole()
         );
     }
@@ -64,8 +67,11 @@ public class AuthService implements LoginUseCase, SignupUseCase {
         if (username.isEmpty()) {
             return SignupResult.failure("아이디를 입력해주세요.");
         }
-        if (password == null || password.length() < 4) {
-            return SignupResult.failure("비밀번호는 4자 이상 입력해주세요.");
+        if (password == null || password.length() < 6) {
+            return SignupResult.failure("비밀번호는 6자 이상 입력해주세요.");
+        }
+        if (!password.matches(".*[0-9].*") || !password.matches(".*[a-zA-Z].*")) {
+            return SignupResult.failure("비밀번호는 영문과 숫자를 조합해주세요.");
         }
 
         if (memberRepository.findByUsername(username).isPresent()) {
@@ -73,13 +79,31 @@ public class AuthService implements LoginUseCase, SignupUseCase {
         }
 
         String encodedPassword = passwordEncoder.encode(password);
+        String name = command.name() != null ? command.name().trim() : null;
+        String displayNickname = command.displayNickname() != null ? command.displayNickname().trim() : null;
+        if (displayNickname == null || displayNickname.isEmpty()) {
+            displayNickname = username;
+        }
+        String email = command.email() != null ? command.email().trim() : null;
         Member member = Member.builder()
             .username(username)
             .password(encodedPassword)
-            .name(username)
+            .name(name != null && !name.isEmpty() ? name : username)
+            .birthDate(command.birthDate())
+            .phone(command.phone() != null ? command.phone().trim() : null)
+            .displayNickname(displayNickname)
+            .email(email != null && !email.isEmpty() ? email : null)
             .role("USER")
             .build();
         memberRepository.save(member);
         return SignupResult.ok();
+    }
+
+    @Override
+    public boolean isUsernameAvailable(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+        return memberRepository.findByUsername(username.trim()).isEmpty();
     }
 }

@@ -36,7 +36,8 @@ public class SecurityConfig {
                         String uri = request.getRequestURI();
                         if (uri == null) return false;
                         String path = uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
-                        return path.endsWith("/csrf") || path.endsWith("/auth/login") || path.endsWith("/auth/signup");
+                        return path.endsWith("/csrf") || path.endsWith("/auth/login") || path.endsWith("/auth/signup")
+                            || path.endsWith("/visit");
                     }
                 )
             )

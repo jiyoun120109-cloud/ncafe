@@ -17,6 +17,41 @@
     margin-bottom: var(--space-1);
 }
 
+.inputRow {
+    display: flex;
+    gap: var(--space-2);
+    align-items: stretch;
+}
+
+.inputRow .inputWrapper {
+    flex: 1;
+    min-width: 0;
+}
+
+.checkButton {
+    flex-shrink: 0;
+    padding: 0 var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    color: var(--color-primary-700);
+    background: var(--color-primary-50);
+    border: 1px solid var(--color-primary-200);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+    white-space: nowrap;
+}
+
+.checkButton:hover:not(:disabled) {
+    background: var(--color-primary-100);
+    border-color: var(--color-primary-400);
+}
+
+.checkButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .inputWrapper {
     position: relative;
     display: flex;
@@ -87,6 +122,18 @@
 .fieldError {
     font-size: var(--text-xs);
     color: var(--color-error);
+    margin-top: var(--space-1);
+}
+
+.fieldSuccess {
+    font-size: var(--text-xs);
+    color: var(--color-success, #059669);
+    margin-top: var(--space-1);
+}
+
+.fieldHint {
+    font-size: var(--text-xs);
+    color: var(--color-gray-500);
     margin-top: var(--space-1);
 }
 

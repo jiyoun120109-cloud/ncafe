@@ -9,11 +9,11 @@ import { useUserCategories } from './_components/useUserCategories';
 import styles from './page.module.css';
 
 const SORT_OPTIONS = [
-    { value: 'priority', label: '우선순위순' },
+    { value: 'priority', label: '인기' },
+    { value: 'price_desc', label: '가격높은순' },
+    { value: 'price_asc', label: '가격낮은순' },
     { value: 'likes', label: '좋아요순' },
-    { value: 'views', label: '조회순' },
-    { value: 'price_asc', label: '가격 낮은순' },
-    { value: 'price_desc', label: '가격 높은순' },
+    { value: 'name', label: '이름순' },
 ] as const;
 
 function MenusPageContent() {
@@ -50,24 +50,18 @@ function MenusPageContent() {
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                     />
-                    <div className={styles.sortWrap}>
-                        <label htmlFor="menu-sort" className={styles.sortLabel}>
-                            정렬
-                        </label>
-                        <select
-                            id="menu-sort"
-                            className={styles.sortSelect}
-                            value={sort}
-                            onChange={(e) => setSort(e.target.value)}
-                            aria-label="메뉴 정렬"
-                        >
-                            {SORT_OPTIONS.map((opt) => (
-                                <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <nav className={styles.sortTabs} aria-label="메뉴 정렬">
+                        {SORT_OPTIONS.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                className={`${styles.sortTab} ${sort === opt.value ? styles.sortTabActive : ''}`}
+                                onClick={() => setSort(opt.value)}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </nav>
                 </div>
                 <MenuList
                     selectedCategory={selectedCategory}

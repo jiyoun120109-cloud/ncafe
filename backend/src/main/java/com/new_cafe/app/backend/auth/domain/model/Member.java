@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -18,11 +19,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Member {
     private Long id;
-    private String username;
+    private String username;      // 로그인 아이디
     private String password;
-    private String name;
+    private String name;          // 실명
     private String email;
-    private String role;       // ADMIN, USER 등
+    private LocalDate birthDate;  // 생년월일
+    private String phone;         // 핸드폰 번호
+    private String displayNickname; // 서비스 표시 닉네임
+    private String profileImageUrl; // 프로필 이미지 경로 (예: avatars/17.jpg)
+    private String role;          // ADMIN, USER 등
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

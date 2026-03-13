@@ -20,6 +20,7 @@ type CartContextValue = {
     updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
     updateItemOptions: (cartItemId: number, options: CartItemOptions) => Promise<void>;
     removeItem: (cartItemId: number) => Promise<void>;
+    clearAll: () => Promise<void>;
     refresh: () => Promise<void>;
 };
 
@@ -68,6 +69,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         await refresh();
     }, [refresh]);
 
+    const clearAll = useCallback(async () => {
+        for (const item of items) {
+            try {
+                await removeCartItemApi(item.id);
+            } catch {
+                // ignore per-item errors
+            }
+        }
+        await refresh();
+    }, [items, refresh]);
+
     const value: CartContextValue = {
         items,
         totalQuantity,
@@ -76,6 +88,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateQuantity,
         updateItemOptions,
         removeItem,
+        clearAll,
         refresh,
     };
 

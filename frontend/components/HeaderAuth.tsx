@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import { getMeApi, logoutApi } from '@/services/authService';
+import { getUserProfile } from '@/services/userService';
+import { getApiBase } from '@/services/api';
 import styles from './HeaderAuth.module.css';
 
 type HeaderAuthProps = {
@@ -24,7 +27,7 @@ type HeaderAuthProps = {
  */
 export default function HeaderAuth({ loginLinkClassName = '', authClassName = '', compact = false, wrapperClassName = '' }: HeaderAuthProps) {
     const router = useRouter();
-    const { user, setUser, clearUser } = useAuthStore();
+    const { user, profileImageUrl, setUser, setProfileImageUrl, clearUser } = useAuthStore();
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
@@ -38,6 +41,15 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
         load();
         return () => { cancelled = true; };
     }, [setUser]);
+
+    useEffect(() => {
+        if (!user) return;
+        let cancelled = false;
+        getUserProfile()
+            .then((p) => { if (!cancelled) setProfileImageUrl(p.profileImageUrl ?? null); })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [user, setProfileImageUrl]);
 
     const handleLogout = async () => {
         await logoutApi();
@@ -54,12 +66,19 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
     if (user) {
         const displayName = compact ? (user.username ?? user.name ?? '') : (user.name || user.username);
         const isAdmin = user.role?.toUpperCase() === 'ADMIN';
+        const avatarSrc = profileImageUrl ? `${getApiBase()}/static/${profileImageUrl}` : null;
         if (compact) {
             return (
                 <span className={`${styles.compactWrapper} ${wrapperClassName}`.trim()}>
-                    <span className={styles.avatar} aria-hidden>
-                        {(user.username ?? user.name ?? '?')[0].toUpperCase()}
-                    </span>
+                    {avatarSrc ? (
+                        <span className={styles.avatarImgWrap}>
+                            <Image src={avatarSrc} alt="" width={28} height={28} className={styles.avatarImg} unoptimized />
+                        </span>
+                    ) : (
+                        <span className={styles.avatar} aria-hidden>
+                            {(user.username ?? user.name ?? '?')[0].toUpperCase()}
+                        </span>
+                    )}
                     {isAdmin ? (
                         <Link href="/admin" className={`${styles.userName} ${styles.userNameLink} ${authClassName}`.trim()}>
                             {displayName}
@@ -82,9 +101,24 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
         }
         return (
             <span className={styles.wrapper}>
-                <span className={`${styles.userName} ${authClassName}`.trim()}>
-                    {displayName}
-                </span>
+                {avatarSrc ? (
+                    <span className={styles.avatarImgWrap}>
+                        <Image src={avatarSrc} alt="" width={28} height={28} className={styles.avatarImg} unoptimized />
+                    </span>
+                ) : (
+                    <span className={styles.avatar} aria-hidden>
+                        {(user.username ?? user.name ?? '?')[0].toUpperCase()}
+                    </span>
+                )}
+                {isAdmin ? (
+                    <Link href="/admin" className={`${styles.userName} ${styles.userNameLink} ${authClassName}`.trim()}>
+                        {displayName}
+                    </Link>
+                ) : (
+                    <span className={`${styles.userName} ${authClassName}`.trim()}>
+                        {displayName}
+                    </span>
+                )}
                 <button
                     type="button"
                     onClick={handleLogout}

@@ -2,6 +2,9 @@ package com.new_cafe.app.backend.auth.application.port.out;
 
 import com.new_cafe.app.backend.auth.domain.model.Member;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 /**
@@ -29,4 +32,14 @@ public interface MemberRepositoryPort {
      * ID로 회원을 조회합니다.
      */
     Optional<Member> findById(Long id);
+
+    /**
+     * 회원 목록 조회 (페이징, 최신순)
+     */
+    Page<Member> findAll(Pageable pageable);
+
+    /**
+     * 닉네임(아이디) 검색 (페이징, 최신순)
+     */
+    Page<Member> findByNicknameContaining(String search, Pageable pageable);
 }

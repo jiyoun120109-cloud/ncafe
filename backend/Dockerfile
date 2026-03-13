@@ -19,10 +19,11 @@ RUN mkdir -p /app/upload
 VOLUME /app/upload
 EXPOSE 8011
 ENV SERVER_PORT=8011
+ENV TZ=Asia/Seoul
 
 # 기동 시 시드 이미지를 upload에 복사 (이미 있으면 덮어쓰지 않음)
 RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
     echo 'for f in /app/upload-seed/*; do [ -e "$f" ] && cp -n "$f" /app/upload/ 2>/dev/null; done' >> /docker-entrypoint.sh && \
-    echo 'exec java -Dserver.port=8011 -jar app.jar' >> /docker-entrypoint.sh && \
+    echo 'exec java -Dserver.port=8011 -Duser.timezone=Asia/Seoul -jar app.jar' >> /docker-entrypoint.sh && \
     chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]

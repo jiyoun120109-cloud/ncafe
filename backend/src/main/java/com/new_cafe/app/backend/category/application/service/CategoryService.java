@@ -1,7 +1,9 @@
 package com.new_cafe.app.backend.category.application.service;
 
+import com.new_cafe.app.backend.category.application.command.CreateCategoryCommand;
 import com.new_cafe.app.backend.category.application.command.GetAllCategoriesCommand;
 import com.new_cafe.app.backend.category.application.command.GetCategoryCommand;
+import com.new_cafe.app.backend.category.application.command.UpdateCategoryCommand;
 import com.new_cafe.app.backend.category.application.port.in.AdminCategoryUseCase;
 import com.new_cafe.app.backend.category.application.port.in.UserCategoryUseCase;
 import com.new_cafe.app.backend.category.application.port.out.CategoryRepositoryPort;
@@ -56,17 +58,44 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
     }
 
     @Override
-    public void createCategory() {
-        // TODO: 카테고리 생성 로직 구현
+    public GetCategoryResult createCategory(CreateCategoryCommand command) {
+        if (command.getName() == null || command.getName().isBlank()) {
+            throw new IllegalArgumentException("카테고리 이름을 입력해 주세요.");
+        }
+        Category toSave = Category.builder().name(command.getName().trim()).build();
+        Category saved = categoryRepository.save(toSave);
+        return GetCategoryResult.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .build();
     }
 
     @Override
-    public void updateCategory() {
-        // TODO: 카테고리 수정 로직 구현
+    public GetCategoryResult updateCategory(UpdateCategoryCommand command) {
+        Category existing = categoryRepository.findById(command.getId());
+        if (existing == null) {
+            throw new IllegalArgumentException("Category not found with id: " + command.getId());
+        }
+        if (command.getName() == null || command.getName().isBlank()) {
+            throw new IllegalArgumentException("카테고리 이름을 입력해 주세요.");
+        }
+        Category toSave = Category.builder()
+                .id(command.getId())
+                .name(command.getName().trim())
+                .build();
+        Category saved = categoryRepository.save(toSave);
+        return GetCategoryResult.builder()
+                .id(saved.getId())
+                .name(saved.getName())
+                .build();
     }
 
     @Override
-    public void deleteCategory() {
-        // TODO: 카테고리 삭제 로직 구현
+    public void deleteCategory(Long id) {
+        Category existing = categoryRepository.findById(id);
+        if (existing == null) {
+            throw new IllegalArgumentException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
     }
 }

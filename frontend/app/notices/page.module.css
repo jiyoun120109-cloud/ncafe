@@ -1,0 +1,119 @@
+/* 관리자 대시보드/RAG 스타일 참고 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.topRow {
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.backLinkText {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.65);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.backLinkText:hover {
+  color: #1c1917;
+  text-decoration: underline;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pageLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.pageTitle {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/* 관리자 테이블 스타일 참고 */
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #1c1917;
+  vertical-align: middle;
+}
+
+.tr:last-child .td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: #fafaf9;
+}
+
+.idCell {
+  width: 4rem;
+  color: rgba(0, 0, 0, 0.45);
+  font-variant-numeric: tabular-nums;
+}
+
+.cellTitle a {
+  color: #1c1917;
+  text-decoration: none;
+}
+
+.cellTitle a:hover {
+  text-decoration: underline;
+}
+
+.dateCell {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+}
+
+.loading, .empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
+  font-size: 0.95rem;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}

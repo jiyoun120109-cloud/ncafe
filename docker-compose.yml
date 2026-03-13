@@ -11,9 +11,11 @@ services:
     # CI/배포: 워크플로에서 GEMINI_API_KEY 환경변수로 전달. 로컬: 루트 .env 또는 agent-server/.env 로드 후 compose 실행
     # RAG: 아래 db와 같은 컨테이너(yun-db) 사용. 별도 DB 컨테이너 불필요. RAG_DATABASE_URL 설정 시 ncafedb에 rag_documents 테이블·vector 확장 사용.
     environment:
+      - TZ=Asia/Seoul
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
       - RAG_DATABASE_URL=${RAG_DATABASE_URL:-}
+      - BACKEND_BASE=http://backend:8011
     restart: unless-stopped
     depends_on:
       db:
@@ -31,11 +33,14 @@ services:
     volumes:
       - /home/yun/upload:/app/upload
     environment:
+      - TZ=Asia/Seoul
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/ncafedb?currentSchema=public}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ncafe}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - PORTONE_API_KEY=${PORTONE_API_KEY}
+      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
     depends_on:
@@ -50,14 +55,21 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
         - API_BASE_URL=http://backend:8011
+        - NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}
+        - NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}
+        - NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}
     container_name: ${USER_ID:-yun}-frontend
     ports:
       - "${FRONTEND_PORT:-3011}:3011"
     environment:
+      - TZ=Asia/Seoul
       - API_BASE_URL=http://backend:8011
       - AGENT_SERVER_URL=http://agent-server:8000
       - SESSION_SECRET=${SESSION_SECRET}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
+      - NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}
+      - NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}
+      - NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}
     depends_on:
       backend:
         condition: service_started
@@ -73,6 +85,7 @@ services:
       POSTGRES_DB: ncafedb
       POSTGRES_USER: ncafe
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
     # ports:
     #   - "${DB_PORT:-5511}:5432"
     volumes:

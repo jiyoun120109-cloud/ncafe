@@ -72,7 +72,15 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
         SignupResult result = signupUseCase.signup(
-            new SignupCommand(request.getUsername(), request.getPassword())
+            new SignupCommand(
+                request.getUsername(),
+                request.getPassword(),
+                request.getName(),
+                request.getBirthDate(),
+                request.getPhone(),
+                request.getDisplayNickname(),
+                request.getEmail()
+            )
         );
         if (!result.success()) {
             return ResponseEntity.badRequest().body(
@@ -82,6 +90,16 @@ public class AuthController {
         return ResponseEntity.status(201).body(
             new SignupResponse(true, result.message())
         );
+    }
+
+    /**
+     * 아이디(닉네임) 사용 가능 여부 확인
+     * GET /api/auth/check-username?username=xxx
+     */
+    @GetMapping("/check-username")
+    public ResponseEntity<CheckUsernameResponse> checkUsername(@RequestParam String username) {
+        boolean available = signupUseCase.isUsernameAvailable(username != null ? username.trim() : "");
+        return ResponseEntity.ok(new CheckUsernameResponse(available));
     }
 
     /**

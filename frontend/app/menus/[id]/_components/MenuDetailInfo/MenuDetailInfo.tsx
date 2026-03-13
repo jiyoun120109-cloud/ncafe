@@ -2,9 +2,11 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
-import { Minus, Plus, ShoppingCart, CreditCard } from 'lucide-react';
+import { Heart, Minus, Plus, ShoppingCart, CreditCard } from 'lucide-react';
 import AddToCartModal from '@/components/AddToCartModal';
+import { useFavorites } from '@/hooks/useFavorites';
 import styles from './MenuDetailInfo.module.css';
 import { useUserMenuDetail } from '../useUserMenuDetail';
 import type { CartItemOptions } from '@/services/cartService';
@@ -51,8 +53,10 @@ function parseOptionsJson(json: string | null | undefined): ParsedOptionGroup[] 
 }
 
 export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
+    const router = useRouter();
     const { menu, loading, error } = useUserMenuDetail(id);
     const { addItem } = useCart();
+    const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites();
     const [quantity, setQuantity] = useState(1);
     const [cartModalOpen, setCartModalOpen] = useState(false);
     const [temperature, setTemperature] = useState<'HOT' | 'ICED'>('HOT');
@@ -144,11 +148,36 @@ export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
         );
     }
 
+    const favorite = menu ? isFavorite(menu.id) : false;
+
     return (
         <section className={styles.infoSection}>
             <div className={styles.infoCard}>
-                <span className={styles.categoryBadge}>{menu.categoryName}</span>
-                <h1 className={styles.korName}>{menu.korName}</h1>
+                <div className={styles.titleRow}>
+                    <div>
+                        <span className={styles.categoryBadge}>{menu.categoryName}</span>
+                        <h1 className={styles.korName}>{menu.korName}</h1>
+                    </div>
+                    <button
+                        type="button"
+                        className={styles.favoriteBtn}
+                        aria-label={!isAuthenticated ? '로그인 후 찜하기' : favorite ? `${menu.korName} 찜 해제` : `${menu.korName} 찜하기`}
+                        onClick={() => {
+                            if (!isAuthenticated) {
+                                router.push(`/login?returnUrl=${encodeURIComponent(`/menus/${id}`)}`);
+                                return;
+                            }
+                            toggleFavorite(menu.id);
+                        }}
+                        title={!isAuthenticated ? '로그인 후 찜할 수 있어요' : favorite ? '찜 해제' : '찜하기'}
+                    >
+                        <Heart
+                            size={22}
+                            className={favorite ? styles.heartFilled : ''}
+                            fill={favorite ? 'currentColor' : 'none'}
+                        />
+                    </button>
+                </div>
                 <p className={styles.engName}>{menu.engName}</p>
                 <p className={styles.price}>
                     {menu.price.toLocaleString()}원

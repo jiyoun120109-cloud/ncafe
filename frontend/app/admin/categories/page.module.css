@@ -1,0 +1,36 @@
+/* RAG 관리와 동일 */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 960px;
+  padding: 0 0.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.pageLabel {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.35);
+}
+
+.pageTitle {
+  font-family: var(--font-serif, 'Georgia', serif);
+  font-size: 2rem;
+  font-weight: 400;
+  color: #1c1917;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.07);
+}
