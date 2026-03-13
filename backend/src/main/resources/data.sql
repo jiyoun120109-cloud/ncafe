@@ -292,9 +292,18 @@ CREATE TABLE IF NOT EXISTS orders (
     guest_phone VARCHAR(50),
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
     total_amount INT NOT NULL DEFAULT 0,
+    applied_user_coupon_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'orders' AND column_name = 'applied_user_coupon_id') THEN
+    ALTER TABLE orders ADD COLUMN applied_user_coupon_id BIGINT;
+  END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY,

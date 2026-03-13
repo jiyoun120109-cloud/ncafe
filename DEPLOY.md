@@ -60,6 +60,16 @@ docker exec -it <db컨테이너이름> psql -U ncafe -d ncafedb -c "ALTER DATABA
 
 실행 후 DB(또는 postgres 프로세스) 재시작이 필요할 수 있습니다. 문제가 계속되면 `REINDEX DATABASE ncafedb;` 후 다시 시도하세요.
 
+### 백엔드: Flyway "baselineOnMigrate" / 설정 변경 후에도 같은 에러
+
+설정(`spring.flyway.baseline-on-migrate=true` 등)을 넣었는데도 같은 에러가 나면 **실행 중인 백엔드 이미지가 예전 빌드**일 가능성이 큽니다.
+
+**조치:** 백엔드 이미지를 다시 빌드한 뒤 재기동해야 합니다.
+
+- **GitHub Actions 배포:** 푸시 후 워크플로가 성공했는지 확인. 실패했다면 수정 후 다시 푸시. 성공했는데도 에러면 배포 서버에서 `docker compose build --no-cache backend && docker compose up -d` 실행.
+- **배포 서버에서 직접:**  
+  `cd <프로젝트경로> && docker compose build --no-cache backend && docker compose up -d`
+
 ### 프론트엔드: ECONNREFUSED 172.x.x.x:8011
 
 프론트(BFF)가 백엔드(8011)로 연결할 수 없다는 뜻입니다. **백엔드 컨테이너가 떠 있지 않거나 기동에 실패한 상태**입니다.
