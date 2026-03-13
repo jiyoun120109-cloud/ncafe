@@ -30,6 +30,13 @@ jobs:
           mkdir -p /home/yun/upload /home/yun/data
           chmod 755 /home/yun/upload /home/yun/data 2>/dev/null || true
 
+      - name: Copy seed images to host upload
+        run: |
+          # 레포의 backend/upload에 있는 이미지를 호스트 /home/yun/upload로 복사 (기존 파일은 덮어쓰지 않음)
+          for f in backend/upload/*; do
+            [ -f "$f" ] && cp -n "$f" /home/yun/upload/ 2>/dev/null || true
+          done
+
       - name: Create .env file
         run: |
           echo "COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-yun_ncafe}" > .env
