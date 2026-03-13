@@ -59,8 +59,7 @@ public class FavoriteController {
 
     private Long getUserId(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
-        Claims claims = jwtService.parseToken(authorization);
-        return jwtService.getUserIdFromClaims(claims);
+        return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));
     }
 
     private Map<String, Object> toMap(FavoriteEntity e) {
