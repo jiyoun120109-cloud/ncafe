@@ -58,4 +58,16 @@ public class JwtService {
             return null;
         }
     }
+
+    /** claims에서 userId(subject) 추출. subject가 없거나 숫자가 아니면 null (500 방지) */
+    public Long getUserIdFromClaims(Claims claims) {
+        if (claims == null) return null;
+        String sub = claims.getSubject();
+        if (sub == null || sub.isBlank()) return null;
+        try {
+            return Long.parseLong(sub.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

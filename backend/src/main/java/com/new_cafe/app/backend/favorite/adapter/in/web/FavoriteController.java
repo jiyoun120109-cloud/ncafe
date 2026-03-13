@@ -2,7 +2,6 @@ package com.new_cafe.app.backend.favorite.adapter.in.web;
 
 import com.new_cafe.app.backend.favorite.application.service.FavoriteService;
 import com.new_cafe.app.backend.favorite.adapter.out.jpa.FavoriteEntity;
-import io.jsonwebtoken.Claims;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +60,7 @@ public class FavoriteController {
     private Long getUserId(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
         Claims claims = jwtService.parseToken(authorization);
-        return claims == null ? null : Long.parseLong(claims.getSubject());
+        return jwtService.getUserIdFromClaims(claims);
     }
 
     private Map<String, Object> toMap(FavoriteEntity e) {

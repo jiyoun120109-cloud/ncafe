@@ -46,9 +46,7 @@ public class OrderController {
         Long userId = null;
         if (authorization != null && authorization.startsWith("Bearer ")) {
             Claims claims = jwtService.parseToken(authorization);
-            if (claims != null) {
-                userId = Long.parseLong(claims.getSubject());
-            }
+            userId = jwtService.getUserIdFromClaims(claims);
         }
         CreateOrderCommand command = CreateOrderCommand.builder()
                 .userId(userId)
@@ -72,11 +70,11 @@ public class OrderController {
     public ResponseEntity<List<Map<String, Object>>> myOrders(
             @RequestHeader(value = "Authorization", required = false) String authorization
     ) {
-        Claims claims = jwtService.parseToken(authorization);
-        if (claims == null) {
+        Claims claims = authorization != null && authorization.startsWith("Bearer ") ? jwtService.parseToken(authorization) : null;
+        Long userId = jwtService.getUserIdFromClaims(claims);
+        if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        Long userId = Long.parseLong(claims.getSubject());
         List<Order> orders = getOrderUseCase.getByUserId(userId);
         List<Map<String, Object>> list = orders.stream().map(this::orderToMap).collect(Collectors.toList());
         return ResponseEntity.ok(list);
@@ -94,11 +92,9 @@ public class OrderController {
         Order order = orderOpt.get();
         if (order.getUserId() != null && authorization != null && authorization.startsWith("Bearer ")) {
             Claims claims = jwtService.parseToken(authorization);
-            if (claims != null) {
-                Long userId = Long.parseLong(claims.getSubject());
-                if (!userId.equals(order.getUserId())) {
-                    return ResponseEntity.status(403).build();
-                }
+            Long userId = jwtService.getUserIdFromClaims(claims);
+            if (userId != null && !userId.equals(order.getUserId())) {
+                return ResponseEntity.status(403).build();
             }
         }
         return ResponseEntity.ok(orderToMap(order));
@@ -110,11 +106,11 @@ public class OrderController {
             @PathVariable Long orderId,
             @RequestBody Map<String, Object> body
     ) {
-        Claims claims = jwtService.parseToken(authorization);
-        if (claims == null) {
+        Claims claims = authorization != null && authorization.startsWith("Bearer ") ? jwtService.parseToken(authorization) : null;
+        Long userId = jwtService.getUserIdFromClaims(claims);
+        if (userId == null) {
             return ResponseEntity.status(401).build();
         }
-        Long userId = Long.parseLong(claims.getSubject());
         Object ucIdObj = body != null ? body.get("userCouponId") : null;
         if (ucIdObj == null) {
             return ResponseEntity.badRequest().build();
