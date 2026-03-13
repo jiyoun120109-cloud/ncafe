@@ -32,4 +32,9 @@ public class CouponEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    /** 스탬프 리워드 쿠폰 템플릿은 미사용(false). user_coupons에서 사용 여부 관리 */
+    @Column(name = "is_used", nullable = false)
+    @Builder.Default
+    private Boolean isUsed = false;
 }

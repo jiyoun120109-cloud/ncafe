@@ -15,6 +15,9 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    env:
+      # Node.js 20 액션 사용 중단 안내 대응 — 2026년 6월부터 기본이 Node 24로 변경됨
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4

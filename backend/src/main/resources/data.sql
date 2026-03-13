@@ -326,7 +326,8 @@ CREATE TABLE IF NOT EXISTS coupons (
     coupon_type VARCHAR(50) NOT NULL DEFAULT 'STAMP_REWARD',
     required_stamps INT DEFAULT 10,
     menu_id BIGINT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_used BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 -- 회원별 스탬프 (커피 1잔 = 1스탬프, 10개 모이면 무료 아메리카노)
@@ -414,6 +415,18 @@ CREATE TABLE IF NOT EXISTS favorites (
     UNIQUE(user_id, menu_id)
 );
 
+-- 기존 DB에서 user_id가 integer 등이면 bigint로 변환 (Hibernate DDL 캐스트 오류 방지)
+DO $$
+BEGIN
+  ALTER TABLE orders ALTER COLUMN user_id TYPE bigint USING user_id::bigint;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+DO $$
+BEGIN
+  ALTER TABLE favorites ALTER COLUMN user_id TYPE bigint USING user_id::bigint;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
 -- 알림 (공지 등록 시 회원 알림, 문의 답변 시 문의자 알림)
 CREATE TABLE IF NOT EXISTS notifications (
     id BIGSERIAL PRIMARY KEY,
@@ -452,11 +465,19 @@ BEGIN
   END IF;
 END $$;
 
+-- 기존 coupons 테이블에 is_used 없으면 추가 (배포 DB 호환)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'coupons' AND column_name = 'is_used') THEN
+    ALTER TABLE coupons ADD COLUMN is_used BOOLEAN NOT NULL DEFAULT FALSE;
+  END IF;
+END $$;
+
 -- 스탬프 리워드 쿠폰 시드 (아메리카노 무료: menu_id=1)
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM coupons LIMIT 1) THEN
-    INSERT INTO coupons (name, coupon_type, required_stamps, menu_id, created_at)
-    VALUES ('아메리카노 1잔 무료', 'STAMP_REWARD', 10, 1, CURRENT_TIMESTAMP);
+    INSERT INTO coupons (name, coupon_type, required_stamps, menu_id, created_at, is_used)
+    VALUES ('아메리카노 1잔 무료', 'STAMP_REWARD', 10, 1, CURRENT_TIMESTAMP, FALSE);
   END IF;
 END $$;
