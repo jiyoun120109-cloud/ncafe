@@ -24,9 +24,17 @@ public class DataInitializer {
 
     private final DataSource dataSource;
 
+    /**
+     * 배포 후 한 번만 시드 세팅: 시드가 이미 있으면 data.sql을 실행하지 않습니다.
+     * (users에 admin이 있으면 이미 한 번 실행된 것으로 간주)
+     */
     @PostConstruct
     public void runDataSql() {
         try {
+            if (isSeedAlreadyPresent()) {
+                log.info("DataInitializer: seed data already present, skipping data.sql");
+                return;
+            }
             ClassPathResource resource = new ClassPathResource("data.sql");
             if (!resource.exists()) {
                 log.debug("data.sql not found, skipping DataInitializer");
@@ -38,6 +46,17 @@ public class DataInitializer {
         } catch (Exception e) {
             log.error("DataInitializer: failed to run data.sql", e);
             throw new RuntimeException("DB initializer failed", e);
+        }
+    }
+
+    private boolean isSeedAlreadyPresent() {
+        try (var conn = dataSource.getConnection();
+             var ps = conn.prepareStatement("SELECT 1 FROM users WHERE nickname = 'admin' LIMIT 1");
+             var rs = ps.executeQuery()) {
+            return rs.next();
+        } catch (Exception e) {
+            log.debug("DataInitializer: seed check failed (tables may not exist yet): {}", e.getMessage());
+            return false;
         }
     }
 

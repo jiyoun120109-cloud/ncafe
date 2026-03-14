@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMP
 );
 
--- menus 테이블 (없으면 생성) — TRUNCATE 전에 존재해야 하므로 categories 직후에 생성
+-- menus 테이블 (없으면 생성)
 CREATE TABLE IF NOT EXISTS menus (
     id BIGSERIAL PRIMARY KEY,
     kor_name VARCHAR(255),
@@ -103,10 +103,7 @@ BEGIN
     END IF;
 END $$;
 
--- 시드 중복 방지: 카테고리/메뉴 시드 초기화 후 재삽입 (menus → categories 순으로 TRUNCATE)
-TRUNCATE TABLE menus;
-TRUNCATE TABLE categories RESTART IDENTITY CASCADE;
-
+-- 시드 데이터 삽입 (DataInitializer가 시드 존재 시 한 번만 실행하므로 TRUNCATE 없음)
 INSERT INTO categories (name, display_order, created_at, updated_at) VALUES
 ('커피', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('라떼', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
@@ -220,9 +217,6 @@ CREATE TABLE IF NOT EXISTS images (
     created_at TIMESTAMP,
     sort_order INT
 );
-
--- 이미지 시드 중복 방지
-TRUNCATE TABLE images;
 
 -- 이미지 데이터 삽입
 INSERT INTO images (menu_id, src_url, sort_order, created_at) VALUES
