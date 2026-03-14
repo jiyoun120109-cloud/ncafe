@@ -37,7 +37,7 @@ function getInitialTab(searchParams: ReturnType<typeof useSearchParams>): Tab | 
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated, setUser, setProfileImageUrl } = useAuthStore();
+  const { user, isAuthenticated, setUser, setProfileImageUrl, profileImageUrl: storeProfileImageUrl } = useAuthStore();
   const [tab, setTab] = useState<Tab | null>(() => getInitialTab(searchParams));
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [stamps, setStamps] = useState<StampsDto | null>(null);
@@ -195,7 +195,10 @@ function UserPageContent() {
 
   const profileImageSrc = profile?.profileImageUrl
     ? `${getApiBase()}/static/${profile.profileImageUrl}`
-    : null;
+    : storeProfileImageUrl
+      ? `${getApiBase()}/static/${storeProfileImageUrl}`
+      : null;
+  const displayName = profile?.displayNickname || profile?.name || user?.name || user?.username || '회원';
 
   const handleRedeemCoupon = async () => {
     const code = couponCode.trim();
@@ -221,29 +224,52 @@ function UserPageContent() {
   if (!isAuthenticated) return null;
 
   const TAB_LIST: { id: Tab; icon: React.ReactNode; label: string }[] = [
-    { id: 'profile', icon: <User size={22} />, label: '프로필' },
-    { id: 'orders', icon: <Package size={22} />, label: '주문내역' },
-    { id: 'coupons', icon: <Ticket size={22} />, label: '쿠폰/스탬프' },
-    { id: 'favorites', icon: <Heart size={22} />, label: '찜한 목록' },
-    { id: 'inquiries', icon: <MessageCircle size={22} />, label: '1:1 문의' },
-    { id: 'notifications', icon: <Bell size={22} />, label: '알림' },
+    { id: 'profile', icon: <User size={20} />, label: '프로필' },
+    { id: 'orders', icon: <Package size={20} />, label: '주문내역' },
+    { id: 'coupons', icon: <Ticket size={20} />, label: '쿠폰/스탬프' },
+    { id: 'favorites', icon: <Heart size={20} />, label: '찜한 목록' },
+    { id: 'inquiries', icon: <MessageCircle size={20} />, label: '1:1 문의' },
+    { id: 'notifications', icon: <Bell size={20} />, label: '알림' },
   ];
+
+  const getCategorySubtitle = (id: Tab): string => {
+    switch (id) {
+      case 'profile': return '정보 수정';
+      case 'orders': return `최근 ${orders.length}건`;
+      case 'coupons': return `스탬프 ${stamps?.stampCount ?? 0}/${stamps?.requiredForReward ?? 10}`;
+      case 'favorites': return '클릭하여 이동';
+      case 'inquiries': return '클릭하여 이동';
+      case 'notifications': return '클릭하여 이동';
+      default: return '클릭하여 이동';
+    }
+  };
 
   const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
 
   return (
     <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요.">
       <div className={styles.dashboard}>
-        <nav className={styles.categoryCards} aria-label="마이페이지 메뉴">
+        <div className={styles.dashboardProfile}>
+          <div className={styles.dashboardProfileAvatar}>
+            {profileImageSrc ? (
+              <img src={profileImageSrc} alt="" className={styles.dashboardProfileImg} />
+            ) : (
+              <span className={styles.dashboardProfilePlaceholder} aria-hidden><User size={28} strokeWidth={1.5} /></span>
+            )}
+          </div>
+          <span className={styles.dashboardProfileName}>{displayName}</span>
+        </div>
+        <nav className={styles.dashboardCategoryRow} aria-label="마이페이지 메뉴">
           {TAB_LIST.map(({ id, icon, label }) => (
             <Link
               key={id}
               href={`/user?tab=${id}`}
-              className={styles.categoryCard}
+              className={tab === id ? styles.dashboardCategoryCardActive : styles.dashboardCategoryCard}
               aria-current={tab === id ? 'page' : undefined}
             >
-              <span className={styles.categoryCardIcon}>{icon}</span>
-              <span className={styles.categoryCardLabel}>{label}</span>
+              <span className={styles.dashboardCategoryTitle}>{label}</span>
+              <span className={styles.dashboardCategoryLabel}>{icon} {label}</span>
+              <span className={styles.dashboardCategorySub}>{getCategorySubtitle(id)}</span>
             </Link>
           ))}
         </nav>
@@ -252,12 +278,12 @@ function UserPageContent() {
       {tab !== null && needsInitialLoad ? (
         <div className={styles.loading}>불러오는 중...</div>
       ) : tab !== null ? (
-        <div className={styles.content}>
+        <div className={`${styles.content} ${styles.dashboardPanel}`}>
           <p className={styles.backToMypage}>
             <Link href="/user">← 마이페이지</Link>
           </p>
           {tab === 'profile' && (
-            <section className={styles.profileSection}>
+            <section className={`${styles.profileSection} ${styles.dashboardSection}`}>
               <div className={styles.profileHeader}>
                 <h2 className={styles.sectionTitle}>프로필</h2>
                 {profile && !editing && (
@@ -391,7 +417,7 @@ function UserPageContent() {
           )}
 
           {tab === 'orders' && (
-            <section>
+            <section className={styles.dashboardSection}>
               <h2 className={styles.sectionTitle}>주문 내역</h2>
               {orders.length === 0 ? (
                 <p className={styles.empty}>주문 내역이 없습니다.</p>
@@ -412,15 +438,15 @@ function UserPageContent() {
           )}
 
           {tab === 'coupons' && (
-            <section className={styles.couponSection}>
+            <section className={`${styles.couponSection} ${styles.dashboardSection}`}>
               <div className={styles.loyaltyCardWrap}>
-                <div className={styles.loyaltyCardImage} style={{ backgroundImage: 'url(/images/loyalty-card.png)' }} />
+                <div className={styles.loyaltyCardImage} style={{ backgroundImage: `url(/images/coupon/stamp-${Math.min(stamps?.stampCount ?? 0, 10)}.png)` }} />
                 <div className={styles.loyaltyCardOverlay}>
                   <p className={styles.loyaltyStampText}>
                     스탬프 <strong>{stamps?.stampCount ?? 0}</strong> / {stamps?.requiredForReward ?? 10}
                   </p>
                   <p className={styles.loyaltyHint}>커피 1잔당 스탬프 1개 적립 ✨</p>
-                  <p className={styles.loyaltyReward}>10개 모이면 아메리카노 1잔 무료!</p>
+                  <p className={styles.loyaltyReward}>10개 모이면 아메리카노 가격까지 무료!</p>
                 </div>
               </div>
               <h2 className={styles.sectionTitle}>보유 쿠폰</h2>
@@ -464,7 +490,7 @@ function UserPageContent() {
           )}
 
           {tab === 'favorites' && (
-            <section>
+            <section className={styles.dashboardSection}>
               <h2 className={styles.sectionTitle}>찜한 목록</h2>
               {favoritesLoading ? (
                 <div className={styles.loading}>찜 목록을 불러오는 중...</div>
@@ -493,7 +519,7 @@ function UserPageContent() {
           )}
 
           {tab === 'inquiries' && (
-            <section>
+            <section className={styles.dashboardSection}>
               <h2 className={styles.sectionTitle}>1:1 문의 작성 내역</h2>
               {inquiriesLoading ? (
                 <div className={styles.loading}>문의 목록을 불러오는 중...</div>
@@ -523,7 +549,7 @@ function UserPageContent() {
           )}
 
           {tab === 'notifications' && (
-            <section>
+            <section className={styles.dashboardSection}>
               <h2 className={styles.sectionTitle}>알림 받은 내역</h2>
               {notificationsLoading ? (
                 <div className={styles.loading}>알림을 불러오는 중...</div>

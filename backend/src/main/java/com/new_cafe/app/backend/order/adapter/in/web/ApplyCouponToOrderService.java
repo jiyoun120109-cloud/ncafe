@@ -59,10 +59,12 @@ public class ApplyCouponToOrderService {
         if (coupon.getMenuId() != null) {
             Optional<MenuEntity> menuOpt = menuJpaRepository.findById(coupon.getMenuId());
             if (menuOpt.isPresent() && menuOpt.get().getPrice() != null) {
-                discount = menuOpt.get().getPrice();
+                int americanoPrice = menuOpt.get().getPrice();
+                // 아메리카노 가격 이하는 무료, 이상은 아메리카노 가격만큼만 할인
+                discount = Math.min(americanoPrice, order.getTotalAmount());
             }
         }
-        int newTotal = Math.max(0, order.getTotalAmount() - discount);
+        int newTotal = order.getTotalAmount() - discount;
         order.setTotalAmount(newTotal);
         order.setAppliedUserCouponId(userCouponId);
         return orderRepositoryPort.save(order);
