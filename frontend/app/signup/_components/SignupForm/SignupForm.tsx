@@ -4,9 +4,61 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar, X } from 'lucide-react';
 import { signupApi, checkUsernameApi } from '@/services/authService';
 import styles from './SignupForm.module.css';
+
+const TERMS_OF_SERVICE = `제1조 (목적)
+이 약관은 NCafe(이하 "서비스")가 제공하는 카페 예약·주문·회원 서비스의 이용과 관련하여 서비스와 이용자 간의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
+
+제2조 (정의)
+① "서비스"란 NCafe가 제공하는 웹/앱 기반의 메뉴 조회, 주문, 결제, 회원 관리 등 일체의 서비스를 말합니다.
+② "이용자"란 본 약관에 따라 서비스를 이용하는 회원 및 비회원을 말합니다.
+③ "회원"이란 서비스에 가입하여 회원으로 등록한 자를 말합니다.
+
+제3조 (약관의 효력 및 변경)
+① 본 약관은 서비스 화면에 게시하거나 기타의 방법으로 공지함으로써 효력이 발생합니다.
+② 서비스는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 변경할 수 있으며, 변경된 약관은 제1항과 동일한 방법으로 공지합니다.
+③ 이용자는 변경된 약관에 동의하지 않을 경우 서비스 이용을 중단하고 탈퇴할 수 있습니다.
+
+제4조 (서비스의 제공)
+① 서비스는 메뉴 조회, 온라인 주문, 결제, 회원 정보 관리, 문의·공지 등의 서비스를 제공합니다.
+② 서비스는 운영상·기술상의 필요에 따라 제공 내용을 변경할 수 있으며, 이 경우 사전에 공지합니다.
+
+제5조 (이용계약의 성립)
+① 이용계약은 이용자가 약관 내용에 동의하고 가입 신청을 한 후, 서비스가 이를 승낙함으로써 성립합니다.
+② 서비스는 다음 각 호에 해당하는 경우 가입을 거부할 수 있습니다.
+  - 타인의 명의를 도용한 경우
+  - 허위 정보를 기재한 경우
+  - 기타 서비스가 정한 이용 요건을 충족하지 못한 경우
+
+제6조 (회원의 의무)
+회원은 서비스 이용 시 관계 법령 및 본 약관을 준수하여야 하며, 타인의 정보를 도용하거나 서비스를 부정한 방법으로 이용하여서는 안 됩니다.`;
+
+const PRIVACY_POLICY = `1. 수집하는 개인정보 항목
+서비스는 회원가입, 주문 처리, 문의 응대 등을 위해 아래와 같은 개인정보를 수집합니다.
+• 필수 항목: 아이디, 비밀번호, 이름, 생년월일, 휴대전화번호, 이메일
+• 선택 항목: 닉네임(표시명)
+• 자동 수집 항목: 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보
+
+2. 개인정보의 수집 및 이용 목적
+• 회원 가입 및 관리: 본인 확인, 회원 자격 유지·관리
+• 주문 및 결제 처리: 주문 접수, 결제·정산, 배달·픽업 안내
+• 문의 및 고객 지원: 문의 접수, 불만 처리, 공지사항 전달
+• 서비스 개선: 이용 패턴 분석, 서비스 품질 향상
+
+3. 개인정보의 보유 및 이용 기간
+• 회원 탈퇴 시까지 보유하며, 탈퇴 후에는 지체 없이 파기합니다. 단, 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.
+• 전자상거래 등에서의 소비자 보호에 관한 법률 등에 따라 거래 기록은 5년간 보관할 수 있습니다.
+
+4. 개인정보의 제3자 제공
+서비스는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 법령에 의하거나 이용자가 사전에 동의한 경우에는 예외로 합니다.
+
+5. 이용자의 권리
+이용자는 언제든지 자신의 개인정보를 조회·수정·삭제·처리 정지를 요청할 수 있으며, 서비스는 이에 대해 지체 없이 조치합니다.
+
+6. 개인정보 보호책임자
+개인정보 처리와 관련한 문의는 서비스 내 고객센터 또는 공지된 담당자 연락처로 문의하시기 바랍니다.`;
 
 interface SignupFormValues {
     username: string;
@@ -45,6 +97,7 @@ export default function SignupForm({ onError }: SignupFormProps) {
     const [usernameCheckedValue, setUsernameCheckedValue] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [agreePrivacy, setAgreePrivacy] = useState(false);
+    const [agreementModal, setAgreementModal] = useState<'terms' | 'privacy' | null>(null);
 
     const {
         register,
@@ -381,7 +434,16 @@ export default function SignupForm({ onError }: SignupFormProps) {
                             onChange={(e) => setAgreeTerms(e.target.checked)}
                             className={styles.agreementCheckbox}
                         />
-                        <span><a href="/notices" target="_blank" rel="noopener noreferrer" className={styles.agreementLink}>이용약관</a>에 동의합니다 (필수)</span>
+                        <span>
+                            <button
+                                type="button"
+                                className={styles.agreementLink}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAgreementModal('terms'); }}
+                            >
+                                이용약관
+                            </button>
+                            에 동의합니다 (필수)
+                        </span>
                     </label>
                     <label className={styles.agreementLabel}>
                         <input
@@ -390,7 +452,16 @@ export default function SignupForm({ onError }: SignupFormProps) {
                             onChange={(e) => setAgreePrivacy(e.target.checked)}
                             className={styles.agreementCheckbox}
                         />
-                        <span><a href="/notices" target="_blank" rel="noopener noreferrer" className={styles.agreementLink}>개인정보 수집 및 이용</a>에 동의합니다 (필수)</span>
+                        <span>
+                            <button
+                                type="button"
+                                className={styles.agreementLink}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setAgreementModal('privacy'); }}
+                            >
+                                개인정보 수집 및 이용
+                            </button>
+                            에 동의합니다 (필수)
+                        </span>
                     </label>
                 </div>
 
@@ -406,6 +477,31 @@ export default function SignupForm({ onError }: SignupFormProps) {
                     )}
                 </button>
             </form>
+
+            {agreementModal && (
+                <div className={styles.agreementModalOverlay} onClick={() => setAgreementModal(null)} role="dialog" aria-modal="true" aria-labelledby="agreement-modal-title">
+                    <div className={styles.agreementModal} onClick={(e) => e.stopPropagation()}>
+                        <div className={styles.agreementModalHeader}>
+                            <h2 id="agreement-modal-title" className={styles.agreementModalTitle}>
+                                {agreementModal === 'terms' ? '이용약관' : '개인정보 수집 및 이용동의서'}
+                            </h2>
+                            <button type="button" className={styles.agreementModalClose} onClick={() => setAgreementModal(null)} aria-label="닫기">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className={styles.agreementModalBody}>
+                            <pre className={styles.agreementModalText}>
+                                {agreementModal === 'terms' ? TERMS_OF_SERVICE : PRIVACY_POLICY}
+                            </pre>
+                        </div>
+                        <div className={styles.agreementModalFooter}>
+                            <button type="button" className={styles.agreementModalConfirm} onClick={() => setAgreementModal(null)}>
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className={styles.footer}>
                 <span>이미 계정이 있으신가요?</span>

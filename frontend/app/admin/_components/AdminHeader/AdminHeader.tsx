@@ -63,7 +63,7 @@ export default function AdminHeader() {
                     <span>{isLoggingOut ? '처리중...' : '로그아웃'}</span>
                 </motion.button>
 
-                <Link href="/user" className={styles.profileLink} aria-label="마이페이지">
+                <Link href="/" className={styles.profileLink} aria-label="메인으로 이동">
                     <div className={styles.profile}>
                         <div className={styles.profileAvatar}>
                             {user?.username?.[0]?.toUpperCase() ?? '?'}

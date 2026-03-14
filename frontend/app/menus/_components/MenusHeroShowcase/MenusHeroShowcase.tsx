@@ -15,32 +15,69 @@ const HERO_SLIDES = [
   { id: 'savor', en: 'Savor the Moment', image: '/images/menus-hero/hero-6.png' },
 ] as const;
 
+/** 첫 슬라이드를 끝에 복제해 마지막→첫 전환을 자연스럽게 */
+const SLIDES_WITH_CLONE = [...HERO_SLIDES, HERO_SLIDES[0]];
+const COUNT = HERO_SLIDES.length;
+const TOTAL = SLIDES_WITH_CLONE.length;
+
 export default function MenusHeroShowcase() {
   const [index, setIndex] = useState(0);
-  const count = HERO_SLIDES.length;
+  const [noTransition, setNoTransition] = useState(false);
 
   const goTo = useCallback((next: number) => {
-    setIndex((i) => (next + count) % count);
-  }, [count]);
+    setNoTransition(false);
+    setIndex((prev) => {
+      if (next === 0 && prev === COUNT - 1) return TOTAL - 1;
+      if (next >= COUNT) return TOTAL - 1;
+      return next;
+    });
+  }, []);
+
+  const handleTransitionEnd = useCallback(
+    (e: React.TransitionEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget || e.propertyName !== 'transform') return;
+      if (index === TOTAL - 1) {
+        setNoTransition(true);
+        setIndex(0);
+      }
+    },
+    [index]
+  );
 
   useEffect(() => {
-    if (count <= 1) return;
+    if (noTransition) {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setNoTransition(false));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [noTransition]);
+
+  useEffect(() => {
+    if (COUNT <= 1 || index === TOTAL - 1) return;
     const t = setInterval(() => goTo(index + 1), SLIDE_INTERVAL_MS);
     return () => clearInterval(t);
-  }, [count, index, goTo]);
+  }, [COUNT, index, goTo]);
+
+  const displayIndex = index % COUNT;
 
   return (
     <div className={styles.hero} aria-label="카페 소개 슬라이드">
       <div className={styles.sliderWrap}>
         <div
           className={styles.slideTrack}
-          style={{ transform: `translateX(-${index * 100}%)` }}
+          style={{
+            transform: `translateX(-${index * 100}%)`,
+            transition: noTransition ? 'none' : undefined,
+          }}
           aria-roledescription="carousel"
+          onTransitionEnd={handleTransitionEnd}
         >
-          {HERO_SLIDES.map((slide, i) => {
+          {SLIDES_WITH_CLONE.map((slide, i) => {
             const isActive = i === index;
+            const isClone = i === TOTAL - 1;
             return (
-              <div key={slide.id} className={styles.slideOuter}>
+              <div key={isClone ? `${slide.id}-clone` : slide.id} className={styles.slideOuter}>
                 <div className={styles.slide} aria-hidden={!isActive}>
                   <div className={styles.slideImageWrap}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -68,9 +105,9 @@ export default function MenusHeroShowcase() {
               key={i}
               type="button"
               role="tab"
-              aria-selected={i === index}
+              aria-selected={i === displayIndex}
               aria-label={`슬라이드 ${i + 1}`}
-              className={`${styles.dot} ${i === index ? styles.dotActive : ''}`}
+              className={`${styles.dot} ${i === displayIndex ? styles.dotActive : ''}`}
               onClick={() => goTo(i)}
             />
           ))}

@@ -74,23 +74,24 @@
 }
 
 .pageBtn {
-    width: 36px;
-    height: 36px;
-    display: flex;
+    min-width: auto;
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
-    background: #fff;
+    border: none;
+    border-radius: 0;
+    background: transparent;
     color: var(--color-gray-700);
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
+    transition: color 0.2s;
 }
 
 .pageBtn:hover:not(:disabled) {
-    background: var(--color-gray-50);
-    border-color: var(--color-primary-500);
     color: var(--color-primary-600);
+    text-decoration: underline;
 }
 
 .pageBtn:disabled {
@@ -105,35 +106,32 @@
 }
 
 .pageNum {
-    min-width: 36px;
-    height: 36px;
-    padding: 0 0.5rem;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background: #fff;
+    min-width: auto;
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-radius: 0;
+    background: transparent;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-gray-700);
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    transition: color 0.2s;
 }
 
 .pageNum:hover {
-    background: var(--color-gray-50);
-    border-color: var(--color-primary-400);
     color: var(--color-primary-600);
+    text-decoration: underline;
 }
 
 .pageNumActive {
-    background: var(--color-primary-600);
-    border-color: var(--color-primary-600);
-    color: #fff;
+    background: transparent;
+    color: var(--color-primary-600);
+    font-weight: 600;
 }
 
 .pageNumActive:hover {
-    background: var(--color-primary-700);
-    border-color: var(--color-primary-700);
-    color: #fff;
+    color: var(--color-primary-700);
 }
 
 /* ── 반응형 ── */

@@ -16,8 +16,8 @@
     position: relative;
     overflow: hidden;
 
-    /* 루트 hero와 동일한 커피 배경 이미지 */
-    background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1200&q=80');
+    /* 카페 비주얼 이미지 */
+    background-image: url('/images/login-visual.png');
     background-size: cover;
     background-position: center;
 }
