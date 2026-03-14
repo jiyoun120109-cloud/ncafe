@@ -231,7 +231,7 @@
 .heroBanner {
     position: relative;
     height: 340px;
-    background-image: url('https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1600&q=80');
+    background-image: url('https://images.unsplash.com/photo-1559925393-8be0ec4e26d9?w=1600&q=90');
     background-size: cover;
     background-position: center 40%;
     display: flex;

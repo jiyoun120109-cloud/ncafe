@@ -289,7 +289,7 @@ async function runTools(
     if (tool.name === 'navigate_to_page') {
       resolvedTools.push(tool);
       const label = (tool.args.label as string) || '페이지';
-      if (!reply) reply = `${label}로 이동할까요? 아래 버튼을 눌러주세요.`;
+      if (!reply) reply = `${label}로 이동할게요!`;
     } else if (tool.name === 'add_to_cart') {
       const menuName = (tool.args.menuName as string) || '';
       const menus = await fetchMenusFromBackend(menuName);
@@ -394,6 +394,12 @@ export async function POST(req: NextRequest) {
               reply = `${label}로 이동할게요!`;
             }
           }
+        }
+        // 이동 요청이면 되묻지 않고 바로 이동하도록 응답 문구 통일 (Agent가 "이동할까요?" 등으로 말해도 덮어씀)
+        const navTools = Array.isArray(tools) ? tools.filter((t) => t.name === 'navigate_to_page') : [];
+        if (navTools.length === 1 && navTools[0].args?.path) {
+          const label = (navTools[0].args.label as string) || '페이지';
+          reply = `${label}로 이동할게요!`;
         }
       } else if (res.status === 503) {
         const err = await res.json().catch(() => ({}));

@@ -5,22 +5,22 @@ import styles from './MenusHeroShowcase.module.css';
 
 const SLIDE_INTERVAL_MS = 5000;
 
-/** 카페 분위기 사진 3종 — 자연스러운 인테리어/공간 */
+/** 카페 히어로 슬라이드 3종 — 선명·모던·감각적인 톤 */
 const HERO_SLIDES = [
   {
     id: 'space',
     en: 'Our Space',
-    image: 'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=1200&q=88',
+    image: 'https://images.unsplash.com/photo-1559925393-8be0ec4e26d9?w=1600&q=90',
   },
   {
     id: 'brew',
     en: 'Fresh Brew',
-    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=88',
+    image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600&q=90',
   },
   {
     id: 'moment',
     en: 'Stay A While',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&q=88',
+    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=1600&q=90',
   },
 ] as const;
 
