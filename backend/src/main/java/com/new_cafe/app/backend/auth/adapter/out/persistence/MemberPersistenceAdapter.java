@@ -8,9 +8,14 @@ import com.new_cafe.app.backend.auth.adapter.out.jpa.UserJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.criteria.Predicate;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,6 +80,38 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
     }
 
     @Override
+    public Page<Member> findMembers(String search, String status, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        Specification<UserEntity> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            String trimmed = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
+            if (trimmed != null) {
+                String pattern = "%" + trimmed + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("nickname")), pattern.toLowerCase()),
+                    cb.like(cb.lower(root.get("name")), pattern.toLowerCase()),
+                    cb.like(cb.lower(root.get("email")), pattern.toLowerCase())
+                ));
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                predicates.add(cb.equal(root.get("status"), status.trim().toUpperCase()));
+            }
+            if (fromDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), fromDate.atStartOfDay()));
+            }
+            if (toDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), toDate.atTime(LocalTime.MAX)));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        var page = userJpaRepository.findAll(spec, pageable);
+        return new PageImpl<>(
+            page.getContent().stream().map(this::toDomain).collect(Collectors.toList()),
+            page.getPageable(),
+            page.getTotalElements()
+        );
+    }
+
+    @Override
     public List<Long> findUserIdsByRole(String role) {
         return userJpaRepository.findByRole(role).stream()
             .map(UserEntity::getId)
@@ -93,6 +130,11 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
             .displayNickname(e.getDisplayNickname() != null ? e.getDisplayNickname() : e.getNickname())
             .profileImageUrl(e.getProfileImageUrl())
             .role(e.getRole())
+            .status(e.getStatus() != null ? e.getStatus() : "ACTIVE")
+            .lastLoginAt(e.getLastLoginAt())
+            .passwordChangedAt(e.getPasswordChangedAt())
+            .lockedUntil(e.getLockedUntil())
+            .loginFailCount(e.getLoginFailCount() != null ? e.getLoginFailCount() : 0)
             .createdAt(e.getCreatedAt())
             .updatedAt(e.getUpdatedAt())
             .build();
@@ -110,6 +152,11 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
             .profileImageUrl(m.getProfileImageUrl())
             .email(m.getEmail())
             .role(m.getRole() != null ? m.getRole() : "USER")
+            .status(m.getStatus() != null ? m.getStatus() : "ACTIVE")
+            .lastLoginAt(m.getLastLoginAt())
+            .passwordChangedAt(m.getPasswordChangedAt())
+            .lockedUntil(m.getLockedUntil())
+            .loginFailCount(m.getLoginFailCount() != null ? m.getLoginFailCount() : 0)
             .createdAt(m.getCreatedAt())
             .updatedAt(m.getUpdatedAt())
             .build();

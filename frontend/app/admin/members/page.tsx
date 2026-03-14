@@ -12,6 +12,16 @@ import styles from './page.module.css';
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: '관리자',
   USER: '일반회원',
+  SUPER_ADMIN: '슈퍼관리자',
+  CONTENT_ADMIN: '콘텐츠관리자',
+  SUPPORT_ADMIN: '고객지원관리자',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  ACTIVE: '활성',
+  INACTIVE: '비활성',
+  SUSPENDED: '정지',
+  WITHDRAWN: '탈퇴',
 };
 
 export default function AdminMembersListPage() {
@@ -20,6 +30,9 @@ export default function AdminMembersListPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
 
   const size = 20;
@@ -31,7 +44,11 @@ export default function AdminMembersListPage() {
   const load = useCallback(() => {
     let cancelled = false;
     setLoading(true);
-    fetchAdminMembers(page, size, search || undefined)
+    fetchAdminMembers(page, size, search || undefined, {
+      status: statusFilter || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    })
       .then((res) => {
         if (!cancelled) setData(res);
       })
@@ -44,7 +61,7 @@ export default function AdminMembersListPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search]);
+  }, [page, search, statusFilter, fromDate, toDate]);
 
   useEffect(() => {
     load();
@@ -53,6 +70,10 @@ export default function AdminMembersListPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearch(searchInput.trim());
+    setPage(0);
+  };
+
+  const applyFilters = () => {
     setPage(0);
   };
 
@@ -68,17 +89,53 @@ export default function AdminMembersListPage() {
       <div className={styles.divider} />
 
       <section className={styles.card}>
-        <h3 className={styles.cardTitle}>회원 검색</h3>
+        <h3 className={styles.cardTitle}>회원 검색 · 필터</h3>
         <form onSubmit={handleSearch} className={styles.searchForm}>
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="아이디(닉네임) 검색"
+            placeholder="아이디 / 이름 / 이메일 검색"
             className={styles.searchInput}
           />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className={styles.filterSelect}
+            aria-label="상태 필터"
+          >
+            <option value="">전체 상태</option>
+            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <label className={styles.dateLabel}>
+            <span>가입일</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className={styles.dateInput}
+            />
+            <span className={styles.dateSep}>~</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className={styles.dateInput}
+            />
+          </label>
           <button type="submit" className={styles.searchBtn}>
             검색
+          </button>
+          <button
+            type="button"
+            className={styles.filterBtn}
+            onClick={applyFilters}
+          >
+            필터 적용
           </button>
         </form>
       </section>
@@ -89,7 +146,9 @@ export default function AdminMembersListPage() {
           <div className={styles.loading}>불러오는 중...</div>
         ) : !data || data.content.length === 0 ? (
           <div className={styles.empty}>
-            {search ? '검색 결과가 없습니다.' : '등록된 회원이 없습니다.'}
+            {search || statusFilter || fromDate || toDate
+              ? '검색/필터 결과가 없습니다.'
+              : '등록된 회원이 없습니다.'}
           </div>
         ) : (
           <>
@@ -100,7 +159,10 @@ export default function AdminMembersListPage() {
                     <th className={styles.th}>ID</th>
                     <th className={styles.th}>아이디</th>
                     <th className={styles.th}>이름</th>
+                    <th className={styles.th}>이메일</th>
                     <th className={styles.th}>역할</th>
+                    <th className={styles.th}>상태</th>
+                    <th className={styles.th}>최근 로그인</th>
                     <th className={styles.th}>가입일</th>
                     <th className={styles.th}>관리</th>
                   </tr>
@@ -111,16 +173,33 @@ export default function AdminMembersListPage() {
                       <td className={`${styles.td} ${styles.idCell}`}>{m.id}</td>
                       <td className={styles.td}>{m.username}</td>
                       <td className={styles.td}>{m.name ?? '—'}</td>
+                      <td className={styles.td}>{m.email ?? '—'}</td>
                       <td className={styles.td}>
                         <span
                           className={
-                            m.role === 'ADMIN'
+                            m.role === 'ADMIN' || m.role?.startsWith('ADMIN') || m.role === 'SUPER_ADMIN'
                               ? styles.roleBadgeAdmin
                               : styles.roleBadgeUser
                           }
                         >
-                          {ROLE_LABELS[m.role] ?? m.role}
+                          {ROLE_LABELS[m.role ?? ''] ?? m.role}
                         </span>
+                      </td>
+                      <td className={styles.td}>
+                        <span className={styles.statusBadge} data-status={m.status ?? 'ACTIVE'}>
+                          {STATUS_LABELS[m.status ?? 'ACTIVE'] ?? m.status}
+                        </span>
+                      </td>
+                      <td className={`${styles.td} ${styles.dateCell}`}>
+                        {m.lastLoginAt
+                          ? new Date(m.lastLoginAt).toLocaleDateString('ko-KR', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '—'}
                       </td>
                       <td className={`${styles.td} ${styles.dateCell}`}>
                         {new Date(m.createdAt).toLocaleDateString('ko-KR', {

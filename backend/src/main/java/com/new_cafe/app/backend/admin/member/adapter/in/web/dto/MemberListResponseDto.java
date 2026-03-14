@@ -16,7 +16,10 @@ public class MemberListResponseDto {
     private Long id;
     private String username;
     private String name;
+    private String email;
     private String role;
+    private String status;
+    private LocalDateTime lastLoginAt;
     private LocalDateTime createdAt;
 
     public static MemberListResponseDto from(Member m) {
@@ -24,7 +27,10 @@ public class MemberListResponseDto {
                 .id(m.getId())
                 .username(m.getUsername())
                 .name(m.getName())
+                .email(m.getEmail())
                 .role(m.getRole())
+                .status(m.getStatus() != null ? m.getStatus() : "ACTIVE")
+                .lastLoginAt(m.getLastLoginAt())
                 .createdAt(m.getCreatedAt())
                 .build();
     }

@@ -3,10 +3,12 @@ package com.new_cafe.app.backend.auth.application.service;
 import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.auth.application.port.in.LoginUseCase;
 import com.new_cafe.app.backend.auth.application.port.in.SignupUseCase;
+import com.new_cafe.app.backend.auth.application.port.out.LoginLogRepositoryPort;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -19,35 +21,64 @@ import java.util.Optional;
 @Service
 public class AuthService implements LoginUseCase, SignupUseCase {
 
+    private static final int MAX_LOGIN_FAIL = 5;
+    private static final int LOCK_MINUTES = 30;
+
     private final MemberRepositoryPort memberRepository;
+    private final LoginLogRepositoryPort loginLogRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public AuthService(MemberRepositoryPort memberRepository) {
+    public AuthService(MemberRepositoryPort memberRepository, LoginLogRepositoryPort loginLogRepository) {
         this.memberRepository = memberRepository;
+        this.loginLogRepository = loginLogRepository;
     }
 
     @Override
     public LoginResult login(LoginCommand command) {
-        // 1. username으로 회원 조회
         Optional<Member> memberOpt = memberRepository.findByUsername(command.username());
 
         if (memberOpt.isEmpty()) {
+            logLogin(null, command.username(), false, command.ipAddress(), command.userAgent());
             return LoginResult.failure("존재하지 않는 사용자입니다.");
         }
 
         Member member = memberOpt.get();
+        String ip = command.ipAddress();
+        String ua = command.userAgent();
 
-        // bcrypt 해시($2로 시작)면 matches(), 평문이면 직접 비교
+        if (!"ACTIVE".equals(member.getStatus())) {
+            logLogin(member.getId(), member.getUsername(), false, ip, ua);
+            return LoginResult.failure("비활성화된 계정입니다. 관리자에게 문의하세요.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (member.getLockedUntil() != null && now.isBefore(member.getLockedUntil())) {
+            logLogin(member.getId(), member.getUsername(), false, ip, ua);
+            return LoginResult.failure("로그인 시도 횟수 초과로 계정이 잠겼습니다. 잠시 후 다시 시도하세요.");
+        }
+
         String stored = member.getPassword();
-        boolean passwordMatch = stored.startsWith("$2")
+        boolean passwordMatch = stored != null && stored.startsWith("$2")
             ? passwordEncoder.matches(command.password(), stored)
             : command.password().equals(stored);
 
         if (!passwordMatch) {
+            int failCount = (member.getLoginFailCount() != null ? member.getLoginFailCount() : 0) + 1;
+            member.setLoginFailCount(failCount);
+            if (failCount >= MAX_LOGIN_FAIL) {
+                member.setLockedUntil(now.plusMinutes(LOCK_MINUTES));
+            }
+            memberRepository.save(member);
+            logLogin(member.getId(), member.getUsername(), false, ip, ua);
             return LoginResult.failure("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 인증 성공 (표시 이름: 닉네임 우선, 없으면 실명)
+        member.setLastLoginAt(now);
+        member.setLoginFailCount(0);
+        member.setLockedUntil(null);
+        memberRepository.save(member);
+        logLogin(member.getId(), member.getUsername(), true, ip, ua);
+
         String displayName = member.getDisplayNickname() != null && !member.getDisplayNickname().isEmpty()
             ? member.getDisplayNickname() : member.getName();
         if (displayName == null || displayName.isEmpty()) displayName = member.getUsername();
@@ -57,6 +88,12 @@ public class AuthService implements LoginUseCase, SignupUseCase {
             displayName,
             member.getRole()
         );
+    }
+
+    private void logLogin(Long userId, String nickname, boolean success, String ipAddress, String userAgent) {
+        try {
+            loginLogRepository.save(userId, nickname != null ? nickname : "", success, ipAddress, userAgent);
+        } catch (Exception ignored) { }
     }
 
     @Override
@@ -94,6 +131,8 @@ public class AuthService implements LoginUseCase, SignupUseCase {
             .displayNickname(displayNickname)
             .email(email != null && !email.isEmpty() ? email : null)
             .role("USER")
+            .status("ACTIVE")
+            .loginFailCount(0)
             .build();
         memberRepository.save(member);
         return SignupResult.ok();

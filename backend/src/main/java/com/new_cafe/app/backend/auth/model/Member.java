@@ -27,7 +27,12 @@ public class Member {
     private String phone;         // 핸드폰 번호
     private String displayNickname; // 서비스 표시 닉네임
     private String profileImageUrl; // 프로필 이미지 경로 (예: avatars/17.jpg)
-    private String role;          // ADMIN, USER 등
+    private String role;          // ADMIN, USER, SUPER_ADMIN, CONTENT_ADMIN, SUPPORT_ADMIN 등
+    private String status;        // ACTIVE, INACTIVE, SUSPENDED, WITHDRAWN
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime passwordChangedAt;
+    private LocalDateTime lockedUntil;
+    private Integer loginFailCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

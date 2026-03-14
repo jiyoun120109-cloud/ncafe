@@ -1,17 +1,16 @@
 package com.new_cafe.app.backend.admin.member.adapter.in.web;
 
-import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.MemberDetailResponseDto;
-import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.MemberListResponseDto;
-import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.MemberPageResponseDto;
-import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.UpdateMemberRoleRequestDto;
+import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.*;
 import com.new_cafe.app.backend.admin.member.application.port.in.AdminMemberUseCase;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import com.new_cafe.app.backend.auth.model.Member;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,10 +31,13 @@ public class AdminMemberController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
-        Page<Member> result = adminMemberUseCase.getMemberList(page, size, search);
+        Page<Member> result = adminMemberUseCase.getMemberList(page, size, search, status, fromDate, toDate);
         List<MemberListResponseDto> content = result.getContent().stream()
                 .map(MemberListResponseDto::from)
                 .collect(Collectors.toList());
@@ -52,14 +54,77 @@ public class AdminMemberController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MemberDetailResponseDto> get(
+    public ResponseEntity<MemberDetailWithActivityResponseDto> get(
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @PathVariable Long id
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
-        return adminMemberUseCase.getMember(id)
-                .map(m -> ResponseEntity.ok(MemberDetailResponseDto.from(m)))
+        return adminMemberUseCase.getMemberDetailWithActivity(id)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}/profile")
+    public ResponseEntity<MemberDetailResponseDto> updateProfile(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id,
+            @RequestBody UpdateMemberProfileRequestDto request
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        if (request == null) return ResponseEntity.badRequest().build();
+        try {
+            Member updated = adminMemberUseCase.updateMemberProfile(
+                    id, request.getEmail(), request.getPhone());
+            return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{id}/reset-password")
+    public ResponseEntity<MemberDetailResponseDto> resetPassword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id,
+            @RequestBody ResetPasswordRequestDto request
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        if (request == null || request.getNewPassword() == null) return ResponseEntity.badRequest().build();
+        try {
+            Member updated = adminMemberUseCase.resetPassword(id, request.getNewPassword());
+            return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<MemberDetailResponseDto> updateStatus(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id,
+            @RequestBody UpdateMemberStatusRequestDto request
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        if (request == null || request.getStatus() == null) return ResponseEntity.badRequest().build();
+        try {
+            Member updated = adminMemberUseCase.updateMemberStatus(id, request.getStatus());
+            return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/{id}/unlock")
+    public ResponseEntity<MemberDetailResponseDto> unlock(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        try {
+            Member updated = adminMemberUseCase.unlockMember(id);
+            return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PatchMapping("/{id}/role")
@@ -82,6 +147,9 @@ public class AdminMemberController {
 
     private boolean isAdmin(String authorization) {
         Claims claims = jwtService.parseToken(authorization);
-        return claims != null && "ADMIN".equals(claims.get("role"));
+        if (claims == null) return false;
+        String role = String.valueOf(claims.get("role"));
+        return "ADMIN".equals(role) || "SUPER_ADMIN".equals(role)
+                || "CONTENT_ADMIN".equals(role) || "SUPPORT_ADMIN".equals(role);
     }
 }

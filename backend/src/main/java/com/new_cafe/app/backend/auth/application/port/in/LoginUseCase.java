@@ -18,10 +18,13 @@ public interface LoginUseCase {
 
     /**
      * 로그인 요청 커맨드 (입력값)
+     * ipAddress, userAgent는 로그 기록용(선택)
      */
     record LoginCommand(
         String username,
-        String password
+        String password,
+        String ipAddress,
+        String userAgent
     ) {}
 
     /**

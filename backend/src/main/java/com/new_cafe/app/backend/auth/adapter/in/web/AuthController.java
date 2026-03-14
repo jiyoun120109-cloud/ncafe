@@ -11,6 +11,8 @@ import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 /**
  * 인증 컨트롤러 (Inbound Web Adapter)
  * BFF 인증: 세션 없이 JWT 발급 → BFF가 JWT를 쿠키에 저장 후 API 호출 시 Bearer로 전달.
@@ -34,10 +36,14 @@ public class AuthController {
      * POST /api/auth/login
      */
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+        String ip = httpRequest != null ? getClientIp(httpRequest) : null;
+        String ua = httpRequest != null ? httpRequest.getHeader("User-Agent") : null;
         LoginCommand command = new LoginCommand(
             request.getUsername(),
-            request.getPassword()
+            request.getPassword(),
+            ip,
+            ua
         );
 
         LoginResult result = loginUseCase.login(command);
@@ -140,5 +146,13 @@ public class AuthController {
         return ResponseEntity.ok(
             LoginResponse.success(memberId, username, null, role, null)
         );
+    }
+
+    private static String getClientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isEmpty()) {
+            return xff.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
     }
 }

@@ -59,6 +59,21 @@ public class UserEntity {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
+    @Column(name = "last_login_at")
+    private LocalDateTime lastLoginAt;
+
+    @Column(name = "password_changed_at")
+    private LocalDateTime passwordChangedAt;
+
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
+
+    @Column(name = "login_fail_count", nullable = false)
+    private Integer loginFailCount;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

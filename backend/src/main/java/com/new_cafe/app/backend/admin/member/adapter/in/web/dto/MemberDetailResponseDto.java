@@ -17,7 +17,13 @@ public class MemberDetailResponseDto {
     private String username;
     private String name;
     private String email;
+    private String phone;
+    private String displayNickname;
     private String role;
+    private String status;
+    private LocalDateTime lastLoginAt;
+    private LocalDateTime lockedUntil;
+    private Integer loginFailCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -27,7 +33,13 @@ public class MemberDetailResponseDto {
                 .username(m.getUsername())
                 .name(m.getName())
                 .email(m.getEmail())
+                .phone(m.getPhone())
+                .displayNickname(m.getDisplayNickname())
                 .role(m.getRole())
+                .status(m.getStatus())
+                .lastLoginAt(m.getLastLoginAt())
+                .lockedUntil(m.getLockedUntil())
+                .loginFailCount(m.getLoginFailCount())
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())
                 .build();

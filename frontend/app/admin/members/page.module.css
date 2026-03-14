@@ -52,18 +52,63 @@
 
 .searchForm {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 }
 
 .searchInput {
   flex: 1;
-  max-width: 320px;
+  min-width: 160px;
+  max-width: 280px;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   background: #fff;
+}
+
+.filterSelect {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+  min-width: 100px;
+}
+
+.dateLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dateInput {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.dateSep {
+  margin: 0 0.15rem;
+}
+
+.filterBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.filterBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .searchBtn {
@@ -152,6 +197,34 @@
   color: #44403c;
   background: #e7e5e4;
   border-radius: 4px;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.statusBadge[data-status='ACTIVE'] {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.statusBadge[data-status='INACTIVE'] {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.statusBadge[data-status='SUSPENDED'] {
+  color: #b45309;
+  background: #fffbeb;
+}
+
+.statusBadge[data-status='WITHDRAWN'] {
+  color: #991b1b;
+  background: #fee2e2;
 }
 
 .actions {

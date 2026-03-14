@@ -5,6 +5,7 @@ import com.new_cafe.app.backend.auth.model.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 /**
@@ -42,4 +43,9 @@ public interface MemberRepositoryPort {
      * 닉네임(아이디) 검색 (페이징, 최신순)
      */
     Page<Member> findByNicknameContaining(String search, Pageable pageable);
+
+    /**
+     * 회원 목록 조회 (검색어: 닉네임/이름/이메일, 상태, 가입일 범위, 페이징)
+     */
+    Page<Member> findMembers(String search, String status, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 }
