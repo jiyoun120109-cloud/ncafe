@@ -29,16 +29,16 @@ type Tab = 'profile' | 'orders' | 'coupons' | 'favorites' | 'inquiries' | 'notif
 
 const TAB_IDS: Tab[] = ['profile', 'orders', 'coupons', 'favorites', 'inquiries', 'notifications'];
 
-function getInitialTab(searchParams: ReturnType<typeof useSearchParams>): Tab {
+function getInitialTab(searchParams: ReturnType<typeof useSearchParams>): Tab | null {
   const tabParam = searchParams.get('tab');
-  return tabParam && TAB_IDS.includes(tabParam as Tab) ? (tabParam as Tab) : 'profile';
+  return tabParam && TAB_IDS.includes(tabParam as Tab) ? (tabParam as Tab) : null;
 }
 
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, setUser, setProfileImageUrl } = useAuthStore();
-  const [tab, setTab] = useState<Tab>(() => getInitialTab(searchParams));
+  const [tab, setTab] = useState<Tab | null>(() => getInitialTab(searchParams));
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [stamps, setStamps] = useState<StampsDto | null>(null);
   const [coupons, setCoupons] = useState<UserCouponDto[]>([]);
@@ -63,9 +63,7 @@ function UserPageContent() {
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && TAB_IDS.includes(tabParam as Tab)) {
-      setTab(tabParam as Tab);
-    }
+    setTab(tabParam && TAB_IDS.includes(tabParam as Tab) ? (tabParam as Tab) : null);
   }, [searchParams]);
 
   useEffect(() => {
@@ -231,72 +229,33 @@ function UserPageContent() {
     { id: 'notifications', icon: <Bell size={22} />, label: '알림' },
   ];
 
-  const needsInitialLoad = loading && ['orders', 'coupons'].includes(tab);
-  const unreadCount = notifications.filter((n) => !n.readAt).length;
-  const displayName = profile?.displayNickname || profile?.name || user?.name || user?.username || '회원';
+  const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
 
   return (
     <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요.">
       <div className={styles.dashboard}>
-        <header className={styles.profileBlock}>
-          <div className={styles.profileBlockInner}>
-            <div className={styles.avatarWrapCompact}>
-              {profileImageSrc ? (
-                <img src={profileImageSrc} alt="" className={styles.avatarImgCompact} />
-              ) : (
-                <div className={styles.avatarPlaceholderCompact}>
-                  <User size={32} strokeWidth={1.5} />
-                </div>
-              )}
-            </div>
-            <div className={styles.profileBlockText}>
-              <p className={styles.profileBlockName}>{displayName}님 반가워요 👋</p>
-              {profile?.username && <p className={styles.profileBlockUsername}>@{profile.username}</p>}
-            </div>
-            <Link href="/user?tab=profile" className={styles.profileEditBtn}>계정관리</Link>
-          </div>
-        </header>
-
-        <div className={styles.statsBar}>
-          <Link href="/user?tab=coupons" className={styles.statItemLink}>
-            <span className={styles.statLabel}>스탬프</span>
-            <span className={styles.statValue}>{stamps ? `${stamps.stampCount}/${stamps.requiredForReward}` : '0/10'}</span>
-          </Link>
-          <span className={styles.statsDivider} />
-          <Link href="/user?tab=coupons" className={styles.statItemLink}>
-            <span className={styles.statLabel}>쿠폰</span>
-            <span className={styles.statValue}>{coupons.filter((c) => !c.usedAt).length}개</span>
-          </Link>
-          <span className={styles.statsDivider} />
-          <Link href="/user?tab=notifications" className={styles.statItemLink}>
-            <span className={styles.statLabel}>알림</span>
-            <span className={styles.statValue}>{unreadCount > 0 ? `${unreadCount}개` : '0개'}</span>
-          </Link>
-        </div>
-
         <nav className={styles.categoryCards} aria-label="마이페이지 메뉴">
           {TAB_LIST.map(({ id, icon, label }) => (
             <Link
               key={id}
               href={`/user?tab=${id}`}
-              className={`${styles.categoryCard} ${tab === id ? styles.categoryCardActive : ''}`}
+              className={styles.categoryCard}
               aria-current={tab === id ? 'page' : undefined}
             >
-              {id === 'coupons' ? (
-                <div className={styles.categoryCardImageWrap} style={{ backgroundImage: 'url(/images/loyalty-card.png)' }} />
-              ) : (
-                <span className={styles.categoryCardIcon}>{icon}</span>
-              )}
+              <span className={styles.categoryCardIcon}>{icon}</span>
               <span className={styles.categoryCardLabel}>{label}</span>
             </Link>
           ))}
         </nav>
       </div>
 
-      {needsInitialLoad ? (
+      {tab !== null && needsInitialLoad ? (
         <div className={styles.loading}>불러오는 중...</div>
-      ) : (
+      ) : tab !== null ? (
         <div className={styles.content}>
+          <p className={styles.backToMypage}>
+            <Link href="/user">← 마이페이지</Link>
+          </p>
           {tab === 'profile' && (
             <section className={styles.profileSection}>
               <div className={styles.profileHeader}>
@@ -610,7 +569,7 @@ function UserPageContent() {
             </section>
           )}
         </div>
-      )}
+      ) : null}
 
       <div className={styles.footer}>
         <Link href="/menus" className={styles.link}>메뉴 보기</Link>
