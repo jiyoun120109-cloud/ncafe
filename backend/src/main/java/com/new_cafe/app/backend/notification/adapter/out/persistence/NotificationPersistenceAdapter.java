@@ -43,6 +43,11 @@ public class NotificationPersistenceAdapter implements NotificationRepositoryPor
         return toModel(saved);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        notificationJpaRepository.deleteById(id);
+    }
+
     private Notification toModel(NotificationEntity e) {
         return Notification.builder()
                 .id(e.getId())

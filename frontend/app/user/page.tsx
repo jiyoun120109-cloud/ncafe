@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Package, Ticket, ChevronRight, Pencil, X, Heart, MessageCircle, Bell } from 'lucide-react';
+import { User, Package, Ticket, ChevronRight, Pencil, X, Heart, MessageCircle, Bell, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { getMyOrders } from '@/services/orderService';
 import {
@@ -18,10 +18,11 @@ import {
   type UserProfileDto,
 } from '@/services/userService';
 import { getApiBase } from '@/services/api';
+import { menuImageUrl } from '@/utils/menuImageUrl';
 import type { OrderDto } from '@/services/orderService';
 import { getFavorites, type FavoriteDto } from '@/services/favoriteService';
-import { getMyInquiries, type InquiryDto } from '@/services/inquiryService';
-import { getMyNotifications, markNotificationRead, type NotificationDto } from '@/services/notificationService';
+import { getMyInquiries, deleteInquiry, type InquiryDto } from '@/services/inquiryService';
+import { getMyNotifications, markNotificationRead, deleteNotification, type NotificationDto } from '@/services/notificationService';
 import PageWithHero from '@/components/PageWithHero/PageWithHero';
 import styles from './page.module.css';
 
@@ -51,7 +52,15 @@ function UserPageContent() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<FavoriteDto[]>([]);
-  const [favoritesMenus, setFavoritesMenus] = useState<Record<number, { korName?: string; name?: string; price?: number }>>({});
+  const [favoritesMenus, setFavoritesMenus] = useState<Record<number, {
+    korName?: string;
+    name?: string;
+    price?: number;
+    imageSrc?: string | null;
+    description?: string | null;
+    categoryName?: string | null;
+    badgeTypes?: string[];
+  }>>({});
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [inquiries, setInquiries] = useState<InquiryDto[]>([]);
   const [inquiriesLoading, setInquiriesLoading] = useState(false);
@@ -97,9 +106,34 @@ function UserPageContent() {
         const res = await fetch(`${getApiBase()}/menus`, { credentials: 'include' });
         const data = await res.json();
         const menuList = data.menus ?? data ?? [];
-        const map: Record<number, { korName?: string; name?: string; price?: number }> = {};
-        (Array.isArray(menuList) ? menuList : []).forEach((m: { id: number; korName?: string; name?: string; price?: number }) => {
-          map[m.id] = { korName: m.korName, name: m.name, price: m.price };
+        const map: Record<number, {
+          korName?: string;
+          name?: string;
+          price?: number;
+          imageSrc?: string | null;
+          description?: string | null;
+          categoryName?: string | null;
+          badgeTypes?: string[];
+        }> = {};
+        (Array.isArray(menuList) ? menuList : []).forEach((m: {
+          id: number;
+          korName?: string;
+          name?: string;
+          price?: number;
+          imageSrc?: string | null;
+          description?: string | null;
+          categoryName?: string | null;
+          badgeTypes?: string[];
+        }) => {
+          map[m.id] = {
+            korName: m.korName,
+            name: m.name,
+            price: m.price,
+            imageSrc: m.imageSrc,
+            description: m.description,
+            categoryName: m.categoryName,
+            badgeTypes: m.badgeTypes,
+          };
         });
         setFavoritesMenus(map);
       })
@@ -283,6 +317,7 @@ function UserPageContent() {
         <div className={`${styles.content} ${styles.dashboardPanel}`}>
           {tab === 'profile' && (
             <section className={`${styles.profileSection} ${styles.dashboardSection}`}>
+              <div className={styles.sectionHeader}>
               <div className={styles.profileHeader}>
                 <h2 className={styles.sectionTitle}>프로필</h2>
                 {profile && !editing && (
@@ -295,6 +330,7 @@ function UserPageContent() {
                     <X size={16} /> 취소
                   </button>
                 )}
+              </div>
               </div>
               {profileError && <p className={styles.profileError}>{profileError}</p>}
               {profileLoading ? (
@@ -417,7 +453,11 @@ function UserPageContent() {
 
           {tab === 'orders' && (
             <section className={styles.dashboardSection}>
-              <h2 className={styles.sectionTitle}>주문 내역</h2>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>주문 내역</h2>
+                <span className={styles.sectionCount}>총 {orders.length}건</span>
+              </div>
+              <div className={styles.sectionListBlock}>
               {orders.length === 0 ? (
                 <p className={styles.empty}>주문 내역이 없습니다.</p>
               ) : (
@@ -433,6 +473,7 @@ function UserPageContent() {
                   ))}
                 </ul>
               )}
+              </div>
             </section>
           )}
 
@@ -448,7 +489,11 @@ function UserPageContent() {
                   <p className={styles.loyaltyReward}>10개 모이면 아메리카노 가격까지 무료!</p>
                 </div>
               </div>
-              <h2 className={styles.sectionTitle}>보유 쿠폰</h2>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>보유 쿠폰</h2>
+                <span className={styles.sectionCount}>총 {coupons.length}개</span>
+              </div>
+              <div className={styles.sectionListBlock}>
               {coupons.length === 0 ? (
                 <p className={styles.empty}>보유 쿠폰이 없습니다.</p>
               ) : (
@@ -461,6 +506,7 @@ function UserPageContent() {
                   ))}
                 </ul>
               )}
+              </div>
               <div className={styles.couponRegisterWrap}>
                 <label htmlFor="coupon-code" className={styles.couponRegisterLabel}>쿠폰 등록</label>
                 <div className={styles.couponRegisterRow}>
@@ -490,7 +536,11 @@ function UserPageContent() {
 
           {tab === 'favorites' && (
             <section className={styles.dashboardSection}>
-              <h2 className={styles.sectionTitle}>찜한 목록</h2>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>찜한 목록</h2>
+                <span className={styles.sectionCount}>총 {favorites.length}개</span>
+              </div>
+              <div className={styles.sectionListBlock}>
               {favoritesLoading ? (
                 <div className={styles.loading}>찜 목록을 불러오는 중...</div>
               ) : favorites.length === 0 ? (
@@ -500,26 +550,45 @@ function UserPageContent() {
                   {favorites.map((f) => {
                     const menu = favoritesMenus[f.menuId];
                     const name = menu?.korName ?? menu?.name ?? `메뉴 #${f.menuId}`;
+                    const desc = menu?.description?.replace(/\s+/g, ' ').trim().slice(0, 60);
+                    const addedDate = f.createdAt ? new Date(f.createdAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+                    const isPopular = Array.isArray(menu?.badgeTypes) && menu.badgeTypes.includes('popular');
                     return (
-                      <li key={f.id}>
+                      <li key={f.id} className={styles.favoriteListItem}>
                         <Link href={`/menus/${f.menuId}`} className={styles.favoriteItem}>
-                          <span className={styles.favoriteName}>{name}</span>
-                          {menu?.price != null && (
-                            <span className={styles.favoritePrice}>{menu.price.toLocaleString()}원</span>
-                          )}
-                          <ChevronRight size={18} />
+                          <span className={styles.favoriteItemThumb} style={{ backgroundImage: `url(${menuImageUrl(menu?.imageSrc)})` }} aria-hidden />
+                          <div className={styles.favoriteItemBody}>
+                            <div className={styles.favoriteItemHead}>
+                              <span className={styles.favoriteName}>{name}</span>
+                              {menu?.price != null && (
+                                <span className={styles.favoritePrice}>{menu.price.toLocaleString()}원</span>
+                              )}
+                            </div>
+                            {desc && <p className={styles.favoriteItemDesc}>{desc}{(menu?.description?.length ?? 0) > 60 ? '…' : ''}</p>}
+                            <div className={styles.favoriteItemMeta}>
+                              {menu?.categoryName && <span className={styles.favoriteItemCategory}>{menu.categoryName}</span>}
+                              {isPopular && <span className={styles.favoriteItemBadge}>인기</span>}
+                              {addedDate && <span className={styles.favoriteItemDate}>추가 {addedDate}</span>}
+                            </div>
+                          </div>
+                          <ChevronRight size={20} className={styles.favoriteItemChevron} aria-hidden />
                         </Link>
                       </li>
                     );
                   })}
                 </ul>
               )}
+              </div>
             </section>
           )}
 
           {tab === 'inquiries' && (
             <section className={styles.dashboardSection}>
-              <h2 className={styles.sectionTitle}>1:1 문의 작성 내역</h2>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>1:1 문의 작성 내역</h2>
+                <span className={styles.sectionCount}>총 {inquiries.length}건</span>
+              </div>
+              <div className={styles.sectionListBlock}>
               {inquiriesLoading ? (
                 <div className={styles.loading}>문의 목록을 불러오는 중...</div>
               ) : inquiries.length === 0 ? (
@@ -527,20 +596,46 @@ function UserPageContent() {
               ) : (
                 <ul className={styles.inquiryList}>
                   {inquiries.map((inq) => (
-                    <li key={inq.id}>
+                    <li key={inq.id} className={styles.inquiryListItem}>
                       <Link href={`/inquiries/${inq.id}`} className={styles.inquiryItem}>
-                        <span className={inq.isPrivate ? styles.inquiryPrivate : ''}>
-                          {inq.isPrivate ? '[비밀] ' : ''}{inq.title}
+                        <span className={styles.inquiryItemTitle}>
+                          <span className={inq.isPrivate ? styles.inquiryPrivate : ''}>
+                            {inq.isPrivate ? '[비밀] ' : ''}{inq.title}
+                          </span>
                         </span>
-                        <span className={styles.inquiryDate}>
-                          {new Date(inq.createdAt).toLocaleDateString('ko-KR')}
+                        <span className={styles.inquiryMeta}>
+                          {inq.inquiryType && (
+                            <span className={styles.inquiryTypeBadge}>
+                              {({ GENERAL: '일반', MENU: '메뉴', ORDER: '주문', STORE: '매장', ETC: '기타' } as Record<string, string>)[inq.inquiryType] ?? inq.inquiryType}
+                            </span>
+                          )}
+                          {inq.hasReply && <span className={styles.inquiryAnswered}>답변완료</span>}
+                          <span className={styles.inquiryDate}>
+                            {new Date(inq.createdAt).toLocaleDateString('ko-KR')}
+                          </span>
                         </span>
                         <ChevronRight size={18} />
                       </Link>
+                      <button
+                        type="button"
+                        className={styles.listItemDeleteBtn}
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (!confirm('이 문의를 삭제할까요?')) return;
+                          try {
+                            await deleteInquiry(inq.id);
+                            setInquiries((prev) => prev.filter((i) => i.id !== inq.id));
+                          } catch {}
+                        }}
+                        aria-label="문의 삭제"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
+              </div>
               <p className={styles.inquiryHint}>
                 <Link href="/inquiries/new" className={styles.link}>새 문의 작성</Link>
               </p>
@@ -549,7 +644,11 @@ function UserPageContent() {
 
           {tab === 'notifications' && (
             <section className={styles.dashboardSection}>
-              <h2 className={styles.sectionTitle}>알림 받은 내역</h2>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>알림 받은 내역</h2>
+                <span className={styles.sectionCount}>총 {notifications.length}건</span>
+              </div>
+              <div className={styles.sectionListBlock}>
               {notificationsLoading ? (
                 <div className={styles.loading}>알림을 불러오는 중...</div>
               ) : notifications.length === 0 ? (
@@ -557,12 +656,17 @@ function UserPageContent() {
               ) : (
                 <ul className={styles.notificationList}>
                   {notifications.map((n) => (
-                    <li key={n.id} className={n.readAt ? styles.notificationRead : ''}>
+                    <li key={n.id} className={n.readAt ? styles.notificationRead : styles.notificationUnread}>
                       <div className={styles.notificationItem}>
                         <div className={styles.notificationHead}>
                           <span className={styles.notificationTitle}>{n.title ?? n.message ?? '알림'}</span>
-                          <span className={styles.notificationDate}>
-                            {new Date(n.createdAt).toLocaleString('ko-KR')}
+                          <span className={styles.notificationHeadRight}>
+                            <span className={styles.notificationStatusBadge}>
+                              {n.readAt ? '읽음' : '안 읽음'}
+                            </span>
+                            <span className={styles.notificationDate}>
+                              {new Date(n.createdAt).toLocaleString('ko-KR')}
+                            </span>
                           </span>
                         </div>
                         {n.message && n.title !== n.message && (
@@ -587,10 +691,24 @@ function UserPageContent() {
                           </button>
                         )}
                       </div>
+                      <button
+                        type="button"
+                        className={styles.listItemDeleteBtn}
+                        onClick={async () => {
+                          try {
+                            await deleteNotification(n.id);
+                            setNotifications((prev) => prev.filter((x) => x.id !== n.id));
+                          } catch {}
+                        }}
+                        aria-label="알림 삭제"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </li>
                   ))}
                 </ul>
               )}
+              </div>
             </section>
           )}
         </div>

@@ -14,9 +14,11 @@ import java.time.LocalDateTime;
 public class Inquiry {
     private Long id;
     private Long userId;
+    private String inquiryType;
     private String title;
     private String content;
     private Boolean isPrivate;
+    private String attachmentUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

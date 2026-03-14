@@ -14,7 +14,7 @@ public interface InquiryUseCase {
 
     Optional<Inquiry> findById(Long id);
 
-    Inquiry create(Long userId, String title, String content, boolean isPrivate);
+    Inquiry create(Long userId, String inquiryType, String title, String content, boolean isPrivate, String attachmentUrl);
 
     InquiryReply addReply(Long inquiryId, String content, Long authorId);
 
@@ -27,4 +27,6 @@ public interface InquiryUseCase {
     InquiryReply updateUserReply(Long replyId, Long userId, String content);
 
     void deleteUserReply(Long replyId, Long userId);
+
+    void deleteByUser(Long inquiryId, Long userId);
 }

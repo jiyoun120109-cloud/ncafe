@@ -14,4 +14,6 @@ public interface InquiryRepositoryPort {
     List<Inquiry> findAllOrderByCreatedAtDesc();
 
     Inquiry save(Inquiry inquiry);
+
+    void deleteById(Long id);
 }

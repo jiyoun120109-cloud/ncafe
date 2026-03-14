@@ -47,13 +47,20 @@ public class InquiryPersistenceAdapter implements InquiryRepositoryPort {
         return toModel(saved);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        inquiryJpaRepository.findById(id).ifPresent(inquiryJpaRepository::delete);
+    }
+
     private Inquiry toModel(InquiryEntity e) {
         return Inquiry.builder()
                 .id(e.getId())
                 .userId(e.getUserId())
+                .inquiryType(e.getInquiryType())
                 .title(e.getTitle())
                 .content(e.getContent())
                 .isPrivate(e.getIsPrivate())
+                .attachmentUrl(e.getAttachmentUrl())
                 .createdAt(e.getCreatedAt())
                 .updatedAt(e.getUpdatedAt())
                 .build();
@@ -63,9 +70,11 @@ public class InquiryPersistenceAdapter implements InquiryRepositoryPort {
         return InquiryEntity.builder()
                 .id(m.getId())
                 .userId(m.getUserId())
+                .inquiryType(m.getInquiryType())
                 .title(m.getTitle())
                 .content(m.getContent())
                 .isPrivate(m.getIsPrivate() != null ? m.getIsPrivate() : false)
+                .attachmentUrl(m.getAttachmentUrl())
                 .createdAt(m.getCreatedAt())
                 .updatedAt(m.getUpdatedAt())
                 .build();

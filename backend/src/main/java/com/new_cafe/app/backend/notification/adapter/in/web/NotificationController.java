@@ -54,6 +54,17 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        Long userId = getUserId(authorization);
+        if (userId == null) return ResponseEntity.status(401).build();
+        notificationQueryUseCase.deleteByUser(userId, id);
+        return ResponseEntity.ok().build();
+    }
+
     private Long getUserId(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
         return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));

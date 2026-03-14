@@ -21,6 +21,9 @@ public class InquiryEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "inquiry_type", length = 50)
+    private String inquiryType;
+
     @Column(name = "title", nullable = false, length = 500)
     private String title;
 
@@ -30,6 +33,9 @@ public class InquiryEntity {
     @Column(name = "is_private", nullable = false)
     @Builder.Default
     private Boolean isPrivate = false;
+
+    @Column(name = "attachment_url", length = 500)
+    private String attachmentUrl;
 
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

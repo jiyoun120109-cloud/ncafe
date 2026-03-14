@@ -33,3 +33,12 @@ export async function markNotificationRead(id: number): Promise<void> {
   if (res.status === 401) throw new Error('로그인이 필요합니다.');
   if (!res.ok) throw new Error('읽음 처리에 실패했습니다.');
 }
+
+export async function deleteNotification(id: number): Promise<void> {
+  const res = await fetch(`${getApiBase()}/notifications/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (res.status === 401) throw new Error('로그인이 필요합니다.');
+  if (!res.ok) throw new Error('알림 삭제에 실패했습니다.');
+}

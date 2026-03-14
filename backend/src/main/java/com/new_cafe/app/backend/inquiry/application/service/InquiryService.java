@@ -48,12 +48,14 @@ public class InquiryService implements InquiryUseCase {
 
     @Override
     @Transactional
-    public Inquiry create(Long userId, String title, String content, boolean isPrivate) {
+    public Inquiry create(Long userId, String inquiryType, String title, String content, boolean isPrivate, String attachmentUrl) {
         Inquiry inquiry = Inquiry.builder()
                 .userId(userId)
+                .inquiryType(inquiryType != null && !inquiryType.isBlank() ? inquiryType.trim() : null)
                 .title(title)
                 .content(content != null ? content : "")
                 .isPrivate(isPrivate)
+                .attachmentUrl(attachmentUrl != null && !attachmentUrl.isBlank() ? attachmentUrl.trim() : null)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -138,5 +140,16 @@ public class InquiryService implements InquiryUseCase {
         if (reply.getParentReplyId() == null) throw new IllegalArgumentException("관리자 답변은 삭제할 수 없습니다.");
         if (!userId.equals(reply.getAuthorId())) throw new IllegalArgumentException("본인 댓글만 삭제할 수 있습니다.");
         replyRepository.delete(reply);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByUser(Long inquiryId, Long userId) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new IllegalArgumentException("문의를 찾을 수 없습니다."));
+        if (!userId.equals(inquiry.getUserId())) {
+            throw new IllegalArgumentException("본인 문의만 삭제할 수 있습니다.");
+        }
+        inquiryRepository.deleteById(inquiryId);
     }
 }

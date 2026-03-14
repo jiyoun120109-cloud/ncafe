@@ -5,6 +5,8 @@ export interface NoticeDto {
   title: string;
   content: string;
   authorId?: number | null;
+  noticeType?: string | null;
+  viewCount?: number;
   createdAt: string;
   updatedAt: string;
 }

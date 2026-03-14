@@ -40,4 +40,14 @@ public class NotificationService implements NotificationQueryUseCase {
             }
         });
     }
+
+    @Override
+    @Transactional
+    public void deleteByUser(Long userId, Long notificationId) {
+        notificationRepository.findById(notificationId).ifPresent(n -> {
+            if (userId.equals(n.getUserId())) {
+                notificationRepository.deleteById(notificationId);
+            }
+        });
+    }
 }

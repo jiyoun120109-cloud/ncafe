@@ -11,4 +11,6 @@ public interface NotificationQueryUseCase {
     long countUnread(Long userId);
 
     void markRead(Long userId, Long notificationId);
+
+    void deleteByUser(Long userId, Long notificationId);
 }

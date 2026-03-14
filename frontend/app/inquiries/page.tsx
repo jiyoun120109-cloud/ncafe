@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PenLine, MessageCircle, Eye, X } from 'lucide-react';
@@ -9,11 +9,21 @@ import { getMyInquiries, getInquiry, type InquiryDto } from '@/services/inquiryS
 import PageWithHero from '@/components/PageWithHero/PageWithHero';
 import styles from './page.module.css';
 
+const INQUIRY_TYPE_LABELS: Record<string, string> = {
+  GENERAL: '일반 문의',
+  MENU: '메뉴/제품',
+  ORDER: '주문/결제',
+  STORE: '매장 이용',
+  ETC: '기타',
+};
+
 export default function InquiriesPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
   const [list, setList] = useState<InquiryDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<string>('');
   const [previewId, setPreviewId] = useState<number | null>(null);
   const [preview, setPreview] = useState<InquiryDto | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -28,6 +38,23 @@ export default function InquiriesPage() {
       .catch(() => setList([]))
       .finally(() => setLoading(false));
   }, [isAuthenticated, router]);
+
+  const filtered = useMemo(() => {
+    let result = list;
+    if (filterType) result = result.filter((i) => (i.inquiryType ?? '') === filterType);
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter((i) =>
+        (i.title ?? '').toLowerCase().includes(q) || (i.content ?? '').toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [list, filterType, searchQuery]);
+
+  const typeOptions = useMemo(() => {
+    const types = new Set<string>(list.map((i) => i.inquiryType ?? 'ETC').filter(Boolean));
+    return Array.from(types).sort();
+  }, [list]);
 
   const openPreview = useCallback((id: number) => {
     setPreviewId(id);
@@ -46,17 +73,12 @@ export default function InquiriesPage() {
 
   if (!isAuthenticated) return null;
 
-  const total = list.length;
   const adminReplies = preview?.replies?.filter((r) => r.parentReplyId == null) ?? [];
   const firstReply = adminReplies[0];
 
   return (
     <PageWithHero title="1:1 문의" subtitle="궁금한 점을 남겨 주시면 답변 드립니다.">
       <div className={styles.page}>
-        <div className={styles.pageHeader}>
-          <p className={styles.pageLabel}>Inquiry</p>
-          <h2 className={styles.pageTitle}>1:1 문의</h2>
-        </div>
         <div className={styles.topRow}>
           <Link href="/" className={styles.backLinkText}>← 이전으로</Link>
           <Link href="/inquiries/new" className={styles.writeBtn}>
@@ -64,16 +86,43 @@ export default function InquiriesPage() {
             글쓰기
           </Link>
         </div>
+        {!loading && list.length > 0 && (
+          <div className={styles.toolbar}>
+            <select
+              className={styles.filterSelect}
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              aria-label="유형 필터"
+            >
+              <option value="">전체 유형</option>
+              {typeOptions.map((t) => (
+                <option key={t} value={t}>{INQUIRY_TYPE_LABELS[t] ?? t}</option>
+              ))}
+            </select>
+            <div className={styles.searchRow}>
+              <input
+                type="search"
+                className={styles.searchInput}
+                placeholder="검색어를 입력하세요"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="검색"
+              />
+              <button type="button" className={styles.searchBtn}>검색</button>
+            </div>
+          </div>
+        )}
         {loading ? (
           <div className={styles.loading}>불러오는 중...</div>
-        ) : list.length === 0 ? (
-          <div className={styles.empty}>문의 내역이 없습니다.</div>
+        ) : filtered.length === 0 ? (
+          <div className={styles.empty}>{list.length === 0 ? '문의 내역이 없습니다.' : '검색 결과가 없습니다.'}</div>
         ) : (
           <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th className={styles.th}>번호</th>
+                  <th className={styles.th}>유형</th>
                   <th className={styles.th}>제목</th>
                   <th className={styles.th}>답변</th>
                   <th className={styles.th}>글쓴이</th>
@@ -82,9 +131,12 @@ export default function InquiriesPage() {
                 </tr>
               </thead>
               <tbody>
-                {list.map((i, index) => (
+                {filtered.map((i, index) => (
                   <tr key={i.id} className={styles.tr}>
-                    <td className={`${styles.td} ${styles.idCell}`}>{total - index}</td>
+                    <td className={`${styles.td} ${styles.idCell}`}>{filtered.length - index}</td>
+                    <td className={styles.td}>
+                      <span className={styles.typeBadge}>{INQUIRY_TYPE_LABELS[i.inquiryType ?? ''] ?? i.inquiryType ?? '—'}</span>
+                    </td>
                     <td className={`${styles.td} ${styles.cellTitle}`}>
                       <Link href={`/inquiries/${i.id}`}>{i.isPrivate ? '[비밀] ' : ''}{i.title}</Link>
                     </td>
