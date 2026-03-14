@@ -22,7 +22,7 @@ export interface StampCardProps {
 export default function StampCard({
   stampCount,
   requiredForReward,
-  stampImagePath = '/images/stamp-dogs.png',
+  stampImagePath = '/images/loyalty-card.png',
   rewardDescription = '10개 모이면 아메리카노 1잔 무료!',
 }: StampCardProps) {
   const [mounted, setMounted] = useState(false);

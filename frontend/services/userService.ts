@@ -81,3 +81,17 @@ export async function getUserCoupons(): Promise<UserCouponDto[]> {
   if (!res.ok) throw new Error('쿠폰 목록을 불러올 수 없습니다.');
   return res.json();
 }
+
+export async function redeemCouponCode(code: string): Promise<void> {
+  const res = await fetch(`${getApiBase()}/user/coupons/redeem`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ code: code.trim() }),
+  });
+  if (res.status === 401) throw new Error('로그인이 필요합니다.');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.message || data?.error || '쿠폰 등록에 실패했어요.');
+  }
+}

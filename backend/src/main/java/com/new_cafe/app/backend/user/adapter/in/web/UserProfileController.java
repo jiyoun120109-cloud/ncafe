@@ -3,6 +3,7 @@ package com.new_cafe.app.backend.user.adapter.in.web;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponJpaRepository;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -187,6 +189,37 @@ public class UserProfileController {
             return m;
         }).collect(Collectors.toList());
         return ResponseEntity.ok(body);
+    }
+
+    /** 쿠폰 코드로 쿠폰 등록 (코드 = 쿠폰 name과 일치) */
+    @PostMapping("/coupons/redeem")
+    public ResponseEntity<Map<String, Object>> redeemCoupon(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody Map<String, String> body
+    ) {
+        Long userId = getUserId(authorization);
+        if (userId == null) return ResponseEntity.status(401).build();
+        String code = body != null ? body.get("code") : null;
+        if (code == null || code.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "쿠폰 코드를 입력해주세요."));
+        }
+        String trimmed = code.trim();
+        Optional<CouponEntity> couponOpt = couponJpaRepository.findByName(trimmed);
+        if (couponOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "유효하지 않은 쿠폰 코드예요."));
+        }
+        CouponEntity coupon = couponOpt.get();
+        if (userCouponJpaRepository.findByUserIdAndCouponId(userId, coupon.getId()).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "이미 등록된 쿠폰이에요."));
+        }
+        LocalDateTime now = LocalDateTime.now();
+        UserCouponEntity uc = UserCouponEntity.builder()
+                .userId(userId)
+                .couponId(coupon.getId())
+                .issuedAt(now)
+                .build();
+        userCouponJpaRepository.save(uc);
+        return ResponseEntity.ok(Map.of("message", "쿠폰이 등록되었어요!"));
     }
 
     private Long getUserId(String authorization) {

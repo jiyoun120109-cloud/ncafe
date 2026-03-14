@@ -22,6 +22,8 @@ export default function PageWithHero({
   return (
     <div className={styles.wrapper}>
       <div className={styles.hero}>
+        <div className={styles.heroBg} aria-hidden="true" />
+        <div className={styles.heroOverlay} aria-hidden="true" />
         <div className={styles.heroInner}>
           {backHref && (
             <Link href={backHref} className={styles.backLink}>
