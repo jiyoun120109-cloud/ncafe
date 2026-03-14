@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
     AreaChart,
@@ -142,6 +142,14 @@ export default function AdminDashboardPage() {
     const showPeriodTable = selectedDetail === 'visitors' || selectedDetail === 'period';
     const showOrdersTable =
         selectedDetail === 'orders_today' || selectedDetail === 'revenue_today' || selectedDetail === 'pending' || selectedDetail === 'paid';
+
+    const sortedDetailOrders = useMemo(() =>
+        [...detailOrders].sort((a, b) =>
+            new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+        ),
+        [detailOrders]
+    );
+    const sortedPeriodStats = useMemo(() => [...periodStats].reverse(), [periodStats]);
 
     return (
         <div className={styles.dashboardLayout}>
@@ -314,10 +322,10 @@ export default function AdminDashboardPage() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {detailOrders.length === 0 ? (
+                                                {sortedDetailOrders.length === 0 ? (
                                                     <tr><td colSpan={6} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
                                                 ) : (
-                                                    detailOrders.map((o) => (
+                                                    sortedDetailOrders.map((o) => (
                                                         <tr key={o.id}>
                                                             <td>{o.id}</td>
                                                             <td>{getOrderStatusLabel(o.status)}</td>
@@ -346,10 +354,10 @@ export default function AdminDashboardPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {periodStats.length === 0 ? (
+                                        {sortedPeriodStats.length === 0 ? (
                                             <tr><td colSpan={4} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
                                         ) : (
-                                            periodStats.map((p, i) => (
+                                            sortedPeriodStats.map((p, i) => (
                                                 <tr key={i}>
                                                     <td>{p.label}</td>
                                                     <td>{(p.orderCount ?? 0).toLocaleString()}</td>

@@ -47,8 +47,8 @@ export default function SignupPage() {
 
             <div className={styles.formPanel}>
                 <div className={styles.topLinks}>
-                    <Link href="/" className={styles.backLink}>
-                        ← 홈으로
+                    <Link href="/login" className={styles.backLink}>
+                        ← 뒤로가기
                     </Link>
                     <Link href="/menus" className={styles.menuLink}>
                         <UtensilsCrossed size={14} />

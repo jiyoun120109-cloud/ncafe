@@ -230,8 +230,8 @@
    ================================================================ */
 .heroBanner {
     position: relative;
-    height: 340px;
-    background-image: url('https://images.unsplash.com/photo-1559925393-8be0ec4e26d9?w=1600&q=90');
+    height: 400px;
+    background-image: url('/images/menus-hero/hero-1.png');
     background-size: cover;
     background-position: center 40%;
     display: flex;
@@ -478,14 +478,14 @@
     .headerMobileOpen .brand,
     .headerMobileOpen .brandScrolled { color: #fff; }
     .headerMobileOpen .navMobileTrigger { color: #fff; }
-    .heroBanner { height: 260px; }
+    .heroBanner { height: 320px; }
     .body { padding: 2rem 1rem 2.5rem; }
     .footer { padding: 1.25rem 1rem; }
     .footerInner { flex-direction: column; gap: 0.5rem; text-align: center; }
 }
 
 @media (max-width: 480px) {
-    .heroBanner { height: 220px; }
+    .heroBanner { height: 280px; }
     .heroBannerContent { padding: 0 1rem; }
     .bannerTitle { font-size: clamp(1.5rem, 6vw, 2rem); }
     .bannerDesc { font-size: 0.8rem; }

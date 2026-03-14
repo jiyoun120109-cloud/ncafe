@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Login | NCafe',
-    description: 'NCafe 관리자 로그인',
+    description: 'NCafe 로그인',
 };
 
 export default function LoginLayout({ children }: { children: React.ReactNode }) {

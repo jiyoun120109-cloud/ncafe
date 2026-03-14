@@ -72,7 +72,7 @@ function LoginPageContent() {
                             <Coffee size={28} />
                         </div>
                         <h1 className={styles.formTitle}>{siteName || 'NCafe'}</h1>
-                        <p className={styles.formSubtitle}>관리자 로그인</p>
+                        <p className={styles.formSubtitle}>로그인</p>
                     </div>
 
                     {/* 회원가입 완료 안내 */}

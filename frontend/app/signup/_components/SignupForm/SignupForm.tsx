@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { User, Lock, Eye, EyeOff, UserCircle, Calendar, Phone, AtSign, Mail } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar } from 'lucide-react';
 import { signupApi, checkUsernameApi } from '@/services/authService';
 import styles from './SignupForm.module.css';
 
@@ -27,12 +27,24 @@ const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PASSWORD_MIN_LENGTH = 6;
 const NICKNAME_REGEX = /^[a-zA-Z0-9가-힣_]{2,20}$/;
 
+function isValidBirthDate(value: string): boolean {
+    if (!value || value.length !== 8) return false;
+    const y = parseInt(value.slice(0, 4), 10);
+    const m = parseInt(value.slice(4, 6), 10);
+    const d = parseInt(value.slice(6, 8), 10);
+    if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1) return false;
+    const date = new Date(y, m - 1, d);
+    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
 export default function SignupForm({ onError }: SignupFormProps) {
     const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [usernameCheckStatus, setUsernameCheckStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
     const [usernameCheckedValue, setUsernameCheckedValue] = useState('');
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [agreePrivacy, setAgreePrivacy] = useState(false);
 
     const {
         register,
@@ -77,18 +89,24 @@ export default function SignupForm({ onError }: SignupFormProps) {
             setError('username', { message: '사용 가능한 아이디인지 중복 확인 버튼을 눌러주세요.' });
             return;
         }
+        if (!agreeTerms || !agreePrivacy) {
+            onError('이용약관 및 개인정보 수집 동의에 모두 체크해주세요.');
+            return;
+        }
 
         setIsLoading(true);
         onError('');
 
         try {
+            const birthDateVal = (data.birthDate || '').replace(/\D/g, '');
+            const phoneVal = (data.phone || '').replace(/\D/g, '');
             const result = await signupApi({
                 username: data.username.trim(),
                 password: data.password,
                 name: data.name.trim() || undefined,
-                birthDate: data.birthDate || undefined,
-                phone: data.phone.trim() || undefined,
-                displayNickname: data.displayNickname.trim() || undefined,
+                birthDate: birthDateVal.length === 8 ? `${birthDateVal.slice(0, 4)}-${birthDateVal.slice(4, 6)}-${birthDateVal.slice(6, 8)}` : undefined,
+                phone: phoneVal || undefined,
+                displayNickname: (data.displayNickname || '').trim() || undefined,
                 email: data.email?.trim() || undefined,
             });
             if (result.success) {
@@ -272,12 +290,29 @@ export default function SignupForm({ onError }: SignupFormProps) {
                         <Calendar className={styles.inputIcon} />
                         <input
                             id="birthDate"
-                            type="date"
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={8}
+                            placeholder="예: 19880301 (8자리 숫자)"
                             className={`${styles.input} ${errors.birthDate ? styles.inputError : ''}`}
-                            {...register('birthDate')}
+                            {...register('birthDate', {
+                                validate: (v) => {
+                                    if (!v || !v.trim()) return true;
+                                    const digits = v.replace(/\D/g, '');
+                                    if (digits.length !== 8) return '생년월일을 8자리 숫자로 입력해주세요. (예: 19880301)';
+                                    return isValidBirthDate(digits) || '올바른 날짜를 입력해주세요.';
+                                },
+                                onChange: (e) => {
+                                    const next = e.target.value.replace(/\D/g, '').slice(0, 8);
+                                    e.target.value = next;
+                                },
+                            })}
                         />
                     </div>
                     <span className={styles.fieldHint}>선택 항목입니다.</span>
+                    {errors.birthDate && (
+                        <span className={styles.fieldError}>{errors.birthDate.message}</span>
+                    )}
                 </div>
 
                 <div className={styles.fieldGroup}>
@@ -289,14 +324,19 @@ export default function SignupForm({ onError }: SignupFormProps) {
                         <input
                             id="phone"
                             type="tel"
+                            inputMode="numeric"
                             className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-                            placeholder="숫자만 또는 010-1234-5678 형식"
+                            placeholder="예: 01039079055 (숫자만 10~11자리)"
                             autoComplete="tel"
                             {...register('phone', {
                                 required: '핸드폰 번호를 입력해주세요.',
                                 validate: (v) => {
                                     const digits = (v || '').replace(/\D/g, '');
-                                    return (digits.length >= 10 && digits.length <= 11 && digits.startsWith('01')) || '올바른 휴대폰 번호를 입력해주세요. (010으로 시작, 10~11자리)';
+                                    return (digits.length >= 10 && digits.length <= 11 && digits.startsWith('01')) || '올바른 휴대폰 번호를 입력해주세요. (010으로 시작, 10~11자리 숫자)';
+                                },
+                                onChange: (e) => {
+                                    const next = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                    e.target.value = next;
                                 },
                             })}
                         />
@@ -308,7 +348,7 @@ export default function SignupForm({ onError }: SignupFormProps) {
 
                 <div className={styles.fieldGroup}>
                     <label htmlFor="displayNickname" className={styles.label}>
-                        닉네임
+                        닉네임 <span className={styles.optional}>(선택)</span>
                     </label>
                     <div className={styles.inputWrapper}>
                         <AtSign className={styles.inputIcon} />
@@ -316,15 +356,14 @@ export default function SignupForm({ onError }: SignupFormProps) {
                             id="displayNickname"
                             type="text"
                             className={`${styles.input} ${errors.displayNickname ? styles.inputError : ''}`}
-                            placeholder="영문, 한글, 숫자 2~20자 (예: 홍길동123)"
+                            placeholder="미입력 시 아이디가 표시됩니다"
                             autoComplete="nickname"
                             {...register('displayNickname', {
-                                required: '닉네임을 입력해주세요.',
-                                minLength: { value: 2, message: '닉네임은 2자 이상 입력해주세요.' },
-                                maxLength: { value: 20, message: '닉네임은 20자 이하로 입력해주세요.' },
-                                pattern: {
-                                    value: NICKNAME_REGEX,
-                                    message: '닉네임은 영문, 한글, 숫자, _ 만 사용 가능합니다. (2~20자)',
+                                validate: (v) => {
+                                    if (!v || !v.trim()) return true;
+                                    if (v.trim().length < 2) return '닉네임은 2자 이상 입력해주세요.';
+                                    if (v.trim().length > 20) return '닉네임은 20자 이하로 입력해주세요.';
+                                    return NICKNAME_REGEX.test(v.trim()) || '닉네임은 영문, 한글, 숫자, _ 만 사용 가능합니다. (2~20자)';
                                 },
                             })}
                         />
@@ -334,10 +373,31 @@ export default function SignupForm({ onError }: SignupFormProps) {
                     )}
                 </div>
 
+                <div className={styles.agreement}>
+                    <label className={styles.agreementLabel}>
+                        <input
+                            type="checkbox"
+                            checked={agreeTerms}
+                            onChange={(e) => setAgreeTerms(e.target.checked)}
+                            className={styles.agreementCheckbox}
+                        />
+                        <span><a href="/notices" target="_blank" rel="noopener noreferrer" className={styles.agreementLink}>이용약관</a>에 동의합니다 (필수)</span>
+                    </label>
+                    <label className={styles.agreementLabel}>
+                        <input
+                            type="checkbox"
+                            checked={agreePrivacy}
+                            onChange={(e) => setAgreePrivacy(e.target.checked)}
+                            className={styles.agreementCheckbox}
+                        />
+                        <span><a href="/notices" target="_blank" rel="noopener noreferrer" className={styles.agreementLink}>개인정보 수집 및 이용</a>에 동의합니다 (필수)</span>
+                    </label>
+                </div>
+
                 <button
                     type="submit"
                     className={styles.submitButton}
-                    disabled={isLoading}
+                    disabled={isLoading || !agreeTerms || !agreePrivacy}
                 >
                     {isLoading ? (
                         <span className={styles.spinner} />

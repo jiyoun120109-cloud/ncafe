@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Menu, Bell, LogOut } from 'lucide-react';
@@ -44,14 +45,12 @@ export default function AdminHeader() {
             </div>
 
             <div className={styles.right}>
-                <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className={styles.iconButton}
-                >
-                    <Bell size={20} />
-                    <span className={styles.notificationBadge} />
-                </motion.button>
+                <Link href="/user?tab=notifications" className={styles.iconButtonLink} aria-label="알림">
+                    <motion.span whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.iconButton}>
+                        <Bell size={20} />
+                        <span className={styles.notificationBadge} />
+                    </motion.span>
+                </Link>
 
                 <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -64,14 +63,16 @@ export default function AdminHeader() {
                     <span>{isLoggingOut ? '처리중...' : '로그아웃'}</span>
                 </motion.button>
 
-                <div className={styles.profile}>
-                    <div className={styles.profileAvatar}>
-                        {user?.username?.[0]?.toUpperCase() ?? '?'}
+                <Link href="/user" className={styles.profileLink} aria-label="마이페이지">
+                    <div className={styles.profile}>
+                        <div className={styles.profileAvatar}>
+                            {user?.username?.[0]?.toUpperCase() ?? '?'}
+                        </div>
+                        <span className={styles.profileName}>
+                            {user?.name ?? user?.username ?? '관리자'}
+                        </span>
                     </div>
-                    <span className={styles.profileName}>
-                        {user?.name ?? user?.username ?? '관리자'}
-                    </span>
-                </div>
+                </Link>
             </div>
         </header>
     );

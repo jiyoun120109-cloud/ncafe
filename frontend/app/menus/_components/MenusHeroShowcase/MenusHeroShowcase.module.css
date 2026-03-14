@@ -31,8 +31,8 @@
   position: relative;
   width: 100%;
   aspect-ratio: 21 / 9;
-  min-height: 280px;
-  max-height: 56vh;
+  min-height: 340px;
+  max-height: 65vh;
 }
 
 .slideImageWrap {
@@ -123,8 +123,8 @@
 @media (max-width: 768px) {
   .slide {
     aspect-ratio: 4 / 3;
-    min-height: 240px;
-    max-height: 50vh;
+    min-height: 300px;
+    max-height: 58vh;
   }
 
   .slideCaption {

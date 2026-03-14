@@ -4,7 +4,7 @@
 
 .dashboardLayout {
     display: flex;
-    gap: 0;
+    gap: 2rem;
     align-items: stretch;
     max-width: 100%;
 }
@@ -271,31 +271,36 @@
 }
 
 /* ================================================================
-   오른쪽 데이터 분석 패널
+   오른쪽 데이터 분석 패널 — 기존 배경색, 여백, 타이포
    ================================================================ */
 
 .detailPanel {
     width: 420px;
     min-width: 420px;
     flex-shrink: 0;
-    background: #fff;
-    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    background: #faf9f7;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 120px);
+    margin-right: 0.5rem;
 }
 
 .detailPanelHeader {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 1.5rem;
+    padding: 1.35rem 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .detailPanelTitle {
-    font-size: 1rem;
+    font-family: var(--font-serif, 'Georgia', serif);
+    font-size: 1.05rem;
     font-weight: 600;
+    letter-spacing: -0.01em;
     color: #1c1917;
     margin: 0;
 }
@@ -304,10 +309,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.35rem;
+    padding: 0.4rem;
     background: none;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     color: rgba(0, 0, 0, 0.45);
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
@@ -319,7 +324,7 @@
 }
 
 .detailPanelBody {
-    padding: 1.25rem 1.5rem;
+    padding: 1.35rem 1.5rem;
     overflow: auto;
     flex: 1;
 }
@@ -332,6 +337,9 @@
 
 .detailTableWrap {
     overflow-x: auto;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    background: #faf9f7;
 }
 
 .detailTable {
@@ -342,17 +350,18 @@
 
 .detailTable th,
 .detailTable td {
-    padding: 0.6rem 0.75rem;
+    padding: 0.7rem 0.85rem;
     text-align: left;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .detailTable th {
     font-weight: 600;
-    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.04);
 }
 
 .detailTable td {
@@ -385,13 +394,14 @@
 @media (max-width: 1024px) {
     .dashboardLayout {
         flex-direction: column;
+        gap: 1.5rem;
     }
 
     .detailPanel {
         width: 100%;
         min-width: 0;
         max-height: 70vh;
-        border-left: none;
-        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        margin-right: 0;
+        margin-top: 1rem;
     }
 }

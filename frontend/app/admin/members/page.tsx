@@ -73,10 +73,6 @@ export default function AdminMembersListPage() {
     setPage(0);
   };
 
-  const applyFilters = () => {
-    setPage(0);
-  };
-
   const totalPages = data?.totalPages ?? 0;
   const totalElements = data?.totalElements ?? 0;
 
@@ -129,13 +125,6 @@ export default function AdminMembersListPage() {
           </label>
           <button type="submit" className={styles.searchBtn}>
             검색
-          </button>
-          <button
-            type="button"
-            className={styles.filterBtn}
-            onClick={applyFilters}
-          >
-            필터 적용
           </button>
         </form>
       </section>
