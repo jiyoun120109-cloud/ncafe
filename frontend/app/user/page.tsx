@@ -224,12 +224,11 @@ function UserPageContent() {
   if (!isAuthenticated) return null;
 
   const TAB_LIST: { id: Tab; icon: React.ReactNode; label: string }[] = [
-    { id: 'profile', icon: <User size={20} />, label: '프로필' },
-    { id: 'orders', icon: <Package size={20} />, label: '주문내역' },
-    { id: 'coupons', icon: <Ticket size={20} />, label: '쿠폰/스탬프' },
-    { id: 'favorites', icon: <Heart size={20} />, label: '찜한 목록' },
-    { id: 'inquiries', icon: <MessageCircle size={20} />, label: '1:1 문의' },
-    { id: 'notifications', icon: <Bell size={20} />, label: '알림' },
+    { id: 'orders', icon: <Package size={22} />, label: '주문내역' },
+    { id: 'coupons', icon: <Ticket size={22} />, label: '쿠폰/스탬프' },
+    { id: 'favorites', icon: <Heart size={22} />, label: '찜한 목록' },
+    { id: 'inquiries', icon: <MessageCircle size={22} />, label: '1:1 문의' },
+    { id: 'notifications', icon: <Bell size={22} />, label: '알림' },
   ];
 
   const getCategorySubtitle = (id: Tab): string => {
@@ -247,17 +246,21 @@ function UserPageContent() {
   const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
 
   return (
-    <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요.">
+    <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요." mainClassName={styles.userPageMain}>
       <div className={styles.dashboard}>
         <div className={styles.dashboardProfile}>
           <div className={styles.dashboardProfileAvatar}>
             {profileImageSrc ? (
               <img src={profileImageSrc} alt="" className={styles.dashboardProfileImg} />
             ) : (
-              <span className={styles.dashboardProfilePlaceholder} aria-hidden><User size={28} strokeWidth={1.5} /></span>
+              <span className={styles.dashboardProfilePlaceholder} aria-hidden><User size={32} strokeWidth={1.5} /></span>
             )}
           </div>
-          <span className={styles.dashboardProfileName}>{displayName}</span>
+          <div className={styles.dashboardProfileText}>
+            <span className={styles.dashboardProfileId}>{profile?.username ?? user?.username ?? '-'}</span>
+            <span className={styles.dashboardProfileNickname}>{displayName}</span>
+          </div>
+          <Link href="/user?tab=profile" className={styles.dashboardProfileBtn}>프로필 이동</Link>
         </div>
         <nav className={styles.dashboardCategoryRow} aria-label="마이페이지 메뉴">
           {TAB_LIST.map(({ id, icon, label }) => (
@@ -267,7 +270,6 @@ function UserPageContent() {
               className={tab === id ? styles.dashboardCategoryCardActive : styles.dashboardCategoryCard}
               aria-current={tab === id ? 'page' : undefined}
             >
-              <span className={styles.dashboardCategoryTitle}>{label}</span>
               <span className={styles.dashboardCategoryLabel}>{icon} {label}</span>
               <span className={styles.dashboardCategorySub}>{getCategorySubtitle(id)}</span>
             </Link>
@@ -279,9 +281,6 @@ function UserPageContent() {
         <div className={styles.loading}>불러오는 중...</div>
       ) : tab !== null ? (
         <div className={`${styles.content} ${styles.dashboardPanel}`}>
-          <p className={styles.backToMypage}>
-            <Link href="/user">← 마이페이지</Link>
-          </p>
           {tab === 'profile' && (
             <section className={`${styles.profileSection} ${styles.dashboardSection}`}>
               <div className={styles.profileHeader}>

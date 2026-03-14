@@ -9,6 +9,8 @@ interface PageWithHeroProps {
   subtitle?: string;
   backHref?: string;
   backLabel?: string;
+  /** 마이페이지 등 넓은 콘텐츠용 main max-width 오버라이드 */
+  mainClassName?: string;
   children: React.ReactNode;
 }
 
@@ -17,6 +19,7 @@ export default function PageWithHero({
   subtitle,
   backHref,
   backLabel = '목록',
+  mainClassName,
   children,
 }: PageWithHeroProps) {
   return (
@@ -35,7 +38,7 @@ export default function PageWithHero({
           {subtitle && <p className={styles.heroSub}>{subtitle}</p>}
         </div>
       </div>
-      <main className={styles.main}>{children}</main>
+      <main className={mainClassName ? `${styles.main} ${mainClassName}` : styles.main}>{children}</main>
     </div>
   );
 }
