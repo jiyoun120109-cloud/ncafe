@@ -1,14 +1,13 @@
 package com.new_cafe.app.backend.user.adapter.in.web;
 
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponJpaRepository;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampJpaRepository;
-import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -192,7 +191,6 @@ public class UserProfileController {
 
     private Long getUserId(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
-        Claims claims = jwtService.parseToken(authorization);
-        return claims == null ? null : Long.parseLong(claims.getSubject());
+        return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));
     }
 }

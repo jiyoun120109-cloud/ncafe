@@ -1,9 +1,7 @@
-// API base configuration — 클라이언트/서버 모두 BFF(/api) 경유, 백엔드 직접 요청 금지
+// API base configuration — 클라이언트/서버 모두 BFF(/api) 경유, 백엔드 직접 요청 금지.
+// 인증(로그인/로그아웃/세션/회원가입)은 lib/api.ts 의 authAPI 사용.
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8011';
 export const API_URL = `${API_BASE_URL}/api`;
-
-/** 프로필/업로드 이미지 등 정적 파일 URL (백엔드 루트 기준) */
-export const getImageBase = () => API_BASE_URL;
 
 /**
  * API 베이스 URL. 항상 BFF 경유.

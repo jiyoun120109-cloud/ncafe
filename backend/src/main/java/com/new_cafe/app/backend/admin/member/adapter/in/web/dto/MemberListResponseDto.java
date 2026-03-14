@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.admin.member.adapter.in.web.dto;
 
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

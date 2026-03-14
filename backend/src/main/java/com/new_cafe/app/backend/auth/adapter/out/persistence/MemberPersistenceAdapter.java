@@ -1,7 +1,8 @@
 package com.new_cafe.app.backend.auth.adapter.out.persistence;
 
+import com.new_cafe.app.backend.auth.application.port.out.GetMemberIdsByRolePort;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.auth.adapter.out.jpa.UserEntity;
 import com.new_cafe.app.backend.auth.adapter.out.jpa.UserJpaRepository;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
  * MemberRepositoryPort 구현 — JPA(users 테이블) 사용.
  */
 @Repository
-public class MemberPersistenceAdapter implements MemberRepositoryPort {
+public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMemberIdsByRolePort {
 
     private final UserJpaRepository userJpaRepository;
 
@@ -70,6 +72,13 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort {
             page.getPageable(),
             page.getTotalElements()
         );
+    }
+
+    @Override
+    public List<Long> findUserIdsByRole(String role) {
+        return userJpaRepository.findByRole(role).stream()
+            .map(UserEntity::getId)
+            .collect(Collectors.toList());
     }
 
     private Member toDomain(UserEntity e) {

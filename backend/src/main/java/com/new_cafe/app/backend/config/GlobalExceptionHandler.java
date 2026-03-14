@@ -48,4 +48,24 @@ public class GlobalExceptionHandler {
                 .status(isValidation ? HttpStatus.BAD_REQUEST : HttpStatus.NOT_FOUND)
                 .body(Map.of("error", isValidation ? "Bad Request" : "Not Found", "message", msg));
     }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<Map<String, String>> handleNumberFormat(NumberFormatException ex) {
+        String message = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? "잘못된 형식입니다: " + ex.getMessage()
+                : "잘못된 숫자 형식입니다.";
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", "Bad Request", "message", message));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleException(Exception ex) {
+        String message = ex.getMessage() != null && !ex.getMessage().isBlank()
+                ? ex.getMessage()
+                : "서버 오류가 발생했습니다.";
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Internal Server Error", "message", message));
+    }
 }

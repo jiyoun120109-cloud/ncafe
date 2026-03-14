@@ -4,7 +4,7 @@ import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
 import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuEntity;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
-import com.new_cafe.app.backend.category.domain.model.Category;
+import com.new_cafe.app.backend.category.model.Category;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryEntity;
 
 import org.springframework.stereotype.Repository;

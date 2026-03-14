@@ -4,24 +4,9 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Upload, Star } from 'lucide-react';
 import { getApiBase } from '@/services/api';
+import { menuImageUrl } from '@/utils/menuImageUrl';
 import styles from './MenuDetailImages.module.css';
 import { useMenuDetailImages } from './useMenuDetailImages';
-
-function imageSrc(url: string | null | undefined): string {
-    if (!url?.trim()) return '/images/missing';
-    if (url.startsWith('http')) {
-        try {
-            const path = new URL(url).pathname;
-            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
-            if (!hasImageExt) return '/images/missing';
-        } catch {
-            return '/images/missing';
-        }
-        return url;
-    }
-    const filename = url.replace(/^.*\//, '').trim();
-    return `/images/${filename || 'missing'}`;
-}
 
 export default function MenuDetailImages({ menuId }: { menuId: number }) {
     const { menuImages, altText, refetchImages, setAsRepresentative } = useMenuDetailImages(menuId);
@@ -63,7 +48,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
             <div className={styles.mainImageWrapper}>
                 {!showMainPlaceholder ? (
                     <Image
-                        src={imageSrc(selectedImage)}
+                        src={menuImageUrl(selectedImage)}
                         alt={`${altText || 'Menu'} Main Image`}
                         fill
                         className={styles.mainImage}
@@ -89,7 +74,7 @@ export default function MenuDetailImages({ menuId }: { menuId: number }) {
                                 onClick={() => setSelectedImage(image.imageUrl)}
                             >
                                 <Image
-                                    src={imageSrc(image.imageUrl)}
+                                    src={menuImageUrl(image.imageUrl)}
                                     alt={`${altText || 'Menu'} ${index + 1}`}
                                     fill
                                     sizes="(max-width: 768px) 20vw, 10vw"

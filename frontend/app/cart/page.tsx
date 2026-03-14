@@ -7,14 +7,9 @@ import { ShoppingCart, Minus, Plus, Trash2, CreditCard } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import CartItemOptionModal from './_components/CartItemOptionModal';
+import { menuImageUrl } from '@/utils/menuImageUrl';
 import styles from './page.module.css';
 import type { CartItemDto } from '@/services/cartService';
-
-function cartItemImageSrc(url: string | null | undefined): string {
-    if (!url?.trim()) return '/images/missing';
-    if (url.startsWith('http')) return url;
-    return `/images/${url.replace(/^.*\//, '').trim() || 'missing'}`;
-}
 
 export default function CartPage() {
     const { items, totalQuantity, loading, updateQuantity, updateItemOptions, removeItem } = useCart();
@@ -89,8 +84,9 @@ export default function CartPage() {
                                         className={styles.itemThumb}
                                         aria-label={`${item.menuKorName} 상세 보기`}
                                     >
+                                        {/* 이미지 URL: CartItemDto.menuImageUrl (cartService.ts) */}
                                         <Image
-                                            src={cartItemImageSrc(item.menuImageUrl)}
+                                            src={menuImageUrl(item.menuImageUrl)}
                                             alt={item.menuKorName}
                                             width={72}
                                             height={72}

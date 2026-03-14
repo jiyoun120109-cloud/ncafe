@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
 import { Heart, Minus, Plus, ShoppingCart, CreditCard } from 'lucide-react';
-import AddToCartModal from '@/components/AddToCartModal';
+import AddToCartModal from '../../../_components/AddToCartModal/AddToCartModal';
 import { useFavorites } from '@/hooks/useFavorites';
 import styles from './MenuDetailInfo.module.css';
 import { useUserMenuDetail } from '../useUserMenuDetail';

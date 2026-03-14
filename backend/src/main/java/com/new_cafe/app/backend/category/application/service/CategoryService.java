@@ -10,7 +10,7 @@ import com.new_cafe.app.backend.category.application.port.out.CategoryRepository
 import com.new_cafe.app.backend.category.application.result.CategoryListResult;
 import com.new_cafe.app.backend.category.application.result.CategoryListResult.CategoryInfo;
 import com.new_cafe.app.backend.category.application.result.GetCategoryResult;
-import com.new_cafe.app.backend.category.domain.model.Category;
+import com.new_cafe.app.backend.category.model.Category;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;

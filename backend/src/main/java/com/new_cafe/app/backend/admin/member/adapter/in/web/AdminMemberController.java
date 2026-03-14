@@ -6,7 +6,7 @@ import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.MemberPageRespon
 import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.UpdateMemberRoleRequestDto;
 import com.new_cafe.app.backend.admin.member.application.port.in.AdminMemberUseCase;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;

@@ -18,6 +18,7 @@ export interface CartItemOptions {
     decaf?: boolean;
 }
 
+/** 장바구니 아이템. 필드명 변경 시 cart/order 페이지의 이미지 표시 로직과 맞출 것. */
 export interface CartItemDto {
     id: number;
     menuId: number;
@@ -26,6 +27,7 @@ export interface CartItemDto {
     quantity: number;
     optionsDisplay?: string | null;
     optionExtraPrice?: number;
+    /** 메뉴 이미지 URL. API에서 필드명 바뀌면 여기와 menuImageUrl() 사용처 함께 수정 */
     menuImageUrl?: string | null;
     temperature?: string | null;
     beanOption?: string | null;

@@ -2,7 +2,7 @@ package com.new_cafe.app.backend.admin.member.application.service;
 
 import com.new_cafe.app.backend.admin.member.application.port.in.AdminMemberUseCase;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;

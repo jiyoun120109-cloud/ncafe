@@ -4,9 +4,9 @@ import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
 import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.result.CreateOrderResult;
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 import com.new_cafe.app.backend.order.adapter.in.web.dto.CreateOrderRequestDto;
-import com.new_cafe.app.backend.payment.application.service.PaymentService;
+import com.new_cafe.app.backend.payment.application.port.in.ProcessPaymentUseCase;
 import io.jsonwebtoken.Claims;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +25,16 @@ public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
     private final GetOrderUseCase getOrderUseCase;
     private final JwtService jwtService;
-    private final PaymentService paymentService;
+    private final ProcessPaymentUseCase processPaymentUseCase;
     private final ApplyCouponToOrderService applyCouponToOrderService;
 
     public OrderController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase,
-                          JwtService jwtService, PaymentService paymentService,
+                          JwtService jwtService, ProcessPaymentUseCase processPaymentUseCase,
                           ApplyCouponToOrderService applyCouponToOrderService) {
         this.createOrderUseCase = createOrderUseCase;
         this.getOrderUseCase = getOrderUseCase;
         this.jwtService = jwtService;
-        this.paymentService = paymentService;
+        this.processPaymentUseCase = processPaymentUseCase;
         this.applyCouponToOrderService = applyCouponToOrderService;
     }
 
@@ -156,7 +156,7 @@ public class OrderController {
             @RequestBody(required = false) Map<String, String> body
     ) {
         String method = body != null && body.containsKey("method") ? body.get("method") : "KAKAOPAY";
-        Map<String, Object> result = paymentService.ready(orderId, method);
+        Map<String, Object> result = processPaymentUseCase.ready(orderId, method);
         return ResponseEntity.ok(result);
     }
 
@@ -166,7 +166,7 @@ public class OrderController {
             @RequestBody(required = false) Map<String, String> body
     ) {
         String pgTid = body != null && body.get("pgTid") != null ? body.get("pgTid") : "";
-        paymentService.complete(orderId, pgTid);
+        processPaymentUseCase.complete(orderId, pgTid);
         return ResponseEntity.ok().build();
     }
 }

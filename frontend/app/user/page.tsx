@@ -22,7 +22,7 @@ import { getFavorites, type FavoriteDto } from '@/services/favoriteService';
 import { getMyInquiries, type InquiryDto } from '@/services/inquiryService';
 import { getMyNotifications, markNotificationRead, type NotificationDto } from '@/services/notificationService';
 import PageWithHero from '@/components/PageWithHero/PageWithHero';
-import { StampCard } from '@/components/StampCard';
+import StampCard from './_components/StampCard/StampCard';
 import styles from './page.module.css';
 
 type Tab = 'profile' | 'orders' | 'coupons' | 'favorites' | 'inquiries' | 'notifications';

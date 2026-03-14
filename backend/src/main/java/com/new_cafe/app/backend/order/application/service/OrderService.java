@@ -4,8 +4,8 @@ import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
 import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
 import com.new_cafe.app.backend.order.application.result.CreateOrderResult;
-import com.new_cafe.app.backend.order.domain.model.Order;
-import com.new_cafe.app.backend.order.domain.model.OrderItem;
+import com.new_cafe.app.backend.order.model.Order;
+import com.new_cafe.app.backend.order.model.OrderItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

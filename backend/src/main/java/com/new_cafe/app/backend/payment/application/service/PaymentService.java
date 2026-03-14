@@ -8,10 +8,11 @@ import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampJpaRepository;
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
-import com.new_cafe.app.backend.order.domain.model.Order;
-import com.new_cafe.app.backend.payment.adapter.out.jpa.PaymentEntity;
-import com.new_cafe.app.backend.payment.adapter.out.jpa.PaymentJpaRepository;
+import com.new_cafe.app.backend.order.model.Order;
+import com.new_cafe.app.backend.payment.application.port.in.ProcessPaymentUseCase;
+import com.new_cafe.app.backend.payment.application.port.out.PaymentRepositoryPort;
 import com.new_cafe.app.backend.payment.adapter.out.portone.PortOneClient;
+import com.new_cafe.app.backend.payment.model.Payment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,9 +28,9 @@ import java.util.Optional;
  * 결제 완료 시 회원이면 스탬프 1개 적립, 10개 모이면 아메리카노 무료 쿠폰 발급.
  */
 @Service
-public class PaymentService {
+public class PaymentService implements ProcessPaymentUseCase {
 
-    private final PaymentJpaRepository paymentJpaRepository;
+    private final PaymentRepositoryPort paymentRepository;
     private final GetOrderUseCase getOrderUseCase;
     private final OrderRepositoryPort orderRepositoryPort;
     private final UserStampJpaRepository userStampJpaRepository;
@@ -40,13 +41,13 @@ public class PaymentService {
     @Value("${kakao.pay.redirect-url:}")
     private String kakaoPayRedirectUrl;
 
-    public PaymentService(PaymentJpaRepository paymentJpaRepository, GetOrderUseCase getOrderUseCase,
+    public PaymentService(PaymentRepositoryPort paymentRepository, GetOrderUseCase getOrderUseCase,
                           OrderRepositoryPort orderRepositoryPort,
                           UserStampJpaRepository userStampJpaRepository,
                           UserCouponJpaRepository userCouponJpaRepository,
                           CouponJpaRepository couponJpaRepository,
                           PortOneClient portOneClient) {
-        this.paymentJpaRepository = paymentJpaRepository;
+        this.paymentRepository = paymentRepository;
         this.getOrderUseCase = getOrderUseCase;
         this.orderRepositoryPort = orderRepositoryPort;
         this.userStampJpaRepository = userStampJpaRepository;
@@ -62,14 +63,13 @@ public class PaymentService {
             throw new IllegalArgumentException("주문을 찾을 수 없습니다.");
         }
         Order order = orderOpt.get();
-        PaymentEntity payment = PaymentEntity.builder()
+        Payment payment = paymentRepository.save(Payment.builder()
                 .orderId(orderId)
                 .method(method != null ? method : "PORTONE")
                 .status("PENDING")
                 .amount(order.getTotalAmount())
                 .createdAt(LocalDateTime.now())
-                .build();
-        payment = paymentJpaRepository.save(payment);
+                .build());
         Map<String, Object> result = new HashMap<>();
         result.put("paymentId", payment.getId());
         result.put("orderId", orderId);
@@ -88,11 +88,11 @@ public class PaymentService {
             }
             portOneClient.verifyPayment(pgTid, orderId, getOrderUseCase);
         }
-        paymentJpaRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
+        paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
             p.setStatus("DONE");
             p.setPgTid(pgTid);
             p.setPaidAt(LocalDateTime.now());
-            paymentJpaRepository.save(p);
+            paymentRepository.save(p);
         });
         getOrderUseCase.getById(orderId).ifPresent(order -> {
             order.setStatus("PAID");

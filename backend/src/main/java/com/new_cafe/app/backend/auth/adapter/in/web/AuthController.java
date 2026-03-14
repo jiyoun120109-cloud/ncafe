@@ -128,7 +128,12 @@ public class AuthController {
             );
         }
 
-        Long memberId = Long.parseLong(claims.getSubject());
+        Long memberId = jwtService.getUserIdFromClaims(claims);
+        if (memberId == null) {
+            return ResponseEntity.status(401).body(
+                LoginResponse.failure("로그인이 필요합니다.")
+            );
+        }
         String username = claims.get("username", String.class);
         String role = claims.get("role", String.class);
 

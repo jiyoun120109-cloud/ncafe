@@ -159,7 +159,7 @@ public class AdminNoticeController {
     }
 
     private Long getAuthorId(String authorization) {
-        Claims claims = jwtService.parseToken(authorization);
-        return claims != null ? Long.parseLong(claims.getSubject()) : null;
+        if (authorization == null || !authorization.startsWith("Bearer ")) return null;
+        return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));
     }
 }

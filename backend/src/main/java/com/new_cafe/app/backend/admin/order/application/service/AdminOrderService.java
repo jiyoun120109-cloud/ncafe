@@ -2,7 +2,7 @@ package com.new_cafe.app.backend.admin.order.application.service;
 
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 import com.new_cafe.app.backend.visitor.adapter.out.jpa.VisitorLogJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

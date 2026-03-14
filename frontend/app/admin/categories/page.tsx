@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useUIStore } from '@/stores/uiStore';
-import CategoryManage from '../menus/_components/CategoryManage/CategoryManage';
-import { useAdminCategories } from '../menus/_components/useAdminCategories';
+import CategoryManage from '../_components/CategoryManage/CategoryManage';
+import { useAdminCategories } from '../_components/useAdminCategories';
 import styles from './page.module.css';
 
 export default function AdminCategoriesPage() {

@@ -6,7 +6,7 @@ import { useUIStore } from '@/stores/uiStore';
 import MenuList from './_components/MenuList';
 import MenuToolbar from './_components/MenuToolbar';
 import CategoryTabs from './_components/CategoryTabs';
-import { useAdminCategories } from './_components/useAdminCategories';
+import { useAdminCategories } from '../_components/useAdminCategories';
 import { useMenus } from './_components/MenuList/useMenus';
 import styles from './page.module.css';
 

@@ -37,5 +37,5 @@ ComponentName/
 - **Absolute Paths**: Always use absolute paths for file operations.
 
 ## 6. Development Workflow
-- Follow the plan in `FRONTEND_BLUEPRINT.md`.
-- Check off items in the blueprint checklist when completed.
+- **가이드라인**: 기능 추가·수정 시 `DEVELOPMENT_GUIDELINES.md`를 참고하여 구조·유틸·API·타입 규칙을 지킨다.
+- 계획 문서가 있으면(예: `FRONTEND_BLUEPRINT.md`) 체크리스트를 확인하며 진행한다.

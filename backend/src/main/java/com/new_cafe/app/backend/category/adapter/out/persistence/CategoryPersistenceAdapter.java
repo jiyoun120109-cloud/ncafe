@@ -1,7 +1,7 @@
 package com.new_cafe.app.backend.category.adapter.out.persistence;
 
 import com.new_cafe.app.backend.category.application.port.out.CategoryRepositoryPort;
-import com.new_cafe.app.backend.category.domain.model.Category;
+import com.new_cafe.app.backend.category.model.Category;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryEntity;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryJpaRepository;
 

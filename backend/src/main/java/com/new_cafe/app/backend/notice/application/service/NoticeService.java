@@ -1,8 +1,8 @@
 package com.new_cafe.app.backend.notice.application.service;
 
-import com.new_cafe.app.backend.notice.adapter.out.jpa.NoticeEntity;
-import com.new_cafe.app.backend.notice.adapter.out.jpa.NoticeJpaRepository;
-import org.springframework.data.domain.Sort;
+import com.new_cafe.app.backend.notice.application.port.in.NoticeQueryUseCase;
+import com.new_cafe.app.backend.notice.application.port.out.NoticeRepositoryPort;
+import com.new_cafe.app.backend.notice.model.Notice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,30 +14,33 @@ import java.util.Optional;
  * 관리자 CRUD는 admin.notice.AdminNoticeService 사용.
  */
 @Service
-public class NoticeService {
+public class NoticeService implements NoticeQueryUseCase {
 
-    private final NoticeJpaRepository noticeJpaRepository;
+    private final NoticeRepositoryPort noticeRepository;
 
-    public NoticeService(NoticeJpaRepository noticeJpaRepository) {
-        this.noticeJpaRepository = noticeJpaRepository;
+    public NoticeService(NoticeRepositoryPort noticeRepository) {
+        this.noticeRepository = noticeRepository;
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<NoticeEntity> findAll() {
-        return noticeJpaRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    public List<Notice> findAll() {
+        return noticeRepository.findAllOrderByCreatedAtDesc();
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public Optional<NoticeEntity> findById(Long id) {
-        return noticeJpaRepository.findById(id);
+    public Optional<Notice> findById(Long id) {
+        return noticeRepository.findById(id);
     }
 
+    @Override
     @Transactional
-    public Optional<NoticeEntity> findByIdAndIncrementViewCount(Long id) {
-        Optional<NoticeEntity> opt = noticeJpaRepository.findById(id);
+    public Optional<Notice> findByIdAndIncrementViewCount(Long id) {
+        Optional<Notice> opt = noticeRepository.findById(id);
         opt.ifPresent(n -> {
             n.setViewCount(n.getViewCount() != null ? n.getViewCount() + 1 : 1);
-            noticeJpaRepository.save(n);
+            noticeRepository.save(n);
         });
         return opt;
     }

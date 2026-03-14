@@ -1,7 +1,7 @@
 'use client';
 
 import { useCategories, CategoryResponseDto } from './useCategories';
-import type { AdminCategoryDto } from '../useAdminCategories';
+import type { AdminCategoryDto } from '@/app/admin/_components/useAdminCategories';
 import styles from './CategoryTabs.module.css';
 
 interface CategoryTabsProps {

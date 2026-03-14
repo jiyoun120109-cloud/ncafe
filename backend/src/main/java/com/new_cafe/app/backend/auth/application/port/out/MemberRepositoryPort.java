@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.auth.application.port.out;
 
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

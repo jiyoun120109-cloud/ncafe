@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.auth.application.service;
 
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.auth.application.port.in.LoginUseCase;
 import com.new_cafe.app.backend.auth.application.port.in.SignupUseCase;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;

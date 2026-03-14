@@ -1,39 +1,42 @@
 package com.new_cafe.app.backend.notification.application.service;
 
-import com.new_cafe.app.backend.notification.adapter.out.jpa.NotificationEntity;
-import com.new_cafe.app.backend.notification.adapter.out.jpa.NotificationJpaRepository;
+import com.new_cafe.app.backend.notification.application.port.in.NotificationQueryUseCase;
+import com.new_cafe.app.backend.notification.application.port.out.NotificationRepositoryPort;
+import com.new_cafe.app.backend.notification.model.Notification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class NotificationService {
+public class NotificationService implements NotificationQueryUseCase {
 
-    private final NotificationJpaRepository notificationJpaRepository;
+    private final NotificationRepositoryPort notificationRepository;
 
-    public NotificationService(NotificationJpaRepository notificationJpaRepository) {
-        this.notificationJpaRepository = notificationJpaRepository;
+    public NotificationService(NotificationRepositoryPort notificationRepository) {
+        this.notificationRepository = notificationRepository;
     }
 
+    @Override
     @Transactional(readOnly = true)
-    public List<NotificationEntity> findByUserId(Long userId) {
-        return notificationJpaRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    public List<Notification> findByUserId(Long userId) {
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public long countUnread(Long userId) {
-        return notificationJpaRepository.countByUserIdAndReadAtIsNull(userId);
+        return notificationRepository.countByUserIdAndReadAtIsNull(userId);
     }
 
+    @Override
     @Transactional
     public void markRead(Long userId, Long notificationId) {
-        notificationJpaRepository.findById(notificationId).ifPresent(n -> {
+        notificationRepository.findById(notificationId).ifPresent(n -> {
             if (userId.equals(n.getUserId())) {
                 n.setReadAt(LocalDateTime.now());
-                notificationJpaRepository.save(n);
+                notificationRepository.save(n);
             }
         });
     }

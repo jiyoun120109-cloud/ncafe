@@ -1,7 +1,7 @@
 package com.new_cafe.app.backend.payment.adapter.out.portone;
 
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

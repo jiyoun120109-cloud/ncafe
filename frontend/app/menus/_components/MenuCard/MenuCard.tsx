@@ -6,37 +6,9 @@ import { useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowRight, Heart, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/hooks/useFavorites';
-import AddToCartModal from '@/components/AddToCartModal';
+import AddToCartModal from '../AddToCartModal/AddToCartModal';
+import { menuImageUrl, isValidMenuImageUrl } from '@/utils/menuImageUrl';
 import styles from './MenuCard.module.css';
-
-function isValidImageUrl(url: string | null | undefined): boolean {
-    if (!url?.trim()) return false;
-    if (url.startsWith('http')) {
-        try {
-            const path = new URL(url).pathname;
-            return /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
-        } catch {
-            return false;
-        }
-    }
-    return true;
-}
-
-function imageSrc(url: string | null | undefined): string {
-    if (!url?.trim()) return '/images/missing';
-    if (url.startsWith('http')) {
-        try {
-            const path = new URL(url).pathname;
-            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
-            if (!hasImageExt) return '/images/missing';
-        } catch {
-            return '/images/missing';
-        }
-        return url;
-    }
-    const filename = url.replace(/^.*\//, '').trim();
-    return `/images/${filename || 'missing'}`;
-}
 import type { UserMenuResponse } from '../useUserMenus';
 
 interface MenuCardProps {
@@ -85,8 +57,8 @@ export default function MenuCard({ menu }: MenuCardProps) {
             .catch(() => {});
     };
 
-    const showPlaceholder = !menu.imageSrc || imgError || !isValidImageUrl(menu.imageSrc);
-    const imageSrcUrl = imageSrc(menu.imageSrc);
+    const showPlaceholder = !menu.imageSrc || imgError || !isValidMenuImageUrl(menu.imageSrc);
+    const imageSrcUrl = menuImageUrl(menu.imageSrc);
 
     return (
         <article

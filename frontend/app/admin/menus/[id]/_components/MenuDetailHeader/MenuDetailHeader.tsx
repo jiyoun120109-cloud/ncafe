@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Edit2, Trash2 } from 'lucide-react';
-import DeleteConfirmModal from '@/components/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from '@/app/admin/_components/DeleteConfirmModal/DeleteConfirmModal';
 import styles from './MenuDetailHeader.module.css';
 import { getApiBase } from '@/services/api';
 

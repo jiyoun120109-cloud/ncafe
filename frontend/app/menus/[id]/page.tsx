@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import MenuDetailHeader from './_components/MenuDetailHeader/MenuDetailHeader';
 import MenuDetailImages from './_components/MenuDetailImages/MenuDetailImages';
 import MenuDetailInfo from './_components/MenuDetailInfo/MenuDetailInfo';
 import styles from './page.module.css';
@@ -19,10 +18,7 @@ export default async function UserMenuDetailPage({ params }: PageProps) {
                 <h2 className={styles.pageTitle}>메뉴 상세</h2>
             </div>
             <div className={styles.divider} />
-            <Link href="/menus" className={styles.backBtn}>
-                <ChevronLeft size={14} />
-                <span>목록으로</span>
-            </Link>
+            <MenuDetailHeader />
             <div className={styles.content}>
                 <Suspense fallback={<div className={styles.loading}>이미지 로딩 중...</div>}>
                     <MenuDetailImages menuId={id} />

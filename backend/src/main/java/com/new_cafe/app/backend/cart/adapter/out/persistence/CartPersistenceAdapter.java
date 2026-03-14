@@ -1,8 +1,8 @@
 package com.new_cafe.app.backend.cart.adapter.out.persistence;
 
 import com.new_cafe.app.backend.cart.application.port.out.CartRepositoryPort;
-import com.new_cafe.app.backend.cart.domain.model.Cart;
-import com.new_cafe.app.backend.cart.domain.model.CartItem;
+import com.new_cafe.app.backend.cart.model.Cart;
+import com.new_cafe.app.backend.cart.model.CartItem;
 import com.new_cafe.app.backend.cart.adapter.out.jpa.CartEntity;
 import com.new_cafe.app.backend.cart.adapter.out.jpa.CartItemEntity;
 import com.new_cafe.app.backend.cart.adapter.out.jpa.CartJpaRepository;

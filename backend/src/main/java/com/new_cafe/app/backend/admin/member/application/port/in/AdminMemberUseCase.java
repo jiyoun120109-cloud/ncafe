@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.admin.member.application.port.in;
 
-import com.new_cafe.app.backend.auth.domain.model.Member;
+import com.new_cafe.app.backend.auth.model.Member;
 import org.springframework.data.domain.Page;
 
 import java.util.Optional;

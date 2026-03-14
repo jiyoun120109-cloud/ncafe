@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.menu.model;
 
-import com.new_cafe.app.backend.category.domain.model.Category;
+import com.new_cafe.app.backend.category.model.Category;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

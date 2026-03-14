@@ -2,8 +2,8 @@ package com.new_cafe.app.backend.admin.order.adapter.in.web;
 
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
-import com.new_cafe.app.backend.order.domain.model.Order;
-import com.new_cafe.app.backend.order.domain.model.OrderItem;
+import com.new_cafe.app.backend.order.model.Order;
+import com.new_cafe.app.backend.order.model.OrderItem;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

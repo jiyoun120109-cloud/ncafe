@@ -59,19 +59,7 @@ CREATE TABLE IF NOT EXISTS categories (
     updated_at TIMESTAMP
 );
 
--- 시드 중복 방지: 카테고리/메뉴 시드 초기화 후 재삽입 (커피=1, 라떼=2, 베이커리=6)
-TRUNCATE TABLE menus;
-TRUNCATE TABLE categories RESTART IDENTITY CASCADE;
-
-INSERT INTO categories (name, display_order, created_at, updated_at) VALUES
-('커피', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('라떼', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('스무디', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('에이드', 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('티', 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('베이커리', 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
--- menus 테이블 (없으면 생성) — 관리자/손님 공용
+-- menus 테이블 (없으면 생성) — TRUNCATE 전에 존재해야 하므로 categories 직후에 생성
 CREATE TABLE IF NOT EXISTS menus (
     id BIGSERIAL PRIMARY KEY,
     kor_name VARCHAR(255),
@@ -114,6 +102,18 @@ BEGIN
         ALTER TABLE menus ADD COLUMN view_count INT DEFAULT 0;
     END IF;
 END $$;
+
+-- 시드 중복 방지: 카테고리/메뉴 시드 초기화 후 재삽입 (menus → categories 순으로 TRUNCATE)
+TRUNCATE TABLE menus;
+TRUNCATE TABLE categories RESTART IDENTITY CASCADE;
+
+INSERT INTO categories (name, display_order, created_at, updated_at) VALUES
+('커피', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('라떼', 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('스무디', 3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('에이드', 4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('티', 5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('베이커리', 6, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- 메뉴 삽입 (category_id: 1=커피, 2=라떼, 6=베이커리. 디테일 페이지 옵션(온도/원두/디카페인)은 커피(1)만 적용)
 INSERT INTO menus (kor_name, eng_name, category_id, price, description, is_available, is_sold_out, sort_order, created_at, updated_at) VALUES
@@ -277,7 +277,7 @@ INSERT INTO images (menu_id, src_url, sort_order, created_at) VALUES
 (19, 'chocolate-croissant.png',   1, CURRENT_TIMESTAMP),
 (19, 'chocolate-croissant1.png',  2, CURRENT_TIMESTAMP),
 (19, 'chocolateCroissant.png',    3, CURRENT_TIMESTAMP),
-(19, 'chocolate- croissant1.png', 4, CURRENT_TIMESTAMP),
+(19, 'chocolate-croissant1.png', 4, CURRENT_TIMESTAMP),
 (20, 'chocolate-mousse.png',  1, CURRENT_TIMESTAMP),
 (20, 'chocolate-mousse1.png', 2, CURRENT_TIMESTAMP),
 (20, 'chocolateMousse.png',   3, CURRENT_TIMESTAMP),

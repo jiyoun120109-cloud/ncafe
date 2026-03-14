@@ -1,8 +1,8 @@
 package com.new_cafe.app.backend.order.adapter.out.persistence;
 
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
-import com.new_cafe.app.backend.order.domain.model.Order;
-import com.new_cafe.app.backend.order.domain.model.OrderItem;
+import com.new_cafe.app.backend.order.model.Order;
+import com.new_cafe.app.backend.order.model.OrderItem;
 import com.new_cafe.app.backend.order.adapter.out.jpa.OrderEntity;
 import com.new_cafe.app.backend.order.adapter.out.jpa.OrderItemEntity;
 import com.new_cafe.app.backend.order.adapter.out.jpa.OrderJpaRepository;

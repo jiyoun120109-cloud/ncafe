@@ -1,8 +1,7 @@
 package com.new_cafe.app.backend.notification.adapter.in.web;
 
-import com.new_cafe.app.backend.notification.application.service.NotificationService;
-import com.new_cafe.app.backend.notification.adapter.out.jpa.NotificationEntity;
-import io.jsonwebtoken.Claims;
+import com.new_cafe.app.backend.notification.application.port.in.NotificationQueryUseCase;
+import com.new_cafe.app.backend.notification.model.Notification;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +15,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final NotificationQueryUseCase notificationQueryUseCase;
     private final JwtService jwtService;
 
-    public NotificationController(NotificationService notificationService, JwtService jwtService) {
-        this.notificationService = notificationService;
+    public NotificationController(NotificationQueryUseCase notificationQueryUseCase, JwtService jwtService) {
+        this.notificationQueryUseCase = notificationQueryUseCase;
         this.jwtService = jwtService;
     }
 
@@ -30,7 +29,7 @@ public class NotificationController {
     ) {
         Long userId = getUserId(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
-        List<NotificationEntity> list = notificationService.findByUserId(userId);
+        List<Notification> list = notificationQueryUseCase.findByUserId(userId);
         return ResponseEntity.ok(list.stream().map(this::toMap).collect(Collectors.toList()));
     }
 
@@ -40,7 +39,7 @@ public class NotificationController {
     ) {
         Long userId = getUserId(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
-        long count = notificationService.countUnread(userId);
+        long count = notificationQueryUseCase.countUnread(userId);
         return ResponseEntity.ok(Map.of("count", count));
     }
 
@@ -51,17 +50,16 @@ public class NotificationController {
     ) {
         Long userId = getUserId(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
-        notificationService.markRead(userId, id);
+        notificationQueryUseCase.markRead(userId, id);
         return ResponseEntity.ok().build();
     }
 
     private Long getUserId(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
-        Claims claims = jwtService.parseToken(authorization);
-        return claims == null ? null : Long.parseLong(claims.getSubject());
+        return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));
     }
 
-    private Map<String, Object> toMap(NotificationEntity n) {
+    private Map<String, Object> toMap(Notification n) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", n.getId());
         m.put("type", n.getType());

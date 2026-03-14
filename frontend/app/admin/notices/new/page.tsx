@@ -8,7 +8,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { createAdminNotice } from '@/services/adminNoticeService';
 import styles from '../page.module.css';
 
-const RichEditor = dynamic(() => import('@/components/RichEditor/RichEditor'), {
+const RichEditor = dynamic(() => import('@/app/admin/notices/_components/RichEditor/RichEditor'), {
   ssr: false,
   loading: () => <div style={{ minHeight: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fafaf9', borderRadius: 8, color: '#78716c' }}>에디터 로딩 중...</div>,
 });

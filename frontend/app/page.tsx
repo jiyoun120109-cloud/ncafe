@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { getApiBase } from "@/services/api";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { menuImageUrl } from "@/utils/menuImageUrl";
 import styles from "./page.module.css";
 
 /** 메인 페이지 방문 시 방문자 수 집계용 기록 (세션당 1회) */
@@ -84,6 +85,10 @@ function menuGroup(categoryName: string): "음료" | "빵" | "기타" {
   return "기타";
 }
 
+/**
+ * 메인 쇼케이스용 메뉴 타입.
+ * imageSrc는 메인/메뉴 API 응답 필드명과 일치해야 함. API가 menuImageUrl 등으로 바꾸면 여기와 API 호출부를 함께 수정.
+ */
 interface ShowcaseMenu {
   id: number;
   korName: string;
@@ -92,13 +97,6 @@ interface ShowcaseMenu {
   categoryName: string;
   imageSrc: string;
   badge: (typeof SHOWCASE_BADGES)[number];
-}
-
-function menuImageUrl(imageSrc: string | null | undefined): string {
-  if (!imageSrc?.trim()) return "";
-  if (imageSrc.startsWith("http")) return imageSrc;
-  const filename = imageSrc.replace(/^.*\//, "").trim() || "missing";
-  return `/images/${filename}`;
 }
 
 /** 메뉴 목록에서 음료·빵·기타 각 1개씩 뽑고 배지 부여 */
@@ -174,6 +172,7 @@ export default function Home() {
       .then((res) => res.ok ? res.json() : Promise.resolve({ menus: [] }))
       .then((data: { menus?: Omit<ShowcaseMenu, "badge">[] }) => {
         if (cancelled) return;
+        // API 응답 항목은 ShowcaseMenu와 필드(imageSrc 등) 일치 필요. 필드명 변경 시 ShowcaseMenu 인터페이스와 함께 수정.
         const list = data.menus ?? [];
         setShowcaseMenus(pickShowcaseMenus(list));
       })

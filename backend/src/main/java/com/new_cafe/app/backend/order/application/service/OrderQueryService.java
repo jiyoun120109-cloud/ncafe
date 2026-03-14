@@ -2,7 +2,7 @@ package com.new_cafe.app.backend.order.application.service;
 
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

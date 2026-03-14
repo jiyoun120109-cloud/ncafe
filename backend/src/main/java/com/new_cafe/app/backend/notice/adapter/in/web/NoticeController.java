@@ -1,7 +1,7 @@
 package com.new_cafe.app.backend.notice.adapter.in.web;
 
-import com.new_cafe.app.backend.notice.application.service.NoticeService;
-import com.new_cafe.app.backend.notice.adapter.out.jpa.NoticeEntity;
+import com.new_cafe.app.backend.notice.application.port.in.NoticeQueryUseCase;
+import com.new_cafe.app.backend.notice.model.Notice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,27 +18,27 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/notices")
 public class NoticeController {
 
-    private final NoticeService noticeService;
+    private final NoticeQueryUseCase noticeQueryUseCase;
 
-    public NoticeController(NoticeService noticeService) {
-        this.noticeService = noticeService;
+    public NoticeController(NoticeQueryUseCase noticeQueryUseCase) {
+        this.noticeQueryUseCase = noticeQueryUseCase;
     }
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list() {
-        List<NoticeEntity> list = noticeService.findAll();
+        List<Notice> list = noticeQueryUseCase.findAll();
         List<Map<String, Object>> body = list.stream().map(this::toMap).collect(Collectors.toList());
         return ResponseEntity.ok(body);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(@PathVariable Long id) {
-        return noticeService.findByIdAndIncrementViewCount(id)
+        return noticeQueryUseCase.findByIdAndIncrementViewCount(id)
                 .map(n -> ResponseEntity.ok(toMap(n)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    private Map<String, Object> toMap(NoticeEntity n) {
+    private Map<String, Object> toMap(Notice n) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", n.getId());
         m.put("noticeType", n.getNoticeType());

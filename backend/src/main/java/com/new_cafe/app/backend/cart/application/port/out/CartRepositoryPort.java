@@ -1,7 +1,7 @@
 package com.new_cafe.app.backend.cart.application.port.out;
 
-import com.new_cafe.app.backend.cart.domain.model.Cart;
-import com.new_cafe.app.backend.cart.domain.model.CartItem;
+import com.new_cafe.app.backend.cart.model.Cart;
+import com.new_cafe.app.backend.cart.model.CartItem;
 
 public interface CartRepositoryPort {
     Cart findByGuestSessionId(String guestSessionId);

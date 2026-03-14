@@ -8,7 +8,7 @@ import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuEntity;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,6 +1,6 @@
 package com.new_cafe.app.backend.admin.order.application.port.in;
 
-import com.new_cafe.app.backend.order.domain.model.Order;
+import com.new_cafe.app.backend.order.model.Order;
 
 import java.time.LocalDate;
 import java.util.List;

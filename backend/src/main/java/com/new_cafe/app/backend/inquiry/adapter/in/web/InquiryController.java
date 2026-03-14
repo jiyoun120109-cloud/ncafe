@@ -1,10 +1,8 @@
 package com.new_cafe.app.backend.inquiry.adapter.in.web;
 
-import com.new_cafe.app.backend.inquiry.application.service.InquiryService;
-import com.new_cafe.app.backend.inquiry.adapter.out.jpa.InquiryEntity;
-import com.new_cafe.app.backend.inquiry.adapter.out.jpa.InquiryReplyEntity;
-import com.new_cafe.app.backend.inquiry.adapter.out.jpa.InquiryReplyJpaRepository;
-import io.jsonwebtoken.Claims;
+import com.new_cafe.app.backend.inquiry.application.port.in.InquiryUseCase;
+import com.new_cafe.app.backend.inquiry.model.Inquiry;
+import com.new_cafe.app.backend.inquiry.model.InquiryReply;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +17,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/inquiries")
 public class InquiryController {
 
-    private final InquiryService inquiryService;
+    private final InquiryUseCase inquiryUseCase;
     private final JwtService jwtService;
-    private final InquiryReplyJpaRepository inquiryReplyJpaRepository;
 
-    public InquiryController(InquiryService inquiryService, JwtService jwtService, InquiryReplyJpaRepository inquiryReplyJpaRepository) {
-        this.inquiryService = inquiryService;
+    public InquiryController(InquiryUseCase inquiryUseCase, JwtService jwtService) {
+        this.inquiryUseCase = inquiryUseCase;
         this.jwtService = jwtService;
-        this.inquiryReplyJpaRepository = inquiryReplyJpaRepository;
     }
 
     @GetMapping("/my")
@@ -35,10 +31,10 @@ public class InquiryController {
     ) {
         Long userId = getUserIdOrNull(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
-        List<InquiryEntity> list = inquiryService.findByUserId(userId);
+        List<Inquiry> list = inquiryUseCase.findByUserId(userId);
         return ResponseEntity.ok(list.stream().map(inq -> {
             Map<String, Object> m = inquiryToMap(inq);
-            m.put("hasReply", inquiryReplyJpaRepository.countByInquiry_Id(inq.getId()) > 0);
+            m.put("hasReply", inquiryUseCase.countRepliesByInquiryId(inq.getId()) > 0);
             return m;
         }).collect(Collectors.toList()));
     }
@@ -50,19 +46,18 @@ public class InquiryController {
     ) {
         Long userId = getUserIdOrNull(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
-        Optional<InquiryEntity> opt = inquiryService.findById(id);
+        Optional<Inquiry> opt = inquiryUseCase.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
-        InquiryEntity inquiry = opt.get();
+        Inquiry inquiry = opt.get();
         if (!userId.equals(inquiry.getUserId())) {
             return ResponseEntity.status(403).build();
         }
         Map<String, Object> m = inquiryToMap(inquiry);
-        List<InquiryReplyEntity> replies = inquiryService.getReplies(id);
+        List<InquiryReply> replies = inquiryUseCase.getReplies(id);
         m.put("replies", replies.stream().map(this::replyToMap).collect(Collectors.toList()));
         return ResponseEntity.ok(m);
     }
 
-    /** 사용자 대댓글 추가 (관리자 답변에 대한 댓글) */
     @PostMapping("/{id}/replies")
     public ResponseEntity<Map<String, Object>> addReply(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -76,14 +71,13 @@ public class InquiryController {
         Long parentReplyId = pr != null && !pr.toString().isBlank() ? Long.parseLong(pr.toString()) : null;
         if (content.isBlank() || parentReplyId == null) return ResponseEntity.badRequest().build();
         try {
-            InquiryReplyEntity reply = inquiryService.addUserReply(id, userId, content.trim(), parentReplyId);
+            InquiryReply reply = inquiryUseCase.addUserReply(id, userId, content.trim(), parentReplyId);
             return ResponseEntity.ok(replyToMap(reply));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    /** 사용자 대댓글 수정 */
     @PatchMapping("/replies/{replyId}")
     public ResponseEntity<Map<String, Object>> updateReply(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -95,14 +89,13 @@ public class InquiryController {
         String content = body.get("content") != null ? body.get("content").toString() : "";
         if (content.isBlank()) return ResponseEntity.badRequest().build();
         try {
-            InquiryReplyEntity reply = inquiryService.updateUserReply(replyId, userId, content.trim());
+            InquiryReply reply = inquiryUseCase.updateUserReply(replyId, userId, content.trim());
             return ResponseEntity.ok(replyToMap(reply));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(403).body(null);
         }
     }
 
-    /** 사용자 대댓글 삭제 */
     @DeleteMapping("/replies/{replyId}")
     public ResponseEntity<Void> deleteReply(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -111,7 +104,7 @@ public class InquiryController {
         Long userId = getUserIdOrNull(authorization);
         if (userId == null) return ResponseEntity.status(401).build();
         try {
-            inquiryService.deleteUserReply(replyId, userId);
+            inquiryUseCase.deleteUserReply(replyId, userId);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(403).build();
@@ -129,17 +122,16 @@ public class InquiryController {
         String content = body.get("content") != null ? (String) body.get("content") : "";
         boolean isPrivate = Boolean.TRUE.equals(body.get("isPrivate"));
         if (title == null || title.isBlank()) return ResponseEntity.badRequest().build();
-        InquiryEntity inquiry = inquiryService.create(userId, title, content, isPrivate);
+        Inquiry inquiry = inquiryUseCase.create(userId, title, content, isPrivate);
         return ResponseEntity.ok(inquiryToMap(inquiry));
     }
 
     private Long getUserIdOrNull(String authorization) {
-        Claims claims = jwtService.parseToken(authorization);
-        if (claims == null) return null;
-        return Long.parseLong(claims.getSubject());
+        if (authorization == null || !authorization.startsWith("Bearer ")) return null;
+        return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));
     }
 
-    private Map<String, Object> inquiryToMap(InquiryEntity i) {
+    private Map<String, Object> inquiryToMap(Inquiry i) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", i.getId());
         m.put("userId", i.getUserId());
@@ -151,7 +143,7 @@ public class InquiryController {
         return m;
     }
 
-    private Map<String, Object> replyToMap(InquiryReplyEntity r) {
+    private Map<String, Object> replyToMap(InquiryReply r) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", r.getId());
         m.put("content", r.getContent());

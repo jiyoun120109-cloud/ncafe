@@ -3,39 +3,11 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Edit2, Trash2, GripVertical, AlertTriangle } from 'lucide-react';
-import DeleteConfirmModal from '@/components/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from '@/app/admin/_components/DeleteConfirmModal/DeleteConfirmModal';
+import { menuImageUrl, isValidMenuImageUrl } from '@/utils/menuImageUrl';
 import styles from './MenuCard.module.css';
 import { MenuResponse } from '../MenuList/useMenus';
 import { getApiBase } from '@/services/api';
-
-function isValidImageUrl(url: string | null | undefined): boolean {
-    if (!url?.trim()) return false;
-    if (url.startsWith('http')) {
-        try {
-            const path = new URL(url).pathname;
-            return /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
-        } catch {
-            return false;
-        }
-    }
-    return true;
-}
-
-function imageSrc(url: string | null | undefined): string {
-    if (!url?.trim()) return '/images/missing';
-    if (url.startsWith('http')) {
-        try {
-            const path = new URL(url).pathname;
-            const hasImageExt = /\.(png|jpe?g|gif|webp|svg|ico)(\?|$)/i.test(path);
-            if (!hasImageExt) return '/images/missing';
-        } catch {
-            return '/images/missing';
-        }
-        return url;
-    }
-    const filename = url.replace(/^.*\//, '').trim();
-    return `/images/${filename || 'missing'}`;
-}
 
 interface MenuCardProps {
     menu: MenuResponse;
@@ -109,7 +81,7 @@ function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardProps) {
         }
     };
 
-    const showPlaceholder = !menu.imageSrc || imgError || !isValidImageUrl(menu.imageSrc);
+    const showPlaceholder = !menu.imageSrc || imgError || !isValidMenuImageUrl(menu.imageSrc);
 
     return (
         <div
@@ -132,7 +104,7 @@ function MenuCard({ menu, onUpdated, dragHandleProps }: MenuCardProps) {
                 <div className={styles.imageContainer}>
                     {!showPlaceholder ? (
                         <Image
-                            src={imageSrc(menu.imageSrc)}
+                            src={menuImageUrl(menu.imageSrc)}
                             alt={menu.korName}
                             fill
                             className={styles.image}

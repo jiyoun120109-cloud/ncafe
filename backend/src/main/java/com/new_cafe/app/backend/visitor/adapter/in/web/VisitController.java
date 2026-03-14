@@ -1,31 +1,24 @@
 package com.new_cafe.app.backend.visitor.adapter.in.web;
 
-import com.new_cafe.app.backend.visitor.adapter.out.jpa.VisitorLogEntity;
-import com.new_cafe.app.backend.visitor.adapter.out.jpa.VisitorLogJpaRepository;
+import com.new_cafe.app.backend.visitor.application.port.in.RecordVisitUseCase;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-
 @RestController
 @RequestMapping("/api")
 public class VisitController {
 
-    private final VisitorLogJpaRepository visitorLogJpaRepository;
+    private final RecordVisitUseCase recordVisitUseCase;
 
-    public VisitController(VisitorLogJpaRepository visitorLogJpaRepository) {
-        this.visitorLogJpaRepository = visitorLogJpaRepository;
+    public VisitController(RecordVisitUseCase recordVisitUseCase) {
+        this.recordVisitUseCase = recordVisitUseCase;
     }
 
     @PostMapping("/visit")
     public ResponseEntity<Void> recordVisit() {
-        visitorLogJpaRepository.save(
-            VisitorLogEntity.builder()
-                .visitedAt(LocalDateTime.now())
-                .build()
-        );
+        recordVisitUseCase.recordVisit();
         return ResponseEntity.ok().build();
     }
 }

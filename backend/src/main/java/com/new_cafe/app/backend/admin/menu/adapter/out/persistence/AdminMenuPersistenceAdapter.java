@@ -4,7 +4,7 @@ import com.new_cafe.app.backend.admin.menu.application.port.out.AdminMenuReposit
 import com.new_cafe.app.backend.admin.menu.model.AdminMenu;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuEntity;
 import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
-import com.new_cafe.app.backend.category.domain.model.Category;
+import com.new_cafe.app.backend.category.model.Category;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryEntity;
 import com.new_cafe.app.backend.category.adapter.out.jpa.CategoryJpaRepository;
 
