@@ -85,7 +85,9 @@ public class PaymentService implements ProcessPaymentUseCase {
 
     @Transactional
     public void complete(Long orderId, String pgTid) {
-        if (tossPaymentsClient.isConfigured()) {
+        var existingPayment = paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId);
+        boolean alreadyDone = existingPayment.map(p -> "DONE".equals(p.getStatus())).orElse(false);
+        if (!alreadyDone && tossPaymentsClient.isConfigured()) {
             if (pgTid == null || pgTid.isBlank()) {
                 throw new IllegalArgumentException("결제 키가 없습니다. 토스페이먼츠 결제 후 다시 시도해 주세요.");
             }
@@ -93,7 +95,7 @@ public class PaymentService implements ProcessPaymentUseCase {
         }
         paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
             p.setStatus("DONE");
-            p.setPgTid(pgTid);
+            if (pgTid != null && !pgTid.isBlank()) p.setPgTid(pgTid);
             p.setPaidAt(LocalDateTime.now());
             paymentRepository.save(p);
         });

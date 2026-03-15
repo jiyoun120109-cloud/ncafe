@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useSearchParams } from 'next/navigation';
@@ -55,6 +55,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [completed, setCompleted] = useState(complete);
   const [error, setError] = useState<string | null>(null);
+  const completeRequestSent = useRef(false);
 
   useEffect(() => {
     if (!orderId || isNaN(orderId)) {
@@ -64,8 +65,15 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
     }
     if (fail && failMessage) {
       setError(decodeURIComponent(failMessage));
+      setLoading(false);
+      return;
     }
     if (complete) {
+      if (completeRequestSent.current) {
+        setLoading(false);
+        return;
+      }
+      completeRequestSent.current = true;
       const pgTid = paymentKeyParam || undefined;
       paymentComplete(orderId, pgTid)
         .then(() => {

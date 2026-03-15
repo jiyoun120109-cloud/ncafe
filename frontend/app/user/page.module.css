@@ -642,6 +642,23 @@
   margin-left: auto;
 }
 
+.orderListMore {
+  margin: 0.75rem 0 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(139, 90, 43, 0.08);
+  text-align: center;
+}
+
+.orderListLink {
+  font-size: 0.9rem;
+  color: var(--color-primary-600, #6d4520);
+  text-decoration: none;
+}
+
+.orderListLink:hover {
+  text-decoration: underline;
+}
+
 .stampCard {
   background: linear-gradient(135deg, #fef9e7 0%, #fef3c7 100%);
   border-radius: 10px;

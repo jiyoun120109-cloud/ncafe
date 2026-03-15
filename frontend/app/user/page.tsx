@@ -461,17 +461,22 @@ function UserPageContent() {
               {orders.length === 0 ? (
                 <p className={styles.empty}>주문 내역이 없습니다.</p>
               ) : (
-                <ul className={styles.orderList}>
-                  {orders.map((o) => (
-                    <li key={o.id}>
-                      <Link href={`/user/orders/${o.id}`} className={styles.orderItem}>
-                        <span>주문 #{o.id} · {o.totalAmount.toLocaleString()}원</span>
-                        <span className={styles.orderStatus}>{o.status}</span>
-                        <ChevronRight size={18} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className={styles.orderList}>
+                    {orders.slice(0, 3).map((o) => (
+                      <li key={o.id}>
+                        <Link href={`/user/orders/${o.id}`} className={styles.orderItem}>
+                          <span>주문 #{o.id} · {o.totalAmount.toLocaleString()}원</span>
+                          <span className={styles.orderStatus}>{o.status}</span>
+                          <ChevronRight size={18} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className={styles.orderListMore}>
+                    <Link href="/user/orders" className={styles.orderListLink}>전체 주문 내역 보기 ({orders.length}건)</Link>
+                  </p>
+                </>
               )}
               </div>
             </section>

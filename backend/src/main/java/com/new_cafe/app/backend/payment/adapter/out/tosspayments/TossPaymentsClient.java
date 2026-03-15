@@ -5,6 +5,7 @@ import com.new_cafe.app.backend.order.model.Order;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ import java.util.Optional;
 @Component
 public class TossPaymentsClient {
 
-    private static final String CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
+    private static final String BASE_URL = "https://api.tosspayments.com/v1/payments";
+    private static final String CONFIRM_URL = BASE_URL + "/confirm";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -40,8 +42,37 @@ public class TossPaymentsClient {
     }
 
     /**
+     * GET /v1/payments/{paymentKey} 로 결제 상태 조회. 이미 DONE이면 confirm 생략.
+     */
+    @SuppressWarnings("unchecked")
+    private boolean isPaymentDone(String paymentKey) {
+        if (secretKey == null || secretKey.isBlank() || paymentKey == null || paymentKey.isBlank()) {
+            return false;
+        }
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Basic " + Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8)));
+            HttpEntity<Void> getRequest = new HttpEntity<>(headers);
+            ResponseEntity<Map> res = restTemplate.exchange(
+                    BASE_URL + "/" + paymentKey,
+                    HttpMethod.GET,
+                    getRequest,
+                    Map.class
+            );
+            Map<String, Object> body = res.getBody();
+            if (body == null) return false;
+            Object statusObj = body.get("status");
+            return "DONE".equalsIgnoreCase(statusObj != null ? statusObj.toString() : "");
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * paymentKey로 결제 승인 요청 후 금액·주문 일치 여부 검증.
-     * secretKey가 비어 있으면 검증 생략.
+     * - 결제 상태가 이미 DONE이면 confirm 생략.
+     * - ALREADY_PROCESSED_PAYMENT / ALREADY_PROCESSING_REQUEST(400) → 성공으로 간주.
+     * - 429 Too Many Requests → 사용자 안내 메시지로 변환.
      */
     @SuppressWarnings("unchecked")
     public void verifyAndConfirm(String paymentKey, Long orderId, GetOrderUseCase getOrderUseCase) {
@@ -50,6 +81,9 @@ public class TossPaymentsClient {
         }
         if (paymentKey == null || paymentKey.isBlank()) {
             throw new IllegalArgumentException("결제 키가 없습니다. 토스페이먼츠 결제 후 다시 시도해 주세요.");
+        }
+        if (isPaymentDone(paymentKey)) {
+            return;
         }
         Optional<Order> orderOpt = getOrderUseCase.getById(orderId);
         if (orderOpt.isEmpty()) {
@@ -87,11 +121,15 @@ public class TossPaymentsClient {
                 throw new IllegalStateException("결제 금액이 일치하지 않습니다. expected=" + expectedAmount + ", actual=" + actualAmount);
             }
         } catch (HttpStatusCodeException e) {
-            if (e.getStatusCode().value() == 400) {
-                String responseBody = e.getResponseBodyAsString();
-                if (responseBody != null && responseBody.contains("ALREADY_PROCESSED_PAYMENT")) {
+            int code = e.getStatusCode().value();
+            String responseBody = e.getResponseBodyAsString();
+            if (code == 400 && responseBody != null) {
+                if (responseBody.contains("ALREADY_PROCESSED_PAYMENT") || responseBody.contains("ALREADY_PROCESSING_REQUEST")) {
                     return;
                 }
+            }
+            if (code == 429) {
+                throw new IllegalStateException("요청이 많습니다. 잠시 후 다시 시도해 주세요.");
             }
             throw e;
         }

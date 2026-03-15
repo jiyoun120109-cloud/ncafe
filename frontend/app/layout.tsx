@@ -27,6 +27,10 @@ export const metadata: Metadata = {
   title: "NCafe · 커피 한 잔에 담은 따뜻한 이야기",
   description:
     "스페셜티 원두로 정성껏 내린 커피와 신선한 브런치. NCafe에서 당신만의 특별한 시간을 보내세요.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
