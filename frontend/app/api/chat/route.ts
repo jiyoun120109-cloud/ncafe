@@ -215,7 +215,7 @@ function detectTools(userMessage: string): ChatTool[] {
     /\b즐겨찾기\s*(페이지?로?\s*)?(이동|가줘|보여줘|열어)/i.test(t) ||
     /^(즐겨찾기|찜)\s*$/i.test(t)
   ) {
-    tools.push({ name: 'navigate_to_page', args: { path: '/favorites', label: '즐겨찾기' } });
+    tools.push({ name: 'navigate_to_page', args: { path: '/user?tab=favorites', label: '즐겨찾기' } });
   }
 
   // 12) 로그인

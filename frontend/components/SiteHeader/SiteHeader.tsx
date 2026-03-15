@@ -17,7 +17,6 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [myPageOpen, setMyPageOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { totalQuantity } = useCart();
@@ -55,9 +54,13 @@ export default function SiteHeader() {
   useEffect(() => {
     setMobileOpen(false);
     setInfoOpen(false);
-    setMenuOpen(false);
     setMyPageOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (isMobile && mobileOpen) setMyPageOpen(true);
+    if (!mobileOpen) setMyPageOpen(false);
+  }, [isMobile, mobileOpen]);
 
   const closeMobile = () => setMobileOpen(false);
   const useLightStyle = scrolled || isLightPage;
@@ -141,50 +144,24 @@ export default function SiteHeader() {
               </div>
             </div>
 
-            <div
-              className={`${styles.infoWrap} ${menuOpen ? styles.infoWrapOpen : ''}`}
-              onMouseEnter={() => !mobileOpen && setMenuOpen(true)}
-              onMouseLeave={() => setMenuOpen(false)}
-            >
-              <button
-                type="button"
-                className={linkClass(isMenus)}
-                onClick={() => setMenuOpen((o) => !o)}
-                aria-expanded={menuOpen}
-                aria-haspopup="true"
-              >
-                Menu
-                <ChevronDown size={14} className={styles.infoChevron} />
-              </button>
-              <div className={`${styles.infoDropdown} ${menuOpen ? styles.infoDropdownOpen : ''}`}>
-                <Link href="/menus?category=커피" className={styles.infoItem} onClick={closeMobile}>
-                  커피
-                </Link>
-                <Link href="/menus?category=음료" className={styles.infoItem} onClick={closeMobile}>
-                  음료
-                </Link>
-                <Link href="/menus?category=베이커리" className={styles.infoItem} onClick={closeMobile}>
-                  베이커리
-                </Link>
-              </div>
-            </div>
+            <Link href="/menus" className={linkClass(isMenus)} onClick={closeMobile}>
+              Menu
+            </Link>
 
             <div
               className={`${styles.infoWrap} ${myPageOpen ? styles.infoWrapOpen : ''}`}
               onMouseEnter={() => !mobileOpen && setMyPageOpen(true)}
               onMouseLeave={() => setMyPageOpen(false)}
             >
-              <button
-                type="button"
-                className={linkClass(pathname === '/user')}
-                onClick={() => setMyPageOpen((o) => !o)}
-                aria-expanded={myPageOpen}
-                aria-haspopup="true"
+              <Link
+                href="/user"
+                className={linkClass(pathname === '/user' || pathname.startsWith('/user'))}
+                onClick={closeMobile}
               >
                 <User size={18} />
                 마이페이지
                 <ChevronDown size={14} className={styles.infoChevron} />
-              </button>
+              </Link>
               <div className={`${styles.infoDropdown} ${myPageOpen ? styles.infoDropdownOpen : ''}`}>
                 <Link href="/user?tab=profile" className={styles.infoItem} onClick={closeMobile}>
                   <User size={16} />
@@ -194,7 +171,7 @@ export default function SiteHeader() {
                   <Package size={16} />
                   주문내역
                 </Link>
-                <Link href="/favorites" className={styles.infoItem} onClick={closeMobile}>
+                <Link href="/user?tab=favorites" className={styles.infoItem} onClick={closeMobile}>
                   <Heart size={16} />
                   찜
                 </Link>
