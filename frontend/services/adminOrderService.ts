@@ -35,6 +35,8 @@ export interface AdminOrderDetailDto {
   orderNumber: string | null;
   userId: number | null;
   userName?: string | null;
+  userEmail?: string | null;
+  userPhone?: string | null;
   guestEmail: string | null;
   guestPhone: string | null;
   status: string;
@@ -86,9 +88,10 @@ export function getOrderStatusLabel(status: string): string {
 export async function fetchAdminOrders(
   page: number = 0,
   size: number = 10,
-  options?: { status?: string; fromDate?: string; toDate?: string }
+  options?: { search?: string; status?: string; fromDate?: string; toDate?: string }
 ): Promise<AdminOrderListResponse> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
+  if (options?.search?.trim()) params.set('search', options.search.trim());
   if (options?.status?.trim()) params.set('status', options.status.trim());
   if (options?.fromDate) params.set('fromDate', options.fromDate);
   if (options?.toDate) params.set('toDate', options.toDate);

@@ -38,13 +38,14 @@ public class AdminOrderController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
         var pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        var orderPage = adminOrderUseCase.getOrderList(pageable, status, fromDate, toDate);
+        var orderPage = adminOrderUseCase.getOrderList(pageable, search, status, fromDate, toDate);
         List<Map<String, Object>> content = orderPage.getContent().stream()
                 .map(this::orderToListMap)
                 .collect(Collectors.toList());
@@ -196,7 +197,11 @@ public class AdminOrderController {
         Map<String, Object> m = orderToMap(order);
         if (order.getUserId() != null) {
             memberRepositoryPort.findById(order.getUserId())
-                    .ifPresent(member -> m.put("userName", member.getUsername()));
+                    .ifPresent(member -> {
+                        m.put("userName", member.getUsername());
+                        m.put("userEmail", member.getEmail());
+                        m.put("userPhone", member.getPhone());
+                    });
         }
         return m;
     }

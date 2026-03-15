@@ -85,27 +85,30 @@ export default function AdminNoticeEditPage() {
   if (!mounted) {
     return (
       <div className={styles.page}>
+        <div className={styles.narrowPageWrap}>
+          <div className={styles.pageHeader}>
+            <p className={styles.pageLabel}>Notice</p>
+            <h2 className={styles.pageTitle}>공지 수정</h2>
+          </div>
+          <div className={styles.divider} />
+          <p className={styles.loading}>페이지 로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) return <div className={styles.page}><div className={styles.narrowPageWrap}><p className={styles.loading}>불러오는 중...</p></div></div>;
+
+  return (
+    <div className={styles.page}>
+      <div className={styles.narrowPageWrap}>
         <div className={styles.pageHeader}>
           <p className={styles.pageLabel}>Notice</p>
           <h2 className={styles.pageTitle}>공지 수정</h2>
         </div>
         <div className={styles.divider} />
-        <p className={styles.loading}>페이지 로딩 중...</p>
-      </div>
-    );
-  }
 
-  if (loading) return <div className={styles.page}><p className={styles.loading}>불러오는 중...</p></div>;
-
-  return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <p className={styles.pageLabel}>Notice</p>
-        <h2 className={styles.pageTitle}>공지 수정</h2>
-      </div>
-      <div className={styles.divider} />
-
-      <section className={styles.card}>
+        <section className={styles.card}>
         <h3 className={styles.cardTitle}>공지 수정</h3>
         <form onSubmit={handleSubmit} className={styles.form}>
         <label className={styles.formLabel}>
@@ -181,7 +184,8 @@ export default function AdminNoticeEditPage() {
           </div>
         )}
         </form>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

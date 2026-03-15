@@ -21,6 +21,9 @@ public interface OrderRepositoryPort {
     Page<Order> findByCreatedAtBetweenOrderByCreatedAtDesc(
             LocalDateTime from, LocalDateTime to, Pageable pageable);
 
+    /** Admin list with optional search (orderNumber, guestEmail, guestPhone), status, date range */
+    Page<Order> findOrdersForAdmin(String search, String status, LocalDateTime from, LocalDateTime to, Pageable pageable);
+
     long countByStatus(String status);
     long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
     long countByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to);

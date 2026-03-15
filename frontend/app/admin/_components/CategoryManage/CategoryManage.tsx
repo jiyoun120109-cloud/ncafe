@@ -17,6 +17,8 @@ function getIconSrc(icon: string): string {
     return t.startsWith('/') ? base + t : base + '/' + t;
 }
 
+const EMOJI_QUICK = ['☕', '🍵', '🥤', '🍰', '🥐', '🍩', '🥪', '🍪'];
+
 interface CategoryManageProps {
     categories: AdminCategoryDto[];
     loading: boolean;
@@ -283,6 +285,20 @@ export default function CategoryManage({
                                         </button>
                                     </div>
                                 )}
+                                <div className={styles.emojiQuickRow}>
+                                    {EMOJI_QUICK.map((emoji) => (
+                                        <button
+                                            key={emoji}
+                                            type="button"
+                                            className={styles.emojiQuickBtn}
+                                            onClick={() => setAddIcon((prev) => prev + emoji)}
+                                            disabled={submitting}
+                                            title={`${emoji} 넣기`}
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
                                 <input
                                     type="text"
                                     className={styles.input}
@@ -356,6 +372,20 @@ export default function CategoryManage({
                                         </button>
                                     </div>
                                 )}
+                                <div className={styles.emojiQuickRow}>
+                                    {EMOJI_QUICK.map((emoji) => (
+                                        <button
+                                            key={emoji}
+                                            type="button"
+                                            className={styles.emojiQuickBtn}
+                                            onClick={() => setEditIcon((prev) => prev + emoji)}
+                                            disabled={submitting}
+                                            title={`${emoji} 넣기`}
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
                                 <input
                                     type="text"
                                     className={styles.input}

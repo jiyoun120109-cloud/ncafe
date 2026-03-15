@@ -165,11 +165,19 @@ export default function AdminOrderDetailPage() {
             </div>
             <div className={styles.infoRow}>
               <dt>이메일</dt>
-              <dd>{order.guestEmail || '—'}</dd>
+              <dd>
+                {order.userId != null
+                  ? (order.userEmail ?? order.guestEmail ?? '—')
+                  : (order.guestEmail ?? '—')}
+              </dd>
             </div>
             <div className={styles.infoRow}>
               <dt>연락처</dt>
-              <dd>{order.guestPhone || '—'}</dd>
+              <dd>
+                {order.userId != null
+                  ? (order.userPhone ?? order.guestPhone ?? '—')
+                  : (order.guestPhone ?? '—')}
+              </dd>
             </div>
             <div className={styles.infoRow}>
               <dt>주문일시</dt>
@@ -277,7 +285,7 @@ export default function AdminOrderDetailPage() {
                   </select>
                 </div>
                 {error && <p className={styles.error}>{error}</p>}
-                <div className={styles.actions}>
+                <div className={`${styles.actions} ${styles.actionsRight}`}>
                   <button
                     type="submit"
                     className={styles.submitBtn}

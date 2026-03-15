@@ -1,6 +1,8 @@
 .page {
-  width: 100%;
-  max-width: none;
+  width: 66.666%;
+  max-width: 66.666%;
+  margin-left: auto;
+  margin-right: auto;
   padding: 0 1rem;
   display: flex;
   flex-direction: column;

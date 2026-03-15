@@ -46,6 +46,8 @@ export default function AdminOrdersPage() {
   const [data, setData] = useState<AdminOrderListResponse | null>(null);
   const [summary, setSummary] = useState<AdminOrderListSummary | null>(null);
   const [page, setPage] = useState(0);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -55,12 +57,13 @@ export default function AdminOrdersPage() {
 
   const size = 10;
 
-  const hasFilter = Boolean(status || fromDate || toDate);
+  const hasFilter = Boolean(search || status || fromDate || toDate);
 
   const load = useCallback(() => {
     let cancelled = false;
     setLoading(true);
     fetchAdminOrders(page, size, {
+      search: search || undefined,
       status: status || undefined,
       fromDate: fromDate || undefined,
       toDate: toDate || undefined,
@@ -77,7 +80,7 @@ export default function AdminOrdersPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, status, fromDate, toDate]);
+  }, [page, search, status, fromDate, toDate]);
 
   const loadSummary = useCallback(() => {
     if (!hasFilter) {
@@ -109,12 +112,13 @@ export default function AdminOrdersPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setSearch(searchInput.trim());
     setPage(0);
-    load();
-    loadSummary();
   };
 
   const handleReset = () => {
+    setSearchInput('');
+    setSearch('');
     setStatus('');
     setFromDate('');
     setToDate('');
@@ -150,6 +154,19 @@ export default function AdminOrdersPage() {
       <section className={styles.card}>
         <h3 className={styles.cardTitle}>검색 조건</h3>
         <form onSubmit={handleSearch} className={styles.filterForm}>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel} htmlFor="order-search">
+              검색어
+            </label>
+            <input
+              id="order-search"
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="주문번호 / 이메일 / 연락처 검색"
+              className={styles.searchInput}
+            />
+          </div>
           <div className={styles.filterGroup}>
             <label className={styles.filterLabel} htmlFor="order-status">
               주문 상태
@@ -236,7 +253,7 @@ export default function AdminOrdersPage() {
                     <th className={styles.th}>상태</th>
                     <th className={styles.th}>금액</th>
                     <th className={styles.th}>주문일시</th>
-                    <th className={styles.th}>관리</th>
+                    <th className={`${styles.th} ${styles.thActions}`}>관리</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -261,7 +278,7 @@ export default function AdminOrdersPage() {
                       <td className={`${styles.td} ${styles.dateCell}`}>
                         {formatDate(o.createdAt)}
                       </td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.tdActions}`}>
                         <div className={styles.actions}>
                           <Link href={`/admin/orders/${o.id}`} className={styles.actionBtn}>
                             상세

@@ -144,10 +144,8 @@ export default function AdminNoticesListPage() {
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="제목·내용 검색"
                 className={styles.searchInput}
+                aria-label="제목·내용 검색"
               />
-              <button type="submit" className={styles.searchBtn}>
-                검색
-              </button>
             </form>
             {someSelected && (
               <button

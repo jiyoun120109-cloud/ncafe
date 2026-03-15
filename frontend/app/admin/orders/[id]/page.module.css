@@ -210,6 +210,10 @@
   margin-top: 1rem;
 }
 
+.actionsRight {
+  justify-content: flex-end;
+}
+
 .submitBtn {
   padding: 0.6rem 1.25rem;
   font-size: 0.875rem;

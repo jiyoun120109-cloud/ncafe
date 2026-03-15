@@ -67,8 +67,9 @@
 
 .searchForm {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
 }
 
 .searchInput {
@@ -76,23 +77,9 @@
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
-  min-width: 180px;
+  width: 100%;
+  min-width: 280px;
   background: #fff;
-}
-
-.searchBtn {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #fff;
-  background: var(--color-primary-600, #8b5a2b);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.searchBtn:hover {
-  background: var(--color-primary-700, #6d4520);
 }
 
 .toolbarActions {
@@ -154,6 +141,16 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 공지 상세/수정 페이지 2/3 너비 가운데 정렬용 */
+.narrowPageWrap {
+  width: 66.666%;
+  max-width: 66.666%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sectionTitle {

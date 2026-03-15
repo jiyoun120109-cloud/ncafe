@@ -76,6 +76,38 @@
   cursor: not-allowed;
 }
 
+.emojiQuickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.emojiQuickBtn {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.emojiQuickBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.emojiQuickBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .input {
   width: 100%;
   max-width: 100%;
@@ -203,6 +235,7 @@
   white-space: nowrap;
   font-size: 0.8125rem;
   color: rgba(0, 0, 0, 0.6);
+  text-align: left;
 }
 
 .nameCell {

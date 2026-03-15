@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface AdminOrderUseCase {
 
-    Page<Order> getOrderList(Pageable pageable, String status, LocalDate fromDate, LocalDate toDate);
+    Page<Order> getOrderList(Pageable pageable, String search, String status, LocalDate fromDate, LocalDate toDate);
 
     /**
      * 목록과 동일한 조건으로 필터 적용 시 총 주문 건수·총 매출

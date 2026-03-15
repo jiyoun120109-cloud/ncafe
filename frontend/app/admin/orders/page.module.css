@@ -51,7 +51,7 @@
 
 .filterForm {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: 1.4fr auto auto auto;
   gap: 1rem 1.5rem;
   align-items: end;
 }
@@ -67,6 +67,17 @@
   font-weight: 600;
   color: rgba(0, 0, 0, 0.55);
   letter-spacing: 0.02em;
+}
+
+.searchInput {
+  min-width: 0;
+  width: 100%;
+  max-width: 420px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
 }
 
 .filterSelect {
@@ -231,6 +242,21 @@
 
 .amountCell {
   font-variant-numeric: tabular-nums;
+}
+
+.thActions {
+  text-align: center;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.tdActions {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tdActions .actions {
+  justify-content: center;
 }
 
 .statusBadge {

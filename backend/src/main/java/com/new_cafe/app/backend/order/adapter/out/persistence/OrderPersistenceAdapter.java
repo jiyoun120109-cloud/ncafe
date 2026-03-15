@@ -9,9 +9,11 @@ import com.new_cafe.app.backend.order.adapter.out.jpa.OrderJpaRepository;
 import com.new_cafe.app.backend.order.adapter.out.jpa.OrderItemJpaRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -133,6 +135,33 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     public Page<Order> findByCreatedAtBetweenOrderByCreatedAtDesc(
             LocalDateTime from, LocalDateTime to, Pageable pageable) {
         return orderJpaRepository.findByCreatedAtBetweenOrderByCreatedAtDesc(from, to, pageable).map(this::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Order> findOrdersForAdmin(String search, String status, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+        Specification<OrderEntity> spec = (root, query, cb) -> {
+            var predicates = new java.util.ArrayList<Predicate>();
+            if (search != null && !search.isBlank()) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(cb.coalesce(root.get("orderNumber"), "")), pattern),
+                    cb.like(cb.lower(cb.coalesce(root.get("guestEmail"), "")), pattern),
+                    cb.like(cb.lower(cb.coalesce(root.get("guestPhone"), "")), pattern)
+                ));
+            }
+            if (status != null && !status.isBlank()) {
+                predicates.add(cb.equal(root.get("status"), status.trim()));
+            }
+            if (from != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
+            }
+            if (to != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        return orderJpaRepository.findAll(spec, pageable).map(this::toDomain);
     }
 
     @Override

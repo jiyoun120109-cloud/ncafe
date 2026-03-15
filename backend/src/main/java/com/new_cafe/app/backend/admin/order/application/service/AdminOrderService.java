@@ -42,10 +42,13 @@ public class AdminOrderService implements AdminOrderUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Order> getOrderList(Pageable pageable, String status, LocalDate fromDate, LocalDate toDate) {
+    public Page<Order> getOrderList(Pageable pageable, String search, String status, LocalDate fromDate, LocalDate toDate) {
         LocalDateTime from = fromDate != null ? fromDate.atStartOfDay() : null;
         LocalDateTime to = toDate != null ? toDate.atTime(LocalTime.MAX) : null;
 
+        if (search != null && !search.isBlank()) {
+            return orderRepositoryPort.findOrdersForAdmin(search, status, from, to, pageable);
+        }
         if (status != null && !status.isBlank()) {
             if (from != null && to != null) {
                 return orderRepositoryPort.findByStatusAndCreatedAtBetweenOrderByCreatedAtDesc(status, from, to, pageable);
