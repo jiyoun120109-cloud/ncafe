@@ -25,6 +25,7 @@ public interface OrderRepositoryPort {
     Page<Order> findOrdersForAdmin(String search, String status, LocalDateTime from, LocalDateTime to, Pageable pageable);
 
     long countByStatus(String status);
+    long sumTotalAmountByStatus(String status);
     long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
     long countByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to);
     long sumTotalAmountByCreatedAtBetween(LocalDateTime from, LocalDateTime to);

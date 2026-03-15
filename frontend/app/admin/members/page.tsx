@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useUIStore } from '@/stores/uiStore';
 import {
   fetchAdminMembers,
+  fetchAdminMemberRoleCounts,
   deleteAdminMember,
   type AdminMemberListResponse,
 } from '@/services/adminMemberService';
@@ -37,8 +38,11 @@ export default function AdminMembersListPage() {
   const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [roleCounts, setRoleCounts] = useState<Record<string, number> | null>(null);
+  const [roleCountsLoading, setRoleCountsLoading] = useState(false);
 
   const size = 20;
+  const hasFilter = Boolean(search || statusFilter || roleFilter || fromDate || toDate);
 
   useEffect(() => {
     setTitle('회원 관리');
@@ -70,6 +74,28 @@ export default function AdminMembersListPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const loadRoleCounts = useCallback(() => {
+    if (!hasFilter) {
+      setRoleCounts(null);
+      return;
+    }
+    setRoleCountsLoading(true);
+    fetchAdminMemberRoleCounts({
+      search: search || undefined,
+      status: statusFilter || undefined,
+      role: roleFilter || undefined,
+      fromDate: fromDate || undefined,
+      toDate: toDate || undefined,
+    })
+      .then(setRoleCounts)
+      .catch(() => setRoleCounts(null))
+      .finally(() => setRoleCountsLoading(false));
+  }, [hasFilter, search, statusFilter, roleFilter, fromDate, toDate]);
+
+  useEffect(() => {
+    loadRoleCounts();
+  }, [loadRoleCounts]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,6 +216,7 @@ export default function AdminMembersListPage() {
                 setFromDate('');
                 setToDate('');
                 setPage(0);
+                setRoleCounts(null);
               }}
             >
               초기화
@@ -197,6 +224,27 @@ export default function AdminMembersListPage() {
           </div>
         </form>
       </section>
+
+      {hasFilter && (
+        <section className={styles.summaryCard}>
+          <h3 className={styles.summaryTitle}>역할별 회원수</h3>
+          {roleCountsLoading ? (
+            <p className={styles.summaryLoading}>집계 중…</p>
+          ) : roleCounts != null && Object.keys(roleCounts).length > 0 ? (
+            <div className={styles.summaryRow}>
+              {Object.entries(roleCounts)
+                .sort(([a], [b]) => (ROLE_LABELS[a] ?? a).localeCompare(ROLE_LABELS[b] ?? b))
+                .map(([roleKey, count]) => (
+                  <span key={roleKey} className={styles.summaryItem}>
+                    <strong>{ROLE_LABELS[roleKey] ?? roleKey}</strong> {count.toLocaleString()}명
+                  </span>
+                ))}
+            </div>
+          ) : roleCounts != null ? (
+            <p className={styles.summaryEmpty}>해당 조건의 회원이 없습니다.</p>
+          ) : null}
+        </section>
+      )}
 
       <section>
         <h3 className={styles.sectionTitle}>회원 목록</h3>

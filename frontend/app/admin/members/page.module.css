@@ -154,6 +154,48 @@
   color: #1c1917;
 }
 
+.summaryCard {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+.summaryTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 0.5rem 0;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.summaryItem {
+  font-size: 0.875rem;
+  color: #1c1917;
+}
+
+.summaryItem strong {
+  margin-right: 0.35rem;
+}
+
+.summaryLoading {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
+.summaryEmpty {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
 /* 목록 섹션 */
 .sectionTitle {
   font-size: 0.875rem;

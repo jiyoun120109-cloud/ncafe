@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,6 +56,18 @@ public class AdminMemberService implements AdminMemberUseCase {
             fromDate,
             toDate,
             pageable
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Long> getMemberRoleCounts(String search, String status, String role, LocalDate fromDate, LocalDate toDate) {
+        return memberRepositoryPort.countByRoleWithFilter(
+            search != null ? search.trim() : null,
+            status != null && !status.trim().isEmpty() ? status.trim().toUpperCase() : null,
+            role != null && !role.trim().isEmpty() ? role.trim().toUpperCase() : null,
+            fromDate,
+            toDate
         );
     }
 

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -24,6 +25,20 @@ public class AdminMemberController {
     public AdminMemberController(AdminMemberUseCase adminMemberUseCase, JwtService jwtService) {
         this.adminMemberUseCase = adminMemberUseCase;
         this.jwtService = jwtService;
+    }
+
+    @GetMapping("/stats/role-counts")
+    public ResponseEntity<Map<String, Long>> roleCounts(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String role,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        Map<String, Long> counts = adminMemberUseCase.getMemberRoleCounts(search, status, role, fromDate, toDate);
+        return ResponseEntity.ok(counts);
     }
 
     @GetMapping

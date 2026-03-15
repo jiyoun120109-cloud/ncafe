@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Minus, Plus, Trash2, CreditCard } from 'lucide-react';
@@ -11,10 +11,20 @@ import { menuImageUrl } from '@/utils/menuImageUrl';
 import styles from './page.module.css';
 import type { CartItemDto } from '@/services/cartService';
 
+const LAST_MENUS_PATH_KEY = 'ncafe_last_menus_path';
+
 export default function CartPage() {
     const { items, totalQuantity, loading, updateQuantity, updateItemOptions, removeItem } = useCart();
     const [clearing, setClearing] = useState(false);
     const [optionModalItem, setOptionModalItem] = useState<CartItemDto | null>(null);
+    const [menusHref, setMenusHref] = useState('/menus');
+
+    useEffect(() => {
+        try {
+            const saved = sessionStorage.getItem(LAST_MENUS_PATH_KEY);
+            if (saved && saved.startsWith('/menus')) setMenusHref(saved);
+        } catch (_) {}
+    }, []);
 
     const totalPrice = items.reduce(
         (sum, it) => sum + (it.menuPrice + (it.optionExtraPrice ?? 0)) * it.quantity,
@@ -50,7 +60,7 @@ export default function CartPage() {
                     <ShoppingCart size={48} className={styles.emptyIcon} />
                     <p>장바구니가 비어 있습니다</p>
                     <p className={styles.emptySub}>원하는 메뉴를 담아보세요.</p>
-                    <Link href="/menus" className={styles.emptyCta}>
+                    <Link href={menusHref} className={styles.emptyCta}>
                         메뉴 보러 가기
                     </Link>
                 </div>
@@ -188,7 +198,7 @@ export default function CartPage() {
                     </div>
 
                     <div className={styles.footer}>
-                        <Link href="/menus" className={styles.continueLink}>
+                        <Link href={menusHref} className={styles.continueLink}>
                             쇼핑 계속하기
                         </Link>
                         <Link href="/order" className={styles.orderBtn} aria-label="주문하기">

@@ -5,6 +5,7 @@ import com.new_cafe.app.backend.auth.model.Member;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -16,6 +17,11 @@ public interface AdminMemberUseCase {
      * 회원 목록 조회 (페이징, 검색, 상태/역할/가입일 필터)
      */
     Page<Member> getMemberList(int page, int size, String search, String status, String role, LocalDate fromDate, LocalDate toDate);
+
+    /**
+     * 동일한 필터 조건으로 역할별 회원 수 집계 (필터 적용 시 표시용)
+     */
+    Map<String, Long> getMemberRoleCounts(String search, String status, String role, LocalDate fromDate, LocalDate toDate);
 
     /**
      * 회원 상세 조회

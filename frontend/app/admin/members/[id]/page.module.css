@@ -139,11 +139,15 @@
 
 .roleLabel {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.roleLabel span {
+  display: block;
 }
 
 .roleSelect {
@@ -152,7 +156,9 @@
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   background: #fff;
-  min-width: 140px;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
 }
 
 .saveBtn {
@@ -191,12 +197,16 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: center;
+  max-width: 100%;
 }
 
 .formRow {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  width: 100%;
+  max-width: 480px;
 }
 
 .label {
@@ -215,7 +225,19 @@
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
-  max-width: 320px;
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+}
+
+.formCardActions {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .buttonRow {
@@ -262,8 +284,26 @@
   cursor: not-allowed;
 }
 
+.activityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .activityGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .activityBlock {
   margin-bottom: 1.5rem;
+  min-width: 0;
+}
+
+.activityGrid .activityBlock {
+  margin-bottom: 0;
 }
 
 .activityBlock:last-child {
@@ -286,6 +326,8 @@
 
 .miniTable {
   width: 100%;
+  min-width: 200px;
+  max-width: 100%;
   border-collapse: collapse;
   font-size: 0.8rem;
 }

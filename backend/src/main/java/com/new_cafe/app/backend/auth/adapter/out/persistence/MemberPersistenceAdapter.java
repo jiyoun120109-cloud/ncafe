@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -111,6 +112,17 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
             page.getContent().stream().map(this::toDomain).collect(Collectors.toList()),
             page.getPageable(),
             page.getTotalElements()
+        );
+    }
+
+    @Override
+    public Map<String, Long> countByRoleWithFilter(String search, String status, String role, LocalDate fromDate, LocalDate toDate) {
+        return userJpaRepository.countByRoleWithFilter(
+            search != null ? search.trim() : null,
+            status != null && !status.trim().isEmpty() ? status.trim().toUpperCase() : null,
+            role != null && !role.trim().isEmpty() ? role.trim().toUpperCase() : null,
+            fromDate,
+            toDate
         );
     }
 

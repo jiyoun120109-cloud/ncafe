@@ -6,6 +6,20 @@ import { useParams } from 'next/navigation';
 import { getApiBase } from '@/services/api';
 import styles from './page.module.css';
 
+/** 문의 작성 시 선택하는 유형과 동일한 라벨 */
+const INQUIRY_TYPE_LABELS: Record<string, string> = {
+  GENERAL: '일반 문의',
+  MENU: '메뉴/제품',
+  ORDER: '주문/결제',
+  STORE: '매장 이용',
+  ETC: '기타',
+};
+
+function getInquiryTypeLabel(value: string | null | undefined): string {
+  if (!value) return '—';
+  return INQUIRY_TYPE_LABELS[value] ?? value;
+}
+
 interface InquiryDetail {
   id: number;
   userId: number;
@@ -63,7 +77,9 @@ export default function AdminInquiryDetailPage() {
   }
 
   const attachmentHref = inquiry.attachmentUrl
-    ? (inquiry.attachmentUrl.startsWith('http') ? inquiry.attachmentUrl : inquiry.attachmentUrl.startsWith('/') ? inquiry.attachmentUrl : `/${inquiry.attachmentUrl}`)
+    ? (inquiry.attachmentUrl.startsWith('http')
+        ? inquiry.attachmentUrl
+        : `/api/static/${inquiry.attachmentUrl.replace(/^\//, '')}`)
     : null;
 
   return (
@@ -75,7 +91,7 @@ export default function AdminInquiryDetailPage() {
         <dl className={styles.infoList}>
           <div className={styles.infoRow}>
             <dt>문의항목</dt>
-            <dd>{inquiry.inquiryType ?? '—'}</dd>
+            <dd>{getInquiryTypeLabel(inquiry.inquiryType)}</dd>
           </div>
           <div className={styles.infoRow}>
             <dt>작성자 ID</dt>

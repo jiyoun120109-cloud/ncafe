@@ -63,7 +63,13 @@ export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
     const [beanOption, setBeanOption] = useState('');
     const [decaf, setDecaf] = useState(false);
 
-    const dynamicOptions = useMemo(() => parseOptionsJson(menu?.optionsJson ?? null), [menu?.optionsJson]);
+    const rawDynamicOptions = useMemo(() => parseOptionsJson(menu?.optionsJson ?? null), [menu?.optionsJson]);
+    const isCoffee = menu?.categoryName === '커피';
+    const COFFEE_ONLY_OPTION_NAMES = ['온도', '원두', '디카페인'];
+    const dynamicOptions = useMemo(() => {
+        if (isCoffee) return rawDynamicOptions;
+        return rawDynamicOptions.filter((g) => !COFFEE_ONLY_OPTION_NAMES.includes(g.name));
+    }, [rawDynamicOptions, isCoffee]);
     const useDynamicOptions = dynamicOptions.length > 0;
 
     const [dynamicSelections, setDynamicSelections] = useState<Record<string, string | string[]>>({});
@@ -81,7 +87,6 @@ export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
         });
     }, [dynamicOptions]);
 
-    const isCoffee = menu?.categoryName === '커피';
     const legacyOptionsPrice = isCoffee && decaf ? DECAF_EXTRA : 0;
     const dynamicOptionsPrice = useDynamicOptions
         ? dynamicOptions.reduce((sum, g) => {

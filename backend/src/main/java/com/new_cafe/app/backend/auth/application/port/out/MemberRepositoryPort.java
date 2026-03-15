@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -48,6 +49,11 @@ public interface MemberRepositoryPort {
      * 회원 목록 조회 (검색어: 닉네임/이름/이메일, 상태, 역할, 가입일 범위, 페이징)
      */
     Page<Member> findMembers(String search, String status, String role, LocalDate fromDate, LocalDate toDate, Pageable pageable);
+
+    /**
+     * 동일한 필터 조건으로 역할별 회원 수 집계 (role -> count)
+     */
+    Map<String, Long> countByRoleWithFilter(String search, String status, String role, LocalDate fromDate, LocalDate toDate);
 
     /**
      * 회원 삭제 (물리 삭제)

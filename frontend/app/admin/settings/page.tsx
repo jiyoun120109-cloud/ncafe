@@ -270,7 +270,10 @@ export default function AdminSettingsPage() {
 
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>운영 (도메인별 활성/비활성)</h3>
-          <p className={styles.hint}>비활성 시 해당 메뉴·기능이 사용자에게 노출되지 않거나 제한될 수 있습니다.</p>
+          <p className={styles.hint}>
+            <strong>체크 ON = 활성</strong> (해당 메뉴·기능이 사용자에게 노출됨), <strong>체크 OFF = 비활성</strong> (노출되지 않거나 제한됨).
+            각 항목을 클릭해 켜고 끄기를 바꾼 뒤, 아래 &quot;설정 저장&quot; 버튼을 눌러야 반영됩니다.
+          </p>
           <div className={styles.featureGrid}>
             <div className={styles.fieldRow}>
               <input

@@ -74,7 +74,7 @@ public class AdminOrderService implements AdminOrderUseCase {
                 totalRevenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween(status, from, to);
             } else {
                 totalCount = orderRepositoryPort.countByStatus(status);
-                totalRevenue = 0; // status-only filter: revenue requires date range
+                totalRevenue = orderRepositoryPort.sumTotalAmountByStatus(status);
             }
         } else if (from != null && to != null) {
             totalCount = orderRepositoryPort.countByCreatedAtBetween(from, to);

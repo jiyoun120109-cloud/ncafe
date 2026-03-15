@@ -28,7 +28,7 @@
 
 .logoMark {
     font-family: var(--font-serif, 'Georgia', serif);
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     font-style: italic;
     color: #d4a574;
@@ -37,7 +37,7 @@
 
 .logoText {
     font-family: var(--font-serif, 'Georgia', serif);
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     font-weight: 300;
     color: rgba(255, 255, 255, 0.88);
     letter-spacing: 0.03em;

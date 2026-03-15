@@ -172,6 +172,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
+    public long sumTotalAmountByStatus(String status) {
+        return orderJpaRepository.sumTotalAmountByStatus(status);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to) {
         return orderJpaRepository.countByCreatedAtBetween(from, to);
     }

@@ -92,7 +92,7 @@ export default function AdminMemberDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleSaveProfile = async (e: React.FormEvent) => {
+  const handleSaveAll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (id == null || isNaN(id)) return;
     setSaving(true);
@@ -105,7 +105,9 @@ export default function AdminMemberDetailPage() {
         phone: profilePhone.trim() || null,
         address: profileAddress.trim() || null,
       });
-      setMessage('프로필이 저장되었습니다.');
+      await updateAdminMemberStatus(id, statusInput);
+      await updateAdminMemberRole(id, roleInput);
+      setMessage('프로필·상태·역할이 저장되었습니다.');
       setMessageType('success');
       refresh();
     } catch (e) {
@@ -140,24 +142,6 @@ export default function AdminMemberDetailPage() {
     }
   };
 
-  const handleSaveStatus = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (id == null || isNaN(id)) return;
-    setSaving(true);
-    setMessage(null);
-    try {
-      await updateAdminMemberStatus(id, statusInput);
-      setMessage('상태가 변경되었습니다.');
-      setMessageType('success');
-      refresh();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : '상태 변경에 실패했습니다.');
-      setMessageType('error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleUnlock = async () => {
     if (id == null || isNaN(id)) return;
     setSaving(true);
@@ -169,24 +153,6 @@ export default function AdminMemberDetailPage() {
       refresh();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '잠금 해제에 실패했습니다.');
-      setMessageType('error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSaveRole = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (id == null || isNaN(id)) return;
-    setSaving(true);
-    setMessage(null);
-    try {
-      await updateAdminMemberRole(id, roleInput);
-      setMessage('역할이 변경되었습니다.');
-      setMessageType('success');
-      refresh();
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : '역할 변경에 실패했습니다.');
       setMessageType('error');
     } finally {
       setSaving(false);
@@ -303,7 +269,7 @@ export default function AdminMemberDetailPage() {
 
         <section className={styles.card}>
           <h3 className={styles.cardTitle}>정보 수정</h3>
-          <form onSubmit={handleSaveProfile} className={styles.form}>
+          <form onSubmit={handleSaveAll} className={styles.form}>
             <div className={styles.formRow}>
               <label className={styles.label}>
                 <span>닉네임</span>
@@ -369,9 +335,52 @@ export default function AdminMemberDetailPage() {
                 />
               </label>
             </div>
-            <button type="submit" className={styles.saveBtn} disabled={saving}>
-              {saving ? '저장 중…' : '프로필 저장'}
-            </button>
+            <div className={styles.formRow}>
+              <label className={styles.roleLabel}>
+                <span>계정상태</span>
+                <select
+                  value={statusInput}
+                  onChange={(e) => setStatusInput(e.target.value)}
+                  className={styles.roleSelect}
+                  disabled={saving}
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            {isLocked && (
+              <div className={styles.unlockRow}>
+                <button type="button" className={styles.unlockBtn} onClick={handleUnlock} disabled={saving}>
+                  잠금 해제
+                </button>
+              </div>
+            )}
+            <div className={styles.formRow}>
+              <label className={styles.roleLabel}>
+                <span>역할권한</span>
+                <select
+                  value={roleInput}
+                  onChange={(e) => setRoleInput(e.target.value)}
+                  className={styles.roleSelect}
+                  disabled={saving}
+                >
+                  {ROLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className={styles.formCardActions}>
+              <button type="submit" className={styles.saveBtn} disabled={saving}>
+                {saving ? '저장 중…' : '한 번에 저장'}
+              </button>
+            </div>
           </form>
 
           <h4 className={styles.editSubTitle}>비밀번호</h4>
@@ -414,90 +423,66 @@ export default function AdminMemberDetailPage() {
               </div>
             </form>
           )}
-
-          <h4 className={styles.editSubTitle}>계정상태</h4>
-          <form onSubmit={handleSaveStatus} className={styles.roleForm}>
-            <label className={styles.roleLabel}>
-              <span>상태</span>
-              <select
-                value={statusInput}
-                onChange={(e) => setStatusInput(e.target.value)}
-                className={styles.roleSelect}
-                disabled={saving}
-              >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button type="submit" className={styles.saveBtn} disabled={saving}>
-              상태 저장
-            </button>
-          </form>
-          {isLocked && (
-            <div className={styles.unlockRow}>
-              <button type="button" className={styles.unlockBtn} onClick={handleUnlock} disabled={saving}>
-                잠금 해제
-              </button>
-            </div>
-          )}
-
-          <h4 className={styles.editSubTitle}>역할권한</h4>
-          <form onSubmit={handleSaveRole} className={styles.roleForm}>
-            <label className={styles.roleLabel}>
-              <span>역할</span>
-              <select
-                value={roleInput}
-                onChange={(e) => setRoleInput(e.target.value)}
-                className={styles.roleSelect}
-                disabled={saving}
-              >
-                {ROLE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button type="submit" className={styles.saveBtn} disabled={saving}>
-              역할 저장
-            </button>
-          </form>
         </section>
       </div>
 
       {(data.recentOrders?.length > 0 || data.recentInquiries?.length > 0 || data.recentLoginLogs?.length > 0) && (
         <section className={styles.card}>
           <h3 className={styles.cardTitle}>최근 활동</h3>
-          {data.recentOrders && data.recentOrders.length > 0 && (
-            <div className={styles.activityBlock}>
-              <h4 className={styles.activityTitle}>최근 주문</h4>
-              <div className={styles.tableWrap}>
-                <table className={styles.miniTable}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>상태</th>
-                      <th>금액</th>
-                      <th>일시</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.recentOrders.map((o) => (
-                      <tr key={o.id}>
-                        <td>{o.id}</td>
-                        <td>{o.status}</td>
-                        <td>{o.totalAmount?.toLocaleString() ?? '—'}</td>
-                        <td>{o.createdAt ? new Date(o.createdAt).toLocaleString('ko-KR') : '—'}</td>
+          <div className={styles.activityGrid}>
+            {data.recentOrders && data.recentOrders.length > 0 && (
+              <div className={styles.activityBlock}>
+                <h4 className={styles.activityTitle}>최근 주문</h4>
+                <div className={styles.tableWrap}>
+                  <table className={styles.miniTable}>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>상태</th>
+                        <th>금액</th>
+                        <th>일시</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.recentOrders.map((o) => (
+                        <tr key={o.id}>
+                          <td>{o.id}</td>
+                          <td>{o.status}</td>
+                          <td>{o.totalAmount?.toLocaleString() ?? '—'}</td>
+                          <td>{o.createdAt ? new Date(o.createdAt).toLocaleString('ko-KR') : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {data.recentLoginLogs && data.recentLoginLogs.length > 0 && (
+              <div className={styles.activityBlock}>
+                <h4 className={styles.activityTitle}>최근 로그인 기록</h4>
+                <div className={styles.tableWrap}>
+                  <table className={styles.miniTable}>
+                    <thead>
+                      <tr>
+                        <th>성공</th>
+                        <th>IP</th>
+                        <th>일시</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.recentLoginLogs.map((log, idx) => (
+                        <tr key={idx}>
+                          <td>{log.success ? '성공' : '실패'}</td>
+                          <td>{log.ipAddress ?? '—'}</td>
+                          <td>{log.createdAt ? new Date(log.createdAt).toLocaleString('ko-KR') : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
           {data.recentInquiries && data.recentInquiries.length > 0 && (
             <div className={styles.activityBlock}>
               <h4 className={styles.activityTitle}>최근 문의</h4>
@@ -516,31 +501,6 @@ export default function AdminMemberDetailPage() {
                         <td>{i.id}</td>
                         <td>{i.title}</td>
                         <td>{i.createdAt ? new Date(i.createdAt).toLocaleString('ko-KR') : '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-          {data.recentLoginLogs && data.recentLoginLogs.length > 0 && (
-            <div className={styles.activityBlock}>
-              <h4 className={styles.activityTitle}>최근 로그인 기록</h4>
-              <div className={styles.tableWrap}>
-                <table className={styles.miniTable}>
-                  <thead>
-                    <tr>
-                      <th>성공</th>
-                      <th>IP</th>
-                      <th>일시</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.recentLoginLogs.map((log, idx) => (
-                      <tr key={idx}>
-                        <td>{log.success ? '성공' : '실패'}</td>
-                        <td>{log.ipAddress ?? '—'}</td>
-                        <td>{log.createdAt ? new Date(log.createdAt).toLocaleString('ko-KR') : '—'}</td>
                       </tr>
                     ))}
                   </tbody>

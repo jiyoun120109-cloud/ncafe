@@ -5,6 +5,20 @@ import Link from 'next/link';
 import { getApiBase } from '@/services/api';
 import styles from './page.module.css';
 
+/** 문의 작성 시 선택하는 유형과 동일한 라벨 */
+const INQUIRY_TYPE_LABELS: Record<string, string> = {
+  GENERAL: '일반 문의',
+  MENU: '메뉴/제품',
+  ORDER: '주문/결제',
+  STORE: '매장 이용',
+  ETC: '기타',
+};
+
+function getInquiryTypeLabel(value: string | null | undefined): string {
+  if (!value) return '—';
+  return INQUIRY_TYPE_LABELS[value] ?? value;
+}
+
 interface Inquiry {
   id: number;
   userId: number;
@@ -93,14 +107,14 @@ export default function AdminInquiriesPage() {
                   <th className={styles.th}>답변</th>
                   <th className={`${styles.th} ${styles.thLeft}`}>내용 미리보기</th>
                   <th className={styles.th}>작성일시</th>
-                  <th className={styles.th}>관리</th>
+                  <th className={`${styles.th} ${styles.thActions}`}>관리</th>
                 </tr>
               </thead>
               <tbody>
                 {list.map((i) => (
                   <tr key={i.id} className={styles.tr}>
                     <td className={`${styles.td} ${styles.idCell}`}>{i.id}</td>
-                    <td className={styles.td}>{i.inquiryType ?? '—'}</td>
+                    <td className={styles.td}>{getInquiryTypeLabel(i.inquiryType)}</td>
                     <td className={`${styles.td} ${styles.tdLeft}`}>
                       {i.isPrivate ? '[비밀] ' : ''}{i.title}
                     </td>
@@ -119,7 +133,7 @@ export default function AdminInquiriesPage() {
                     <td className={`${styles.td} ${styles.dateCell}`}>
                       {formatDate(i.createdAt)}
                     </td>
-                    <td className={styles.td}>
+                    <td className={`${styles.td} ${styles.tdActions}`}>
                       <div className={styles.actions}>
                         <Link href={`/admin/inquiries/${i.id}`} className={styles.actionBtn}>
                           상세

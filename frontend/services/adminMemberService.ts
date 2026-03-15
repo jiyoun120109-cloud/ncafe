@@ -91,6 +91,29 @@ export async function fetchAdminMembers(
   return res.json();
 }
 
+/** 필터 조건과 동일하게 역할별 회원 수 집계 (필터 적용 시 사용) */
+export async function fetchAdminMemberRoleCounts(params?: {
+  search?: string;
+  status?: string;
+  role?: string;
+  fromDate?: string;
+  toDate?: string;
+}): Promise<Record<string, number>> {
+  const q = new URLSearchParams();
+  if (params?.search?.trim()) q.set('search', params.search.trim());
+  if (params?.status) q.set('status', params.status);
+  if (params?.role) q.set('role', params.role);
+  if (params?.fromDate) q.set('fromDate', params.fromDate);
+  if (params?.toDate) q.set('toDate', params.toDate);
+  const queryString = q.toString();
+  const res = await fetch(`${getApiBase()}/admin/members/stats/role-counts${queryString ? `?${queryString}` : ''}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('역할별 집계를 불러올 수 없습니다.');
+  const data = await res.json();
+  return typeof data === 'object' && data !== null ? data : {};
+}
+
 export async function fetchAdminMember(id: number): Promise<AdminMemberDetailWithActivityDto> {
   const res = await fetch(`${getApiBase()}/admin/members/${id}`, { credentials: 'include' });
   if (!res.ok) throw new Error('회원 정보를 불러올 수 없습니다.');
