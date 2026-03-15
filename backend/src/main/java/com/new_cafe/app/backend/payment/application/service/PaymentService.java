@@ -122,11 +122,10 @@ public class PaymentService implements ProcessPaymentUseCase {
                     .createdAt(LocalDateTime.now())
                     .build());
         }
-        getOrderUseCase.getById(orderId).ifPresent(order -> {
+        orderOpt.ifPresent(order -> {
             order.setStatus("PAID");
             orderRepositoryPort.save(order);
         });
-        Optional<Order> orderOpt = getOrderUseCase.getById(orderId);
         if (orderOpt.isEmpty() || orderOpt.get().getUserId() == null) return;
         Order order = orderOpt.get();
         Long userId = order.getUserId();
