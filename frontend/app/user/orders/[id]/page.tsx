@@ -80,6 +80,12 @@ export default function UserOrderDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  /* 훅은 조건문/early return 위에서 항상 동일한 순서로 호출되어야 함 (Rules of Hooks) */
+  const productSubtotal = useMemo(
+    () => (order?.items ?? []).reduce((sum, it) => sum + (it.unitPrice + (it.optionExtraPrice ?? 0)) * it.quantity, 0),
+    [order?.items]
+  );
+
   if (loading) {
     return (
       <PageWithHero title="주문 상세" backHref="/user?tab=orders" backLabel="주문 내역" mainClassName={styles.main}>
@@ -105,10 +111,6 @@ export default function UserOrderDetailPage() {
 
   const deliveryFee = 0;
   const finalAmount = order.totalPrice ?? order.totalAmount ?? 0;
-  const productSubtotal = useMemo(
-    () => order.items.reduce((sum, it) => sum + (it.unitPrice + (it.optionExtraPrice ?? 0)) * it.quantity, 0),
-    [order.items]
-  );
   const couponDiscount = order.appliedUserCouponId != null ? Math.max(0, productSubtotal - finalAmount) : 0;
   const recipientName = profile?.name ?? (order.guestEmail ? '비회원' : '-');
   const recipientPhone = profile?.phone ?? order.guestPhone ?? '-';
