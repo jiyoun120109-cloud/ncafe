@@ -62,6 +62,11 @@
   padding: 2rem 1.5rem 3rem;
 }
 
+/** 공지사항·1:1문의 등 테이블이 넓어야 하는 페이지용 */
+.mainWide {
+  max-width: 66.666vw;
+}
+
 .backLink {
   display: inline-flex;
   align-items: center;

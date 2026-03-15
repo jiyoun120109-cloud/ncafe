@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { getMeApi, logoutApi } from '@/services/authService';
 import { getUserProfile } from '@/services/userService';
 import { getApiBase } from '@/services/api';
+import { clearCartSessionId } from '@/services/cartService';
 import styles from './HeaderAuth.module.css';
 
 type HeaderAuthProps = {
@@ -53,6 +54,7 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
 
     const handleLogout = async () => {
         await logoutApi();
+        clearCartSessionId();
         clearUser();
         router.refresh();
     };

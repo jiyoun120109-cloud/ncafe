@@ -8,6 +8,7 @@ import { Menu, Bell, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { logoutApi } from '@/services/authService';
+import { clearCartSessionId } from '@/services/cartService';
 import styles from './AdminHeader.module.css';
 
 export default function AdminHeader() {
@@ -20,9 +21,11 @@ export default function AdminHeader() {
         setIsLoggingOut(true);
         try {
             await logoutApi();
+            clearCartSessionId();
             clearUser();
             router.push('/login');
         } catch {
+            clearCartSessionId();
             clearUser();
             router.push('/login');
         } finally {

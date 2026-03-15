@@ -999,6 +999,8 @@
 }
 
 .favoriteListItem {
+  display: flex;
+  align-items: center;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -1006,6 +1008,8 @@
 }
 
 .favoriteItem {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -1014,6 +1018,45 @@
   color: inherit;
   transition: background 0.2s ease;
   min-height: 100px;
+}
+
+.favoriteItemActions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.favoriteActionBtn,
+.favoriteActionBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.favoriteActionBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.favoriteActionBtnPrimary {
+  background: var(--color-primary-600, #8b5a2b);
+  border-color: var(--color-primary-600, #8b5a2b);
+  color: #fff;
+}
+
+.favoriteActionBtnPrimary:hover {
+  background: var(--color-primary-700, #6d4520);
+  border-color: var(--color-primary-700, #6d4520);
 }
 
 .favoriteItem:hover {

@@ -108,23 +108,32 @@ export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
         }
     }, [menu?.productInfoJson]);
 
-    const handleAddToCart = () => {
-        if (!menu?.isAvailable) return;
-        let options: CartItemOptions = {};
+    const buildCartOptions = (): CartItemOptions => {
         if (useDynamicOptions) {
             const temp = dynamicSelections['온도'];
             const bean = dynamicSelections['원두'];
             const decafSel = dynamicSelections['디카페인'];
-            options = {
+            return {
                 temperature: typeof temp === 'string' && (temp === 'HOT' || temp === 'ICED') ? temp : undefined,
                 beanOption: typeof bean === 'string' && bean ? bean : undefined,
                 decaf: Array.isArray(decafSel) ? decafSel.length > 0 : typeof decafSel === 'string' && decafSel.length > 0,
             };
-        } else if (isCoffee) {
-            options = { temperature, beanOption: beanOption || undefined, decaf };
         }
-        addItem(menu.id, quantity, options)
+        if (isCoffee) return { temperature, beanOption: beanOption || undefined, decaf };
+        return {};
+    };
+
+    const handleAddToCart = () => {
+        if (!menu?.isAvailable) return;
+        addItem(menu.id, quantity, buildCartOptions())
             .then(() => setCartModalOpen(true))
+            .catch(() => {});
+    };
+
+    const handleOrderDirectly = () => {
+        if (!menu?.isAvailable) return;
+        addItem(menu.id, quantity, buildCartOptions())
+            .then(() => router.push('/order'))
             .catch(() => {});
     };
 
@@ -377,14 +386,15 @@ export default function MenuDetailInfo({ id }: MenuDetailInfoProps) {
                         <span>장바구니에 담기</span>
                     </button>
                     {menu.isAvailable ? (
-                        <Link
-                            href="/order"
+                        <button
+                            type="button"
                             className={styles.orderButton}
                             aria-label="주문하기"
+                            onClick={handleOrderDirectly}
                         >
                             <CreditCard size={18} />
                             <span>주문하기</span>
-                        </Link>
+                        </button>
                     ) : (
                         <span
                             className={`${styles.orderButton} ${styles.orderButtonDisabled}`}

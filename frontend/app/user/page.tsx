@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Package, Ticket, ChevronRight, ChevronLeft, Pencil, X, Heart, MessageCircle, Bell, Trash2 } from 'lucide-react';
+import { User, Package, Ticket, ChevronRight, ChevronLeft, Pencil, X, Heart, MessageCircle, Bell, Trash2, ShoppingCart, CreditCard } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { getMyOrders } from '@/services/orderService';
 import {
@@ -23,6 +23,7 @@ import type { OrderDto } from '@/services/orderService';
 import { getFavorites, type FavoriteDto } from '@/services/favoriteService';
 import { getMyInquiries, deleteInquiry, type InquiryDto } from '@/services/inquiryService';
 import { getMyNotifications, markNotificationRead, deleteNotification, type NotificationDto } from '@/services/notificationService';
+import { useCart } from '@/contexts/CartContext';
 import PageWithHero from '@/components/PageWithHero/PageWithHero';
 import styles from './page.module.css';
 
@@ -75,6 +76,7 @@ function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated, setUser, setProfileImageUrl, profileImageUrl: storeProfileImageUrl } = useAuthStore();
+  const { addItem } = useCart();
   const [tab, setTab] = useState<Tab | null>(() => getInitialTab(searchParams));
   const [orders, setOrders] = useState<OrderDto[]>([]);
   const [stamps, setStamps] = useState<StampsDto | null>(null);
@@ -777,6 +779,29 @@ function UserPageContent() {
                           </div>
                           <ChevronRight size={20} className={styles.favoriteItemChevron} aria-hidden />
                         </Link>
+                        <div className={styles.favoriteItemActions}>
+                          <button
+                            type="button"
+                            className={styles.favoriteActionBtn}
+                            onClick={(e) => { e.preventDefault(); addItem(f.menuId, 1).catch(() => {}); }}
+                            aria-label={`${name} 장바구니 담기`}
+                          >
+                            <ShoppingCart size={14} />
+                            담기
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.favoriteActionBtnPrimary}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              addItem(f.menuId, 1).then(() => router.push('/order')).catch(() => {});
+                            }}
+                            aria-label={`${name} 주문하기`}
+                          >
+                            <CreditCard size={14} />
+                            주문
+                          </button>
+                        </div>
                       </li>
                     );
                   })}

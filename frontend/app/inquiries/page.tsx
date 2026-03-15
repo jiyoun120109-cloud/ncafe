@@ -77,7 +77,7 @@ export default function InquiriesPage() {
   const firstReply = adminReplies[0];
 
   return (
-    <PageWithHero title="1:1 문의" subtitle="궁금한 점을 남겨 주시면 답변 드립니다.">
+    <PageWithHero title="1:1 문의" subtitle="궁금한 점을 남겨 주시면 답변 드립니다." wideMain>
       <div className={styles.page}>
         <div className={styles.topRow}>
           <Link href="/" className={styles.backLinkText}>← 이전으로</Link>

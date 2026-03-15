@@ -11,6 +11,8 @@ interface PageWithHeroProps {
   backLabel?: string;
   /** 마이페이지 등 넓은 콘텐츠용 main max-width 오버라이드 */
   mainClassName?: string;
+  /** true면 main을 화면 너비 2/3(66.666vw)로 넓게 사용 (공지·문의 등) */
+  wideMain?: boolean;
   children: React.ReactNode;
 }
 
@@ -20,6 +22,7 @@ export default function PageWithHero({
   backHref,
   backLabel = '목록',
   mainClassName,
+  wideMain,
   children,
 }: PageWithHeroProps) {
   return (
@@ -38,7 +41,7 @@ export default function PageWithHero({
           {subtitle && <p className={styles.heroSub}>{subtitle}</p>}
         </div>
       </div>
-      <main className={mainClassName ? `${styles.main} ${mainClassName}` : styles.main}>{children}</main>
+      <main className={[styles.main, wideMain && styles.mainWide, mainClassName].filter(Boolean).join(' ')}>{children}</main>
     </div>
   );
 }

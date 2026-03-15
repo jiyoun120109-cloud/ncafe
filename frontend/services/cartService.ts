@@ -116,4 +116,8 @@ export async function removeCartItem(cartItemId: number): Promise<void> {
     if (!res.ok) throw new Error('삭제 실패');
 }
 
+export function clearCartSessionId(): void {
+    if (typeof window !== 'undefined') localStorage.removeItem(CART_SESSION_KEY);
+}
+
 export { getCartSessionId };

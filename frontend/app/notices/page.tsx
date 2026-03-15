@@ -48,7 +48,7 @@ export default function NoticesPage() {
   }, [list]);
 
   return (
-    <PageWithHero title="공지사항" subtitle={`${siteName || 'NCafe'}의 소식을 전해 드립니다.`}>
+    <PageWithHero title="공지사항" subtitle={`${siteName || 'NCafe'}의 소식을 전해 드립니다.`} wideMain>
       <div className={styles.page}>
         <div className={styles.topRow}>
           <Link href="/" className={styles.backLinkText}>← 이전으로</Link>
