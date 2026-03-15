@@ -2,6 +2,7 @@ package com.new_cafe.app.backend.admin.order.adapter.in.web;
 
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
+import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import com.new_cafe.app.backend.order.model.Order;
 import com.new_cafe.app.backend.order.model.OrderItem;
 import io.jsonwebtoken.Claims;
@@ -23,10 +24,13 @@ public class AdminOrderController {
 
     private final AdminOrderUseCase adminOrderUseCase;
     private final JwtService jwtService;
+    private final MemberRepositoryPort memberRepositoryPort;
 
-    public AdminOrderController(AdminOrderUseCase adminOrderUseCase, JwtService jwtService) {
+    public AdminOrderController(AdminOrderUseCase adminOrderUseCase, JwtService jwtService,
+                                MemberRepositoryPort memberRepositoryPort) {
         this.adminOrderUseCase = adminOrderUseCase;
         this.jwtService = jwtService;
+        this.memberRepositoryPort = memberRepositoryPort;
     }
 
     @GetMapping
@@ -80,6 +84,17 @@ public class AdminOrderController {
         return ResponseEntity.ok(adminOrderUseCase.getTodayRevenueBreakdown(date));
     }
 
+    @GetMapping("/stats/list-summary")
+    public ResponseEntity<Map<String, Object>> listSummary(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(adminOrderUseCase.getOrderListSummary(status, fromDate, toDate));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -87,7 +102,7 @@ public class AdminOrderController {
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
         return adminOrderUseCase.getOrderById(id)
-                .map(order -> ResponseEntity.ok(orderToMap(order)))
+                .map(order -> ResponseEntity.ok(orderToMapWithUserName(order)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -104,7 +119,7 @@ public class AdminOrderController {
         }
         try {
             Order order = adminOrderUseCase.updateOrderStatus(id, newStatus);
-            return ResponseEntity.ok(orderToMap(order));
+            return ResponseEntity.ok(orderToMapWithUserName(order));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
@@ -118,9 +133,23 @@ public class AdminOrderController {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
         try {
             Order order = adminOrderUseCase.cancelOrder(id);
-            return ResponseEntity.ok(orderToMap(order));
+            return ResponseEntity.ok(orderToMapWithUserName(order));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        try {
+            adminOrderUseCase.deleteOrder(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -159,6 +188,15 @@ public class AdminOrderController {
         m.put("updatedAt", order.getUpdatedAt());
         if (order.getItems() != null) {
             m.put("items", order.getItems().stream().map(this::itemToMap).collect(Collectors.toList()));
+        }
+        return m;
+    }
+
+    private Map<String, Object> orderToMapWithUserName(Order order) {
+        Map<String, Object> m = orderToMap(order);
+        if (order.getUserId() != null) {
+            memberRepositoryPort.findById(order.getUserId())
+                    .ifPresent(member -> m.put("userName", member.getUsername()));
         }
         return m;
     }

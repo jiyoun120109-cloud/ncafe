@@ -52,7 +52,7 @@
 
 .filterForm {
   display: grid;
-  grid-template-columns: 1fr auto auto auto;
+  grid-template-columns: 1.4fr auto auto auto auto;
   gap: 1rem 1.5rem;
   align-items: end;
 }
@@ -79,7 +79,7 @@
 .searchInput {
   min-width: 0;
   width: 100%;
-  max-width: 280px;
+  max-width: 420px;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
@@ -344,6 +344,14 @@
 .pageInfo {
   font-size: 0.9rem;
   color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 900px) {
+  .filterForm {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .filterActions { grid-column: 1 / -1; }
 }
 
 @media (max-width: 768px) {

@@ -39,6 +39,19 @@
   background: rgba(0, 0, 0, 0.07);
 }
 
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .twoCol {
+    grid-template-columns: 1fr;
+  }
+}
+
 .card {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -77,6 +90,51 @@
 .infoRow dd {
   margin: 0;
   color: #1c1917;
+}
+
+.memberLink {
+  color: var(--color-primary-600, #8b5a2b);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.memberLink:hover {
+  text-decoration: underline;
+}
+
+.rightMeta {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.metaRow:last-child {
+  margin-bottom: 0;
+}
+
+.metaLabel {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+  min-width: 5rem;
+}
+
+.metaValue {
+  color: #1c1917;
+}
+
+.editSubTitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  margin: 1.25rem 0 0.5rem;
 }
 
 .itemsTable {

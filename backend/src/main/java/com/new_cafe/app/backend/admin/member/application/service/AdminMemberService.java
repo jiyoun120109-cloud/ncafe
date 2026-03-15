@@ -46,11 +46,12 @@ public class AdminMemberService implements AdminMemberUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Member> getMemberList(int page, int size, String search, String status, LocalDate fromDate, LocalDate toDate) {
+    public Page<Member> getMemberList(int page, int size, String search, String status, String role, LocalDate fromDate, LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return memberRepositoryPort.findMembers(
             search != null ? search.trim() : null,
             status != null && !status.trim().isEmpty() ? status.trim().toUpperCase() : null,
+            role != null && !role.trim().isEmpty() ? role.trim().toUpperCase() : null,
             fromDate,
             toDate,
             pageable

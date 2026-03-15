@@ -1,8 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { AdminCategoryDto } from '../useAdminCategories';
 import styles from './CategoryManage.module.css';
+
+function isIconUrl(icon: string | null | undefined): boolean {
+    if (!icon || !icon.trim()) return false;
+    const t = icon.trim();
+    return t.startsWith('http') || t.startsWith('/');
+}
+
+function getIconSrc(icon: string): string {
+    const t = icon.trim();
+    if (t.startsWith('http')) return t;
+    const base = typeof window !== 'undefined' ? window.location.origin : '';
+    return t.startsWith('/') ? base + t : base + '/' + t;
+}
 
 interface CategoryManageProps {
     categories: AdminCategoryDto[];
@@ -10,6 +23,7 @@ interface CategoryManageProps {
     onCreate: (name: string, icon?: string | null, description?: string | null) => Promise<unknown>;
     onUpdate: (id: number, name: string, icon?: string | null, description?: string | null) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
+    onUploadIcon?: (file: File) => Promise<{ url: string; filename: string }>;
 }
 
 export default function CategoryManage({
@@ -18,6 +32,7 @@ export default function CategoryManage({
     onCreate,
     onUpdate,
     onDelete,
+    onUploadIcon,
 }: CategoryManageProps) {
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
@@ -29,7 +44,10 @@ export default function CategoryManage({
     const [editIcon, setEditIcon] = useState('');
     const [editDescription, setEditDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [uploadingIcon, setUploadingIcon] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const addIconInputRef = useRef<HTMLInputElement>(null);
+    const editIconInputRef = useRef<HTMLInputElement>(null);
 
     const openAdd = () => {
         setAddName('');
@@ -112,6 +130,37 @@ export default function CategoryManage({
         }
     };
 
+    const handleAddIconFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !onUploadIcon) return;
+        setUploadingIcon(true);
+        try {
+            const { url } = await onUploadIcon(file);
+            setAddIcon(url);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '아이콘 업로드에 실패했습니다.');
+        } finally {
+            setUploadingIcon(false);
+            e.target.value = '';
+        }
+    };
+
+    const handleEditIconFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !onUploadIcon) return;
+        setUploadingIcon(true);
+        try {
+            const { url } = await onUploadIcon(file);
+            setEditIcon(url);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '아이콘 업로드에 실패했습니다.');
+        } finally {
+            setUploadingIcon(false);
+            e.target.value = '';
+        }
+    };
+
     return (
         <>
             <section>
@@ -129,32 +178,42 @@ export default function CategoryManage({
                     <div className={styles.tableWrap}>
                         <table className={styles.table}>
                             <colgroup>
-                                <col className={styles.colId} />
+                                <col className={styles.colOrder} />
                                 <col className={styles.colIcon} />
                                 <col className={styles.colName} />
+                                <col className={styles.colDesc} />
                                 <col className={styles.colActions} />
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th className={styles.th}>ID</th>
+                                    <th className={styles.th}>순서</th>
                                     <th className={styles.th}>아이콘</th>
                                     <th className={styles.th}>이름</th>
+                                    <th className={styles.th}>설명</th>
                                     <th className={`${styles.th} ${styles.thActions}`}>관리</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {categories.map((cat) => (
                                     <tr key={cat.id} className={styles.tr}>
-                                        <td className={`${styles.td} ${styles.idCell}`}>{cat.id}</td>
+                                        <td className={`${styles.td} ${styles.orderCell}`}>{cat.id}</td>
                                         <td className={styles.td}>
-                                            <span className={styles.iconCell}>{cat.icon || '—'}</span>
+                                            {cat.icon && isIconUrl(cat.icon) ? (
+                                                <img
+                                                    src={getIconSrc(cat.icon)}
+                                                    alt=""
+                                                    className={styles.iconImg}
+                                                />
+                                            ) : (
+                                                <span className={styles.iconCell}>{cat.icon?.trim() || '—'}</span>
+                                            )}
                                         </td>
                                         <td className={styles.td}>
-                                            <span
-                                                className={styles.nameCell}
-                                                title={cat.description ?? undefined}
-                                            >
-                                                {cat.name}
+                                            <span className={styles.nameCell}>{cat.name}</span>
+                                        </td>
+                                        <td className={styles.td}>
+                                            <span className={styles.descCell} title={cat.description ?? undefined}>
+                                                {cat.description?.trim() || '—'}
                                             </span>
                                         </td>
                                         <td className={`${styles.td} ${styles.actionsCell}`}>
@@ -203,18 +262,38 @@ export default function CategoryManage({
                                 />
                             </div>
                             <div className={styles.formRow}>
-                                <label className={styles.label}>아이콘 (이모지 또는 문자)</label>
+                                <label className={styles.label}>아이콘 (이미지 업로드 또는 이모지/URL 입력)</label>
+                                {onUploadIcon && (
+                                    <div className={styles.iconUploadRow}>
+                                        <input
+                                            ref={addIconInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            className={styles.fileInput}
+                                            onChange={handleAddIconFile}
+                                            disabled={submitting || uploadingIcon}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles.uploadTriggerBtn}
+                                            onClick={() => addIconInputRef.current?.click()}
+                                            disabled={submitting || uploadingIcon}
+                                        >
+                                            {uploadingIcon ? '업로드 중…' : '이미지 선택'}
+                                        </button>
+                                    </div>
+                                )}
                                 <input
                                     type="text"
                                     className={styles.input}
                                     value={addIcon}
                                     onChange={(e) => setAddIcon(e.target.value)}
-                                    placeholder="예: ☕"
+                                    placeholder="예: ☕ 또는 업로드 후 URL 자동 입력"
                                     disabled={submitting}
                                 />
                             </div>
                             <div className={styles.formRow}>
-                                <label className={styles.label}>부연설명 (호버 시 툴팁으로 표시)</label>
+                                <label className={styles.label}>설명 (목록에 표시)</label>
                                 <textarea
                                     className={styles.textarea}
                                     value={addDescription}
@@ -256,18 +335,38 @@ export default function CategoryManage({
                                 />
                             </div>
                             <div className={styles.formRow}>
-                                <label className={styles.label}>아이콘 (이모지 또는 문자)</label>
+                                <label className={styles.label}>아이콘 (이미지 업로드 또는 이모지/URL 입력)</label>
+                                {onUploadIcon && (
+                                    <div className={styles.iconUploadRow}>
+                                        <input
+                                            ref={editIconInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            className={styles.fileInput}
+                                            onChange={handleEditIconFile}
+                                            disabled={submitting || uploadingIcon}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles.uploadTriggerBtn}
+                                            onClick={() => editIconInputRef.current?.click()}
+                                            disabled={submitting || uploadingIcon}
+                                        >
+                                            {uploadingIcon ? '업로드 중…' : '이미지 선택'}
+                                        </button>
+                                    </div>
+                                )}
                                 <input
                                     type="text"
                                     className={styles.input}
                                     value={editIcon}
                                     onChange={(e) => setEditIcon(e.target.value)}
-                                    placeholder="예: ☕"
+                                    placeholder="예: ☕ 또는 업로드 후 URL 자동 입력"
                                     disabled={submitting}
                                 />
                             </div>
                             <div className={styles.formRow}>
-                                <label className={styles.label}>부연설명 (호버 시 툴팁으로 표시)</label>
+                                <label className={styles.label}>설명 (목록에 표시)</label>
                                 <textarea
                                     className={styles.textarea}
                                     value={editDescription}

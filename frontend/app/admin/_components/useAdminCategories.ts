@@ -111,6 +111,22 @@ export function useAdminCategories() {
         await fetchCategories();
     }, [fetchCategories]);
 
+    /** 카테고리 아이콘 이미지 업로드. FormData에 "file" 키로 파일 전달. 반환: { url, filename } */
+    const uploadCategoryIcon = useCallback(async (file: File): Promise<{ url: string; filename: string }> => {
+        const form = new FormData();
+        form.append('file', file);
+        const res = await fetch(`${getApiBase()}/admin/categories/upload`, {
+            method: 'POST',
+            credentials: 'include',
+            body: form,
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error((err as { error?: string }).error || '아이콘 업로드에 실패했습니다.');
+        }
+        return res.json();
+    }, []);
+
     return {
         categories,
         loading,
@@ -119,5 +135,6 @@ export function useAdminCategories() {
         createCategory,
         updateCategory,
         deleteCategory,
+        uploadCategoryIcon,
     };
 }

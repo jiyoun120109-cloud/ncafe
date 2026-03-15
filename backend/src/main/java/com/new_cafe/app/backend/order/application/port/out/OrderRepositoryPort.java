@@ -23,6 +23,8 @@ public interface OrderRepositoryPort {
 
     long countByStatus(String status);
     long countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
+    long countByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to);
     long sumTotalAmountByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
     long sumTotalAmountByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to);
+    void deleteById(Long id);
 }

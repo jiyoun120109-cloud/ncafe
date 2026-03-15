@@ -14,7 +14,14 @@ public interface AdminOrderUseCase {
 
     Page<Order> getOrderList(Pageable pageable, String status, LocalDate fromDate, LocalDate toDate);
 
+    /**
+     * 목록과 동일한 조건으로 필터 적용 시 총 주문 건수·총 매출
+     */
+    Map<String, Object> getOrderListSummary(String status, LocalDate fromDate, LocalDate toDate);
+
     Optional<Order> getOrderById(Long id);
+
+    void deleteOrder(Long id);
 
     Order updateOrderStatus(Long orderId, String status);
 

@@ -156,15 +156,14 @@
 }
 
 .saveBtn {
-  padding: 0.6rem 1.25rem;
-  font-size: 0.875rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: #fff;
   background: var(--color-primary-600, #8b5a2b);
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  min-height: 44px;
 }
 
 .saveBtn:hover:not(:disabled) {

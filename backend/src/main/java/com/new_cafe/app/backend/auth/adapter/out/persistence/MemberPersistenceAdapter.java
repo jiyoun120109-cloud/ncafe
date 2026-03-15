@@ -80,7 +80,7 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
     }
 
     @Override
-    public Page<Member> findMembers(String search, String status, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+    public Page<Member> findMembers(String search, String status, String role, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
         Specification<UserEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             String trimmed = (search != null && !search.trim().isEmpty()) ? search.trim() : null;
@@ -94,6 +94,9 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
             }
             if (status != null && !status.trim().isEmpty()) {
                 predicates.add(cb.equal(root.get("status"), status.trim().toUpperCase()));
+            }
+            if (role != null && !role.trim().isEmpty()) {
+                predicates.add(cb.equal(root.get("role"), role.trim().toUpperCase()));
             }
             if (fromDate != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), fromDate.atStartOfDay()));

@@ -45,9 +45,9 @@ public interface MemberRepositoryPort {
     Page<Member> findByNicknameContaining(String search, Pageable pageable);
 
     /**
-     * 회원 목록 조회 (검색어: 닉네임/이름/이메일, 상태, 가입일 범위, 페이징)
+     * 회원 목록 조회 (검색어: 닉네임/이름/이메일, 상태, 역할, 가입일 범위, 페이징)
      */
-    Page<Member> findMembers(String search, String status, LocalDate fromDate, LocalDate toDate, Pageable pageable);
+    Page<Member> findMembers(String search, String status, String role, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
     /**
      * 회원 삭제 (물리 삭제)

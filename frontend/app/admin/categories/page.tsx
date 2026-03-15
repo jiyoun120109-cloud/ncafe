@@ -14,6 +14,7 @@ export default function AdminCategoriesPage() {
         createCategory,
         updateCategory,
         deleteCategory,
+        uploadCategoryIcon,
     } = useAdminCategories();
 
     useEffect(() => {
@@ -35,6 +36,7 @@ export default function AdminCategoriesPage() {
                 onCreate={async (name, icon, description) => createCategory(name, icon, description)}
                 onUpdate={(id, name, icon, description) => updateCategory(id, name, icon, description)}
                 onDelete={deleteCategory}
+                onUploadIcon={uploadCategoryIcon}
             />
         </div>
     );

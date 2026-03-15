@@ -32,6 +32,7 @@ export default function AdminMembersListPage() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
@@ -48,6 +49,7 @@ export default function AdminMembersListPage() {
     setLoading(true);
     fetchAdminMembers(page, size, search || undefined, {
       status: statusFilter || undefined,
+      role: roleFilter || undefined,
       fromDate: fromDate || undefined,
       toDate: toDate || undefined,
     })
@@ -63,7 +65,7 @@ export default function AdminMembersListPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, statusFilter, fromDate, toDate]);
+  }, [page, search, statusFilter, roleFilter, fromDate, toDate]);
 
   useEffect(() => {
     load();
@@ -135,6 +137,25 @@ export default function AdminMembersListPage() {
             </select>
           </div>
           <div className={styles.filterGroup}>
+            <label className={styles.filterLabel} htmlFor="member-role">
+              역할
+            </label>
+            <select
+              id="member-role"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className={styles.filterSelect}
+              aria-label="역할 필터"
+            >
+              <option value="">전체 역할</option>
+              {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>가입일 범위</span>
             <div className={styles.dateRow}>
               <input
@@ -165,6 +186,7 @@ export default function AdminMembersListPage() {
                 setSearchInput('');
                 setSearch('');
                 setStatusFilter('');
+                setRoleFilter('');
                 setFromDate('');
                 setToDate('');
                 setPage(0);
@@ -182,7 +204,7 @@ export default function AdminMembersListPage() {
           <div className={styles.loading}>불러오는 중...</div>
         ) : !data || data.content.length === 0 ? (
           <div className={styles.empty}>
-            {search || statusFilter || fromDate || toDate
+            {search || statusFilter || roleFilter || fromDate || toDate
               ? '검색/필터 결과가 없습니다.'
               : '등록된 회원이 없습니다.'}
           </div>

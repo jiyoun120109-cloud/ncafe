@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Menu, Bell, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
@@ -11,8 +11,19 @@ import { logoutApi } from '@/services/authService';
 import { clearCartSessionId } from '@/services/cartService';
 import styles from './AdminHeader.module.css';
 
+function getSectionForPath(pathname: string): string {
+    if (!pathname || pathname === '/admin') return 'Content';
+    if (pathname.startsWith('/admin/notices') || pathname.startsWith('/admin/inquiries')) return 'Customer Service';
+    if (pathname.startsWith('/admin/rag') || pathname.startsWith('/admin/settings')) return 'Settings';
+    if (pathname.startsWith('/admin/menus') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/members') || pathname.startsWith('/admin/orders')) return 'Content';
+    return 'Content';
+}
+
 export default function AdminHeader() {
+    const pathname = usePathname();
     const { toggleSidebar, title } = useUIStore();
+    const section = useMemo(() => getSectionForPath(pathname ?? ''), [pathname]);
+    const displayTitle = title ? `${section} · ${title}` : section;
     const { user, clearUser } = useAuthStore();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -44,7 +55,7 @@ export default function AdminHeader() {
                 >
                     <Menu size={24} />
                 </motion.button>
-                <h1 className={styles.pageTitle}>{title}</h1>
+                <h1 className={styles.pageTitle}>{displayTitle}</h1>
             </div>
 
             <div className={styles.right}>

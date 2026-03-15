@@ -136,11 +136,43 @@
   cursor: not-allowed;
 }
 
+.listHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.listHeader .sectionTitle {
+  margin-bottom: 0;
+}
+
+.listToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .sectionTitle {
   font-size: 0.875rem;
   font-weight: 600;
   color: #1c1917;
   margin-bottom: 1rem;
+}
+
+.thActions {
+  text-align: center;
+}
+
+.tdActions {
+  text-align: center;
+}
+
+.tdActions .actions {
+  justify-content: center;
 }
 
 .loading,

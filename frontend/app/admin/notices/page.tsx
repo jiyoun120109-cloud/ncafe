@@ -133,22 +133,22 @@ export default function AdminNoticesListPage() {
       </div>
       <div className={styles.divider} />
 
-      <section className={styles.card}>
-        <h3 className={styles.cardTitle}>검색 및 등록</h3>
-        <div className={styles.toolbar}>
-          <form onSubmit={handleSearch} className={styles.searchForm}>
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="제목·내용 검색"
-              className={styles.searchInput}
-            />
-            <button type="submit" className={styles.searchBtn}>
-              검색
-            </button>
-          </form>
-          <div className={styles.toolbarActions}>
+      <section>
+        <div className={styles.listHeader}>
+          <h3 className={styles.sectionTitle}>공지사항 목록</h3>
+          <div className={styles.listToolbar}>
+            <form onSubmit={handleSearch} className={styles.searchForm}>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="제목·내용 검색"
+                className={styles.searchInput}
+              />
+              <button type="submit" className={styles.searchBtn}>
+                검색
+              </button>
+            </form>
             {someSelected && (
               <button
                 type="button"
@@ -164,10 +164,6 @@ export default function AdminNoticesListPage() {
             </Link>
           </div>
         </div>
-      </section>
-
-      <section>
-        <h3 className={styles.sectionTitle}>공지사항 목록</h3>
         {loading ? (
           <div className={styles.loading}>불러오는 중…</div>
         ) : !data || data.content.length === 0 ? (
@@ -194,7 +190,7 @@ export default function AdminNoticesListPage() {
                     <th className={styles.th}>제목</th>
                     <th className={styles.th}>날짜</th>
                     <th className={styles.th}>조회수</th>
-                    <th className={styles.th}>관리</th>
+                    <th className={`${styles.th} ${styles.thActions}`}>관리</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -226,7 +222,7 @@ export default function AdminNoticesListPage() {
                         })}
                       </td>
                       <td className={styles.td}>{n.viewCount}</td>
-                      <td className={styles.td}>
+                      <td className={`${styles.td} ${styles.tdActions}`}>
                         <div className={styles.actions}>
                           <Link href={`/admin/notices/${n.id}/edit`} className={styles.actionBtn}>
                             수정

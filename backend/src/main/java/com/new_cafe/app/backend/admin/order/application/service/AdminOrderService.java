@@ -60,8 +60,45 @@ public class AdminOrderService implements AdminOrderUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public Map<String, Object> getOrderListSummary(String status, LocalDate fromDate, LocalDate toDate) {
+        LocalDateTime from = fromDate != null ? fromDate.atStartOfDay() : null;
+        LocalDateTime to = toDate != null ? toDate.atTime(LocalTime.MAX) : null;
+        long totalCount;
+        long totalRevenue;
+        if (status != null && !status.isBlank()) {
+            if (from != null && to != null) {
+                totalCount = orderRepositoryPort.countByStatusAndCreatedAtBetween(status, from, to);
+                totalRevenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween(status, from, to);
+            } else {
+                totalCount = orderRepositoryPort.countByStatus(status);
+                totalRevenue = 0; // status-only filter: revenue requires date range
+            }
+        } else if (from != null && to != null) {
+            totalCount = orderRepositoryPort.countByCreatedAtBetween(from, to);
+            totalRevenue = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(from, to);
+        } else {
+            totalCount = 0;
+            totalRevenue = 0;
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalCount", totalCount);
+        result.put("totalRevenue", totalRevenue);
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<Order> getOrderById(Long id) {
         return orderRepositoryPort.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteOrder(Long id) {
+        if (orderRepositoryPort.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("주문을 찾을 수 없습니다.");
+        }
+        orderRepositoryPort.deleteById(id);
     }
 
     @Override

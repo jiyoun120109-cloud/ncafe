@@ -49,37 +49,62 @@
   margin-bottom: 1rem;
 }
 
-.filterRow {
+.filterForm {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 1rem 1.5rem;
+  align-items: end;
+}
+
+.filterGroup {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6);
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  letter-spacing: 0.02em;
 }
 
-.select,
-.input {
+.filterSelect {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   background: #fff;
-}
-
-.select {
   min-width: 120px;
 }
 
-.input {
-  min-width: 140px;
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.filterBtn {
+.dateInput {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.dateSep {
+  margin: 0 0.15rem;
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.filterActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.searchBtn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -90,8 +115,60 @@
   cursor: pointer;
 }
 
-.filterBtn:hover {
+.searchBtn:hover {
   background: var(--color-primary-700, #6d4520);
+}
+
+.resetBtn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.resetBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1c1917;
+}
+
+.summaryCard {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+}
+
+.summaryTitle {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 0.5rem 0;
+}
+
+.summaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.summaryItem {
+  font-size: 0.875rem;
+  color: #1c1917;
+}
+
+.summaryItem strong {
+  margin-right: 0.35rem;
+}
+
+.summaryLoading {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0;
 }
 
 .sectionTitle {
@@ -139,6 +216,11 @@
   width: 4rem;
   color: rgba(0, 0, 0, 0.45);
   font-variant-numeric: tabular-nums;
+}
+
+.orderNumCell {
+  font-size: 0.8125rem;
+  white-space: nowrap;
 }
 
 .dateCell {
@@ -190,14 +272,21 @@
   color: #1c1917;
 }
 
+.actionBtnDanger,
 .actionBtnDelete {
   border-color: rgba(239, 68, 68, 0.4);
   color: #b91c1c;
 }
 
+.actionBtnDanger:hover:not(:disabled),
 .actionBtnDelete:hover {
   background: rgba(239, 68, 68, 0.08);
   color: #dc2626;
+}
+
+.actionBtnDanger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .loading,
@@ -241,4 +330,14 @@
 .pageInfo {
   font-size: 0.9rem;
   color: rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 768px) {
+  .filterForm {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .filterActions {
+    justify-content: flex-start;
+  }
 }

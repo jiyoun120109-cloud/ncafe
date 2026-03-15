@@ -2,6 +2,7 @@ import { getApiBase } from '@/services/api';
 
 export interface AdminOrderListItem {
   id: number;
+  orderNumber: string | null;
   userId: number | null;
   guestEmail: string | null;
   guestPhone: string | null;
@@ -31,11 +32,14 @@ export interface AdminOrderItemDto {
 
 export interface AdminOrderDetailDto {
   id: number;
+  orderNumber: string | null;
   userId: number | null;
+  userName?: string | null;
   guestEmail: string | null;
   guestPhone: string | null;
   status: string;
   totalAmount: number;
+  totalPrice?: number | null;
   appliedUserCouponId: number | null;
   createdAt: string;
   updatedAt: string | null;
@@ -91,6 +95,37 @@ export async function fetchAdminOrders(
   const res = await fetch(`${getApiBase()}/admin/orders?${params}`, { credentials: 'include' });
   if (!res.ok) throw new Error('주문 목록을 불러올 수 없습니다.');
   return res.json();
+}
+
+export interface AdminOrderListSummary {
+  totalCount: number;
+  totalRevenue: number;
+}
+
+export async function fetchAdminOrderListSummary(options?: {
+  status?: string;
+  fromDate?: string;
+  toDate?: string;
+}): Promise<AdminOrderListSummary> {
+  const params = new URLSearchParams();
+  if (options?.status?.trim()) params.set('status', options.status.trim());
+  if (options?.fromDate) params.set('fromDate', options.fromDate);
+  if (options?.toDate) params.set('toDate', options.toDate);
+  const q = params.toString();
+  const res = await fetch(`${getApiBase()}/admin/orders/stats/list-summary${q ? `?${q}` : ''}`, {
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error('집계를 불러올 수 없습니다.');
+  return res.json();
+}
+
+export async function deleteAdminOrder(id: number): Promise<void> {
+  const res = await fetch(`${getApiBase()}/admin/orders/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (res.status === 404) throw new Error('주문을 찾을 수 없습니다.');
+  if (!res.ok) throw new Error('주문 삭제에 실패했습니다.');
 }
 
 export async function fetchAdminOrder(id: number): Promise<AdminOrderDetailDto> {

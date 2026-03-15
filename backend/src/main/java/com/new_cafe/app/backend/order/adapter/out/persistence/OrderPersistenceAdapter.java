@@ -149,6 +149,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
 
     @Override
     @Transactional(readOnly = true)
+    public long countByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to) {
+        return orderJpaRepository.countByStatusAndCreatedAtBetween(status, from, to);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public long sumTotalAmountByCreatedAtBetween(LocalDateTime from, LocalDateTime to) {
         return orderJpaRepository.sumTotalAmountByCreatedAtBetween(from, to);
     }
@@ -157,6 +163,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
     @Transactional(readOnly = true)
     public long sumTotalAmountByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to) {
         return orderJpaRepository.sumTotalAmountByStatusAndCreatedAtBetween(status, from, to);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        orderJpaRepository.deleteById(id);
     }
 
     private Order toDomain(OrderEntity e) {

@@ -40,6 +40,42 @@
   margin-bottom: 0.35rem;
 }
 
+.fileInput {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.iconUploadRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.uploadTriggerBtn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.uploadTriggerBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.uploadTriggerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .input {
   width: 100%;
   max-width: 100%;
@@ -105,10 +141,11 @@
   table-layout: fixed;
 }
 
-.colId { width: 4.5rem; }
+.colOrder { width: 4rem; }
 .colIcon { width: 5rem; }
+.colName { min-width: 6rem; }
+.colDesc { min-width: 8rem; max-width: 16rem; }
 .colActions { width: 10rem; }
-.colName { width: auto; }
 
 .th {
   text-align: left;
@@ -137,7 +174,7 @@
   border-bottom: none;
 }
 
-.idCell {
+.orderCell {
   color: rgba(0, 0, 0, 0.45);
   font-variant-numeric: tabular-nums;
 }
@@ -147,6 +184,25 @@
   font-size: 1.25rem;
   line-height: 1.2;
   min-height: 1.5em;
+}
+
+.iconImg {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.descCell {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .nameCell {

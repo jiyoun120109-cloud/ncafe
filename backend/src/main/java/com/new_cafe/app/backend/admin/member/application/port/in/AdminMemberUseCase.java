@@ -13,9 +13,9 @@ import java.util.Optional;
 public interface AdminMemberUseCase {
 
     /**
-     * 회원 목록 조회 (페이징, 검색, 상태/가입일 필터)
+     * 회원 목록 조회 (페이징, 검색, 상태/역할/가입일 필터)
      */
-    Page<Member> getMemberList(int page, int size, String search, String status, LocalDate fromDate, LocalDate toDate);
+    Page<Member> getMemberList(int page, int size, String search, String status, String role, LocalDate fromDate, LocalDate toDate);
 
     /**
      * 회원 상세 조회

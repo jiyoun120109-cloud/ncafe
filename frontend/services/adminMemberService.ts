@@ -69,6 +69,7 @@ export interface AdminMemberListParams {
   size?: number;
   search?: string;
   status?: string;
+  role?: string;
   fromDate?: string; // YYYY-MM-DD
   toDate?: string;
 }
@@ -77,11 +78,12 @@ export async function fetchAdminMembers(
   page: number = 0,
   size: number = 20,
   search?: string,
-  params?: { status?: string; fromDate?: string; toDate?: string }
+  params?: { status?: string; role?: string; fromDate?: string; toDate?: string }
 ): Promise<AdminMemberListResponse> {
   const q = new URLSearchParams({ page: String(page), size: String(size) });
   if (search != null && search.trim() !== '') q.set('search', search.trim());
   if (params?.status) q.set('status', params.status);
+  if (params?.role) q.set('role', params.role);
   if (params?.fromDate) q.set('fromDate', params.fromDate);
   if (params?.toDate) q.set('toDate', params.toDate);
   const res = await fetch(`${getApiBase()}/admin/members?${q}`, { credentials: 'include' });

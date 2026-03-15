@@ -33,11 +33,12 @@ public class AdminMemberController {
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String role,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
-        Page<Member> result = adminMemberUseCase.getMemberList(page, size, search, status, fromDate, toDate);
+        Page<Member> result = adminMemberUseCase.getMemberList(page, size, search, status, role, fromDate, toDate);
         List<MemberListResponseDto> content = result.getContent().stream()
                 .map(MemberListResponseDto::from)
                 .collect(Collectors.toList());

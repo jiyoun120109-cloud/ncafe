@@ -22,7 +22,7 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
 
     @Override
     public List<Category> findAll() {
-        List<CategoryEntity> entities = categoryJpaRepository.findAll();
+        List<CategoryEntity> entities = categoryJpaRepository.findAllByOrderByIdAsc();
         return entities.stream()
             .map(this::toDomain)
             .collect(Collectors.toList());
@@ -55,6 +55,8 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
         CategoryEntity existing = categoryJpaRepository.findById(category.getId())
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category.getId()));
         existing.setName(category.getName());
+        existing.setIcon(category.getIcon());
+        existing.setDescription(category.getDescription());
         existing.setUpdatedAt(now);
         CategoryEntity saved = categoryJpaRepository.save(existing);
         return toDomain(saved);
