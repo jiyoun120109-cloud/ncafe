@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
@@ -69,21 +70,30 @@ public class TossPaymentsClient {
                 "amount", expectedAmount
         );
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> res = restTemplate.postForEntity(CONFIRM_URL, request, Map.class);
-
-        if (res.getBody() == null) {
-            throw new IllegalStateException("토스페이먼츠 결제 승인 응답이 비어 있습니다.");
-        }
-        Map<String, Object> payment = res.getBody();
-        Object statusObj = payment.get("status");
-        String status = statusObj != null ? statusObj.toString() : "";
-        if (!"DONE".equalsIgnoreCase(status)) {
-            throw new IllegalStateException("결제가 완료되지 않았습니다. status=" + status);
-        }
-        Object amountObj = payment.get("totalAmount");
-        long actualAmount = amountObj instanceof Number ? ((Number) amountObj).longValue() : Long.parseLong(String.valueOf(amountObj));
-        if (actualAmount != expectedAmount) {
-            throw new IllegalStateException("결제 금액이 일치하지 않습니다. expected=" + expectedAmount + ", actual=" + actualAmount);
+        try {
+            ResponseEntity<Map> res = restTemplate.postForEntity(CONFIRM_URL, request, Map.class);
+            if (res.getBody() == null) {
+                throw new IllegalStateException("토스페이먼츠 결제 승인 응답이 비어 있습니다.");
+            }
+            Map<String, Object> payment = res.getBody();
+            Object statusObj = payment.get("status");
+            String status = statusObj != null ? statusObj.toString() : "";
+            if (!"DONE".equalsIgnoreCase(status)) {
+                throw new IllegalStateException("결제가 완료되지 않았습니다. status=" + status);
+            }
+            Object amountObj = payment.get("totalAmount");
+            long actualAmount = amountObj instanceof Number ? ((Number) amountObj).longValue() : Long.parseLong(String.valueOf(amountObj));
+            if (actualAmount != expectedAmount) {
+                throw new IllegalStateException("결제 금액이 일치하지 않습니다. expected=" + expectedAmount + ", actual=" + actualAmount);
+            }
+        } catch (HttpStatusCodeException e) {
+            if (e.getStatusCode().value() == 400) {
+                String body = e.getResponseBodyAsString();
+                if (body != null && body.contains("ALREADY_PROCESSED_PAYMENT")) {
+                    return;
+                }
+            }
+            throw e;
         }
     }
 }
