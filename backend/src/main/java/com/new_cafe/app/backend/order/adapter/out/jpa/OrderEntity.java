@@ -18,6 +18,10 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 주문 번호 (노출용, 예: ORD-20260315135256-1234). DB에 order_number NOT NULL 컬럼이 있으면 필수 */
+    @Column(name = "order_number", length = 64)
+    private String orderNumber;
+
     @Column(name = "user_id")
     private Long userId;
 

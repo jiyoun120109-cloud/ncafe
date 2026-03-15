@@ -32,14 +32,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         String message = "해당 리소스를 참조하는 데이터가 있어 삭제할 수 없습니다.";
+        HttpStatus status = HttpStatus.CONFLICT;
         if (ex.getMessage() != null && ex.getMessage().contains("category")) {
             message = "해당 카테고리에 메뉴가 있어 삭제할 수 없습니다.";
         } else if (ex.getMessage() != null && (ex.getMessage().contains("orders") || ex.getMessage().contains("user") || ex.getMessage().contains("order_items"))) {
             message = "주문 저장에 실패했습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.";
+            // customer_id/user_id NOT NULL 위반 등 → 세션 미전달 가능성. 401로 재로그인 유도
+            String msg = ex.getMessage();
+            if (msg.contains("null") && (msg.contains("customer_id") || msg.contains("user_id"))) {
+                message = "로그인 세션이 만료되었습니다. 다시 로그인한 뒤 주문해 주세요.";
+                status = HttpStatus.UNAUTHORIZED;
+            }
         }
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(Map.of("error", "Conflict", "message", message));
+                .status(status)
+                .body(Map.of("error", status == HttpStatus.UNAUTHORIZED ? "Unauthorized" : "Conflict", "message", message));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

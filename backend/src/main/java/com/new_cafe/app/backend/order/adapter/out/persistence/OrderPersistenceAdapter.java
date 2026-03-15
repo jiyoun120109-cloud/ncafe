@@ -13,8 +13,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Repository
@@ -35,7 +37,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         LocalDateTime now = LocalDateTime.now();
         OrderEntity entity;
         if (order.getId() == null) {
+            String orderNumber = "ORD-" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "-" + String.format("%04d", ThreadLocalRandom.current().nextInt(10_000));
             entity = OrderEntity.builder()
+                .orderNumber(orderNumber)
                 .userId(order.getUserId())
                 .customerId(order.getUserId())
                 .guestEmail(order.getGuestEmail())
