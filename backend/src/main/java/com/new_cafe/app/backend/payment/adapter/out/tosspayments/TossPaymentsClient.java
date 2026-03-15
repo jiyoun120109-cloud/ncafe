@@ -88,8 +88,8 @@ public class TossPaymentsClient {
             }
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode().value() == 400) {
-                String body = e.getResponseBodyAsString();
-                if (body != null && body.contains("ALREADY_PROCESSED_PAYMENT")) {
+                String responseBody = e.getResponseBodyAsString();
+                if (responseBody != null && responseBody.contains("ALREADY_PROCESSED_PAYMENT")) {
                     return;
                 }
             }
