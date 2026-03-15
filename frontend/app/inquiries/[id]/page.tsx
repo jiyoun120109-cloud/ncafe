@@ -14,6 +14,14 @@ import {
 } from '@/services/inquiryService';
 import styles from './page.module.css';
 
+const INQUIRY_TYPE_LABELS: Record<string, string> = {
+  GENERAL: '일반 문의',
+  MENU: '메뉴/제품',
+  ORDER: '주문/결제',
+  STORE: '매장 이용',
+  ETC: '기타',
+};
+
 function buildReplyTree(replies: InquiryReplyDto[] = []) {
   const topLevel = replies.filter((r) => r.parentReplyId == null);
   const byParent = new Map<number, InquiryReplyDto[]>();
@@ -117,7 +125,10 @@ export default function InquiryDetailPage() {
         <Link href="/inquiries" className={styles.backLinkText}>← 이전으로</Link>
         <div className={styles.pageHeader}>
           <p className={styles.pageLabel}>Inquiry</p>
-          <h1 className={styles.pageTitle}>{inquiry.isPrivate ? '[비밀] ' : ''}{inquiry.title}</h1>
+          <div className={styles.titleRow}>
+            <h1 className={styles.pageTitle}>{inquiry.isPrivate ? '[비밀] ' : ''}{inquiry.title}</h1>
+            <span className={styles.inquiryTypeBadge}>{INQUIRY_TYPE_LABELS[inquiry.inquiryType ?? ''] ?? inquiry.inquiryType ?? '—'}</span>
+          </div>
           <p className={styles.date}>{new Date(inquiry.createdAt).toLocaleString('ko-KR')}</p>
         </div>
         <div className={styles.card}>
@@ -179,7 +190,7 @@ export default function InquiryDetailPage() {
                   </div>
                   <div className={styles.addCommentWrap}>
                     {addingFor === adminReply.id ? (
-                      <>
+                      <div className={styles.addCommentForm}>
                         <textarea
                           className={styles.replyTextarea}
                           value={newComment}
@@ -196,7 +207,7 @@ export default function InquiryDetailPage() {
                             취소
                           </button>
                         </div>
-                      </>
+                      </div>
                     ) : (
                       <button type="button" className={styles.addCommentBtn} onClick={() => setAddingFor(adminReply.id)}>
                         댓글 추가

@@ -6,6 +6,8 @@ import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampEntity;
 import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampJpaRepository;
+import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuEntity;
+import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
 import com.new_cafe.app.backend.order.model.Order;
@@ -22,17 +24,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 결제 서비스. 토스페이먼츠 연동.
- * 결제 완료 시 회원이면 스탬프 1개 적립, 10개 모이면 아메리카노 무료 쿠폰 발급.
+ * 결제 완료 시 회원이면 커피·음료(라떼/스무디/에이드/티) 개수당 스탬프 1개씩 적립, 10개 모이면 아메리카노 무료 쿠폰 발급.
  */
 @Service
 public class PaymentService implements ProcessPaymentUseCase {
 
+    /** 스탬프 적립 대상 카테고리 (커피 + 음료) */
+    private static final Set<String> STAMP_CATEGORY_NAMES = Set.of("커피", "라떼", "스무디", "에이드", "티");
+
     private final PaymentRepositoryPort paymentRepository;
     private final GetOrderUseCase getOrderUseCase;
     private final OrderRepositoryPort orderRepositoryPort;
+    private final MenuJpaRepository menuJpaRepository;
     private final UserStampJpaRepository userStampJpaRepository;
     private final UserCouponJpaRepository userCouponJpaRepository;
     private final CouponJpaRepository couponJpaRepository;
@@ -43,6 +50,7 @@ public class PaymentService implements ProcessPaymentUseCase {
 
     public PaymentService(PaymentRepositoryPort paymentRepository, GetOrderUseCase getOrderUseCase,
                           OrderRepositoryPort orderRepositoryPort,
+                          MenuJpaRepository menuJpaRepository,
                           UserStampJpaRepository userStampJpaRepository,
                           UserCouponJpaRepository userCouponJpaRepository,
                           CouponJpaRepository couponJpaRepository,
@@ -50,6 +58,7 @@ public class PaymentService implements ProcessPaymentUseCase {
         this.paymentRepository = paymentRepository;
         this.getOrderUseCase = getOrderUseCase;
         this.orderRepositoryPort = orderRepositoryPort;
+        this.menuJpaRepository = menuJpaRepository;
         this.userStampJpaRepository = userStampJpaRepository;
         this.userCouponJpaRepository = userCouponJpaRepository;
         this.couponJpaRepository = couponJpaRepository;
@@ -113,12 +122,23 @@ public class PaymentService implements ProcessPaymentUseCase {
                 userCouponJpaRepository.save(uc);
             });
         }
+        int stampsToAdd = 0;
+        for (var item : order.getItems()) {
+            Optional<MenuEntity> menuOpt = menuJpaRepository.findById(item.getMenuId());
+            if (menuOpt.isEmpty() || menuOpt.get().getCategory() == null) continue;
+            String categoryName = menuOpt.get().getCategory().getName();
+            if (categoryName != null && STAMP_CATEGORY_NAMES.contains(categoryName)) {
+                stampsToAdd += (item.getQuantity() != null ? item.getQuantity() : 1);
+            }
+        }
+        if (stampsToAdd <= 0) return;
+
         LocalDateTime now = LocalDateTime.now();
         UserStampEntity stamp = userStampJpaRepository.findByUserId(userId).orElse(null);
         if (stamp == null) {
-            stamp = UserStampEntity.builder().userId(userId).stampCount(1).createdAt(now).updatedAt(now).build();
+            stamp = UserStampEntity.builder().userId(userId).stampCount(stampsToAdd).createdAt(now).updatedAt(now).build();
         } else {
-            stamp.setStampCount(stamp.getStampCount() + 1);
+            stamp.setStampCount(stamp.getStampCount() + stampsToAdd);
             stamp.setUpdatedAt(now);
         }
         userStampJpaRepository.save(stamp);

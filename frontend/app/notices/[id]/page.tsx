@@ -33,13 +33,21 @@ export default function NoticeDetailPage() {
         <div className={styles.pageHeader}>
           <p className={styles.pageLabel}>Notice</p>
           <h1 className={styles.pageTitle}>{notice.title}</h1>
-          <p className={styles.date}>{new Date(notice.createdAt).toLocaleString('ko-KR')}</p>
+          <div className={styles.metaRow}>
+            <p className={styles.date}>{new Date(notice.createdAt).toLocaleString('ko-KR')}</p>
+            <p className={styles.viewCount}>조회 {(notice.viewCount ?? 0).toLocaleString()}</p>
+          </div>
         </div>
         <div className={styles.card}>
           <div
             className={styles.content}
             dangerouslySetInnerHTML={{ __html: notice.content || '' }}
           />
+        </div>
+        <div className={styles.footerActions}>
+          <Link href="/inquiries/new" className={styles.inquiryBtn}>
+            문의하기
+          </Link>
         </div>
       </div>
     </main>

@@ -1,6 +1,6 @@
 /* 관리자 대시보드/RAG 스타일 참고 · 고정 헤더 아래 여백 확보 */
 .main {
-  max-width: 720px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 7rem 1.5rem 3rem;
   min-height: 100vh;
@@ -50,7 +50,20 @@
   margin: 0;
 }
 
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .date {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.45);
+  margin: 0;
+}
+
+.viewCount {
   font-size: 0.8rem;
   color: rgba(0, 0, 0, 0.45);
   margin: 0;
@@ -77,6 +90,30 @@
 .content blockquote { margin: 0.75em 0; padding-left: 1em; border-left: 3px solid rgba(0,0,0,0.12); color: rgba(0,0,0,0.7); }
 .content pre, .content code { background: #f5f5f4; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
 .content pre { padding: 0.75em; overflow-x: auto; }
+
+.footerActions {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.inquiryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.inquiryBtn:hover {
+  background: var(--color-primary-700, #6d4520);
+}
 
 .loading {
   padding: 3rem;

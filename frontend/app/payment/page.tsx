@@ -80,8 +80,8 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
       completeRequestSent.current = true;
       const pgTid = paymentKeyParam || undefined;
       paymentComplete(orderId, pgTid)
-        .then(() => {
-          clearAll();
+        .then(async () => {
+          await clearAll();
           return getOrder(orderId);
         })
         .then((o) => {

@@ -81,10 +81,6 @@ export default function InquiriesPage() {
       <div className={styles.page}>
         <div className={styles.topRow}>
           <Link href="/" className={styles.backLinkText}>← 이전으로</Link>
-          <Link href="/inquiries/new" className={styles.writeBtn}>
-            <PenLine size={16} />
-            글쓰기
-          </Link>
         </div>
         {!loading && list.length > 0 && (
           <div className={styles.toolbar}>
@@ -169,6 +165,12 @@ export default function InquiriesPage() {
             </table>
           </div>
         )}
+        <div className={styles.bottomWriteWrap}>
+          <Link href="/inquiries/new" className={styles.writeBtn}>
+            <PenLine size={16} />
+            글쓰기
+          </Link>
+        </div>
       </div>
 
       {previewId != null && (

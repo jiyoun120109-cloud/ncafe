@@ -1,6 +1,6 @@
 /* 관리자 대시보드/RAG 스타일 참고 · 고정 헤더 아래 여백 확보 */
 .main {
-  max-width: 720px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 7rem 1.5rem 3rem;
   min-height: 100vh;
@@ -40,6 +40,13 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .pageTitle {
   font-family: var(--font-serif, Georgia, serif);
   font-size: 1.75rem;
@@ -48,6 +55,15 @@
   letter-spacing: -0.01em;
   line-height: 1.25;
   margin: 0;
+}
+
+.inquiryTypeBadge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  background: rgba(139, 90, 43, 0.1);
+  color: var(--color-primary-700, #6d4520);
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .date {
@@ -216,6 +232,12 @@
 
 .addCommentWrap {
   margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addCommentForm {
+  width: 100%;
 }
 
 .addCommentBtn {
