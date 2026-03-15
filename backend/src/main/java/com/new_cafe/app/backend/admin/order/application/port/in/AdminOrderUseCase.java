@@ -27,4 +27,10 @@ public interface AdminOrderUseCase {
      * @return list of { label, orderCount, revenue } for chart
      */
     List<Map<String, Object>> getOrderStatsByPeriod(String period);
+
+    /**
+     * 오늘 매출 상세: 상품별/카테고리별 건수·매출, 총건수·총매출
+     * @param date 대상 일자 (null이면 오늘)
+     */
+    Map<String, Object> getTodayRevenueBreakdown(LocalDate date);
 }

@@ -1,10 +1,14 @@
 package com.new_cafe.app.backend.admin.order.application.service;
 
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
+import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
+import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
 import com.new_cafe.app.backend.order.model.Order;
+import com.new_cafe.app.backend.order.model.OrderItem;
 import com.new_cafe.app.backend.visitor.adapter.out.jpa.VisitorLogJpaRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,21 +18,26 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminOrderService implements AdminOrderUseCase {
 
     private final OrderRepositoryPort orderRepositoryPort;
     private final VisitorLogJpaRepository visitorLogJpaRepository;
+    private final MenuRepositoryPort menuRepositoryPort;
 
     public AdminOrderService(OrderRepositoryPort orderRepositoryPort,
-                             VisitorLogJpaRepository visitorLogJpaRepository) {
+                             VisitorLogJpaRepository visitorLogJpaRepository,
+                             MenuRepositoryPort menuRepositoryPort) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.visitorLogJpaRepository = visitorLogJpaRepository;
+        this.menuRepositoryPort = menuRepositoryPort;
     }
 
     @Override
@@ -81,12 +90,12 @@ public class AdminOrderService implements AdminOrderUseCase {
         LocalDateTime to = target.atTime(LocalTime.MAX);
 
         long ordersToday = orderRepositoryPort.countByCreatedAtBetween(from, to);
-        long revenueToday = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(from, to);
+        long revenueToday = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID", from, to);
 
         LocalDate yesterday = target.minusDays(1);
         long ordersYesterday = orderRepositoryPort.countByCreatedAtBetween(
                 yesterday.atStartOfDay(), yesterday.atTime(LocalTime.MAX));
-        long revenueYesterday = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(
+        long revenueYesterday = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID",
                 yesterday.atStartOfDay(), yesterday.atTime(LocalTime.MAX));
 
         long pendingCount = orderRepositoryPort.countByStatus("PENDING");
@@ -119,7 +128,7 @@ public class AdminOrderService implements AdminOrderUseCase {
                 LocalDateTime from = weekStart.atStartOfDay();
                 LocalDateTime to = (i == 3 ? today.plusDays(1) : weekEndExclusive).atStartOfDay();
                 long orderCount = orderRepositoryPort.countByCreatedAtBetween(from, to);
-                long revenue = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(from, to);
+                long revenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID", from, to);
                 long visitorCount = visitorLogJpaRepository.countByVisitedAtBetween(from, to);
                 Map<String, Object> point = new HashMap<>();
                 point.put("label", weekStart.format(fmt) + "~" + (i == 3 ? today : weekEndExclusive.minusDays(1)).format(fmt));
@@ -136,7 +145,7 @@ public class AdminOrderService implements AdminOrderUseCase {
                 LocalDateTime from = monthStart.atStartOfDay();
                 LocalDateTime to = monthStart.plusMonths(1).atStartOfDay();
                 long orderCount = orderRepositoryPort.countByCreatedAtBetween(from, to);
-                long revenue = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(from, to);
+                long revenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID", from, to);
                 long visitorCount = visitorLogJpaRepository.countByVisitedAtBetween(from, to);
                 Map<String, Object> point = new HashMap<>();
                 point.put("label", monthStart.format(fmt));
@@ -153,7 +162,7 @@ public class AdminOrderService implements AdminOrderUseCase {
                 LocalDateTime from = day.atStartOfDay();
                 LocalDateTime to = day.plusDays(1).atStartOfDay();
                 long orderCount = orderRepositoryPort.countByCreatedAtBetween(from, to);
-                long revenue = orderRepositoryPort.sumTotalAmountByCreatedAtBetween(from, to);
+                long revenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID", from, to);
                 long visitorCount = visitorLogJpaRepository.countByVisitedAtBetween(from, to);
                 Map<String, Object> point = new HashMap<>();
                 point.put("label", day.format(fmt));
@@ -163,6 +172,77 @@ public class AdminOrderService implements AdminOrderUseCase {
                 result.add(point);
             }
         }
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getTodayRevenueBreakdown(LocalDate date) {
+        LocalDate target = date != null ? date : LocalDate.now();
+        LocalDateTime from = target.atStartOfDay();
+        LocalDateTime to = target.plusDays(1).atStartOfDay();
+
+        Map<String, int[]> byProduct = new HashMap<>();
+        Map<String, int[]> byCategory = new HashMap<>();
+        int totalCount = 0;
+        long totalRevenue = 0L;
+
+        int page = 0;
+        int size = 100;
+        Page<Order> orderPage;
+        do {
+            Pageable pageable = PageRequest.of(page, size);
+            orderPage = orderRepositoryPort.findByStatusAndCreatedAtBetweenOrderByCreatedAtDesc("PAID", from, to, pageable);
+            for (Order order : orderPage.getContent()) {
+                totalRevenue += (order.getTotalAmount() != null ? order.getTotalAmount() : 0);
+                if (order.getItems() == null) continue;
+                for (OrderItem item : order.getItems()) {
+                    int qty = item.getQuantity() != null ? item.getQuantity() : 0;
+                    int unitPrice = item.getUnitPrice() != null ? item.getUnitPrice() : 0;
+                    int extra = item.getOptionExtraPrice() != null ? item.getOptionExtraPrice() : 0;
+                    long lineRevenue = (long) qty * unitPrice + extra;
+                    String menuName = item.getMenuName() != null ? item.getMenuName() : "미상";
+                    Long menuId = item.getMenuId();
+
+                    byProduct.computeIfAbsent(menuName, k -> new int[]{0, 0})[0] += qty;
+                    byProduct.get(menuName)[1] += (int) lineRevenue;
+
+                    String categoryName = "미분류";
+                    if (menuId != null) {
+                        Menu menu = menuRepositoryPort.findById(menuId);
+                        if (menu != null && menu.getCategory() != null && menu.getCategory().getName() != null) {
+                            categoryName = menu.getCategory().getName();
+                        }
+                    }
+                    byCategory.computeIfAbsent(categoryName, k -> new int[]{0, 0})[0] += qty;
+                    byCategory.get(categoryName)[1] += (int) lineRevenue;
+
+                    totalCount += qty;
+                }
+            }
+            page++;
+        } while (orderPage.hasNext());
+
+        List<Map<String, Object>> byProductList = byProduct.entrySet().stream()
+                .sorted(Comparator.<Map.Entry<String, int[]>>comparingInt(e -> e.getValue()[1]).reversed())
+                .map(e -> Map.<String, Object>of(
+                        "menuName", e.getKey(),
+                        "count", e.getValue()[0],
+                        "revenue", e.getValue()[1]))
+                .collect(Collectors.toList());
+        List<Map<String, Object>> byCategoryList = byCategory.entrySet().stream()
+                .sorted(Comparator.<Map.Entry<String, int[]>>comparingInt(e -> e.getValue()[1]).reversed())
+                .map(e -> Map.<String, Object>of(
+                        "categoryName", e.getKey(),
+                        "count", e.getValue()[0],
+                        "revenue", e.getValue()[1]))
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("byProduct", byProductList);
+        result.put("byCategory", byCategoryList);
+        result.put("totalCount", totalCount);
+        result.put("totalRevenue", totalRevenue);
         return result;
     }
 }

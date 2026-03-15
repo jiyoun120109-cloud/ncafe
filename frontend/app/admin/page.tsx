@@ -19,10 +19,12 @@ import {
     fetchAdminOrderStats,
     fetchAdminOrderStatsPeriod,
     fetchAdminOrders,
+    fetchTodayRevenueBreakdown,
     getOrderStatusLabel,
     type AdminOrderStats,
     type AdminOrderStatsPeriodPoint,
     type AdminOrderListItem,
+    type TodayRevenueBreakdown,
     type StatsPeriod,
 } from '@/services/adminOrderService';
 import styles from './page.module.css';
@@ -33,7 +35,7 @@ const PERIODS: { key: StatsPeriod; label: string }[] = [
     { key: 'month', label: '월간' },
 ];
 
-type DetailType = 'orders_today' | 'revenue_today' | 'pending' | 'paid' | 'visitors' | 'period' | null;
+type DetailType = 'orders_today' | 'revenue_today' | 'pending_paid' | 'visitors' | 'period' | null;
 
 function todayISO(): string {
     const d = new Date();
@@ -50,6 +52,9 @@ export default function AdminDashboardPage() {
 
     const [selectedDetail, setSelectedDetail] = useState<DetailType>(null);
     const [detailOrders, setDetailOrders] = useState<AdminOrderListItem[]>([]);
+    const [detailOrdersPending, setDetailOrdersPending] = useState<AdminOrderListItem[]>([]);
+    const [detailOrdersPaid, setDetailOrdersPaid] = useState<AdminOrderListItem[]>([]);
+    const [todayRevenueBreakdown, setTodayRevenueBreakdown] = useState<TodayRevenueBreakdown | null>(null);
     const [detailLoading, setDetailLoading] = useState(false);
     const [detailError, setDetailError] = useState<string | null>(null);
 
@@ -72,26 +77,49 @@ export default function AdminDashboardPage() {
         loadPeriodStats(period);
     }, [period, loadPeriodStats]);
 
-    const loadDetailOrders = useCallback((type: 'orders_today' | 'revenue_today' | 'pending' | 'paid') => {
+    const loadDetailOrders = useCallback((type: 'orders_today') => {
         setDetailError(null);
         setDetailLoading(true);
         const today = todayISO();
-        const opts =
-            type === 'orders_today' || type === 'revenue_today'
-                ? { fromDate: today, toDate: today }
-                : type === 'pending'
-                  ? { status: 'PENDING' }
-                  : { status: 'PAID' };
-        fetchAdminOrders(0, 100, opts)
+        fetchAdminOrders(0, 100, { fromDate: today, toDate: today })
             .then((res) => setDetailOrders(res.content ?? []))
             .catch(() => setDetailError('목록을 불러올 수 없습니다.'))
             .finally(() => setDetailLoading(false));
     }, []);
 
+    const loadPendingAndPaid = useCallback(() => {
+        setDetailError(null);
+        setDetailLoading(true);
+        Promise.all([
+            fetchAdminOrders(0, 100, { status: 'PENDING' }),
+            fetchAdminOrders(0, 100, { status: 'PAID' }),
+        ])
+            .then(([pendingRes, paidRes]) => {
+                setDetailOrdersPending(pendingRes.content ?? []);
+                setDetailOrdersPaid(paidRes.content ?? []);
+            })
+            .catch(() => setDetailError('목록을 불러올 수 없습니다.'))
+            .finally(() => setDetailLoading(false));
+    }, []);
+
+    const loadTodayRevenueBreakdown = useCallback(() => {
+        setDetailError(null);
+        setDetailLoading(true);
+        setTodayRevenueBreakdown(null);
+        fetchTodayRevenueBreakdown()
+            .then(setTodayRevenueBreakdown)
+            .catch(() => setDetailError('오늘 매출 상세를 불러올 수 없습니다.'))
+            .finally(() => setDetailLoading(false));
+    }, []);
+
     const handleStatClick = (detail: DetailType) => {
         setSelectedDetail(detail);
-        if (detail === 'orders_today' || detail === 'revenue_today' || detail === 'pending' || detail === 'paid') {
-            loadDetailOrders(detail);
+        if (detail === 'revenue_today') {
+            loadTodayRevenueBreakdown();
+        } else if (detail === 'orders_today') {
+            loadDetailOrders('orders_today');
+        } else if (detail === 'pending_paid') {
+            loadPendingAndPaid();
         }
     };
 
@@ -114,8 +142,7 @@ export default function AdminDashboardPage() {
     const statCards: { label: string; value: string; sub: string; alert?: boolean; detail: DetailType }[] = [
         { label: '오늘 주문', value: String(ordersToday), sub: orderDiffText, detail: 'orders_today' },
         { label: '오늘 매출', value: `₩${revenueToday.toLocaleString()}`, sub: revenueDiffText, detail: 'revenue_today' },
-        { label: '결제대기', value: String(pendingCount), sub: '주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending' },
-        { label: '결제완료', value: String(paidCount), sub: '처리 대기 중', detail: 'paid' },
+        { label: '결제대기/결제완료', value: `${pendingCount}/${paidCount}`, sub: '주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending_paid' },
         { label: '방문자 수', value: periodTotalVisitors.toLocaleString(), sub: `선택 기간 합계 (${PERIODS.find((x) => x.key === period)?.label})`, detail: 'visitors' },
     ];
 
@@ -131,17 +158,16 @@ export default function AdminDashboardPage() {
             ? '오늘 주문 상세'
             : selectedDetail === 'revenue_today'
               ? '오늘 매출 상세'
-              : selectedDetail === 'pending'
-                ? '결제대기 주문'
-                : selectedDetail === 'paid'
-                  ? '결제완료 주문'
-                  : selectedDetail === 'visitors' || selectedDetail === 'period'
+              : selectedDetail === 'pending_paid'
+                ? '결제대기 / 결제완료'
+                : selectedDetail === 'visitors' || selectedDetail === 'period'
                     ? `기간별 통계 (${PERIODS.find((x) => x.key === period)?.label})`
                     : '';
 
     const showPeriodTable = selectedDetail === 'visitors' || selectedDetail === 'period';
     const showOrdersTable =
-        selectedDetail === 'orders_today' || selectedDetail === 'revenue_today' || selectedDetail === 'pending' || selectedDetail === 'paid';
+        selectedDetail === 'orders_today' || selectedDetail === 'pending_paid';
+    const showRevenueBreakdown = selectedDetail === 'revenue_today';
 
     const sortedDetailOrders = useMemo(() =>
         [...detailOrders].sort((a, b) =>
@@ -149,7 +175,23 @@ export default function AdminDashboardPage() {
         ),
         [detailOrders]
     );
-    const sortedPeriodStats = useMemo(() => [...periodStats].reverse(), [periodStats]);
+    const sortedDetailOrdersPending = useMemo(() =>
+        [...detailOrdersPending].sort((a, b) =>
+            new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+        ),
+        [detailOrdersPending]
+    );
+    const sortedDetailOrdersPaid = useMemo(() =>
+        [...detailOrdersPaid].sort((a, b) =>
+            new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+        ),
+        [detailOrdersPaid]
+    );
+    const sortedPeriodStats = useMemo(() => {
+        const list = [...periodStats];
+        if (period === 'week') return list;
+        return list.reverse();
+    }, [periodStats, period]);
 
     return (
         <div className={styles.dashboardLayout}>
@@ -304,11 +346,75 @@ export default function AdminDashboardPage() {
                         </button>
                     </div>
                     <div className={styles.detailPanelBody}>
+                        {showRevenueBreakdown && (
+                            <>
+                                {detailLoading && <p className={styles.detailLoading}>불러오는 중...</p>}
+                                {detailError && <p className={styles.errorText}>{detailError}</p>}
+                                {!detailLoading && !detailError && todayRevenueBreakdown && (
+                                    <>
+                                        <div className={styles.revenueSummary}>
+                                            <p><strong>총건수</strong> {todayRevenueBreakdown.totalCount.toLocaleString()}건</p>
+                                            <p><strong>총매출</strong> ₩{todayRevenueBreakdown.totalRevenue.toLocaleString()}</p>
+                                        </div>
+                                        <p className={styles.breakdownSectionTitle}>상품별 (건수 / 매출)</p>
+                                        <div className={styles.detailTableWrap}>
+                                            <table className={styles.detailTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>상품명</th>
+                                                        <th>건수</th>
+                                                        <th>매출</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {todayRevenueBreakdown.byProduct.length === 0 ? (
+                                                        <tr><td colSpan={3} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
+                                                    ) : (
+                                                        todayRevenueBreakdown.byProduct.map((row, i) => (
+                                                            <tr key={i}>
+                                                                <td>{row.menuName}</td>
+                                                                <td>{row.count.toLocaleString()}</td>
+                                                                <td>₩{row.revenue.toLocaleString()}</td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p className={styles.breakdownSectionTitle}>카테고리별 (건수 / 매출)</p>
+                                        <div className={styles.detailTableWrap}>
+                                            <table className={styles.detailTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>카테고리</th>
+                                                        <th>건수</th>
+                                                        <th>매출</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {todayRevenueBreakdown.byCategory.length === 0 ? (
+                                                        <tr><td colSpan={3} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
+                                                    ) : (
+                                                        todayRevenueBreakdown.byCategory.map((row, i) => (
+                                                            <tr key={i}>
+                                                                <td>{row.categoryName}</td>
+                                                                <td>{row.count.toLocaleString()}</td>
+                                                                <td>₩{row.revenue.toLocaleString()}</td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </>
+                                )}
+                            </>
+                        )}
                         {showOrdersTable && (
                             <>
                                 {detailLoading && <p className={styles.detailLoading}>불러오는 중...</p>}
                                 {detailError && <p className={styles.errorText}>{detailError}</p>}
-                                {!detailLoading && !detailError && (
+                                {!detailLoading && !detailError && selectedDetail === 'orders_today' && (
                                     <div className={styles.detailTableWrap}>
                                         <table className={styles.detailTable}>
                                             <thead>
@@ -339,6 +445,68 @@ export default function AdminDashboardPage() {
                                             </tbody>
                                         </table>
                                     </div>
+                                )}
+                                {!detailLoading && !detailError && selectedDetail === 'pending_paid' && (
+                                    <>
+                                        <p className={styles.breakdownSectionTitle}>결제대기</p>
+                                        <div className={styles.detailTableWrap}>
+                                            <table className={styles.detailTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>주문번호</th>
+                                                        <th>금액</th>
+                                                        <th>품목수</th>
+                                                        <th>주문일시</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sortedDetailOrdersPending.length === 0 ? (
+                                                        <tr><td colSpan={5} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
+                                                    ) : (
+                                                        sortedDetailOrdersPending.map((o) => (
+                                                            <tr key={o.id}>
+                                                                <td>{o.id}</td>
+                                                                <td>₩{(o.totalAmount ?? 0).toLocaleString()}</td>
+                                                                <td>{o.itemCount ?? 0}</td>
+                                                                <td>{o.createdAt ? new Date(o.createdAt).toLocaleString('ko-KR') : '-'}</td>
+                                                                <td><Link href={`/admin/orders/${o.id}`} className={styles.detailLink}>상세</Link></td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p className={styles.breakdownSectionTitle}>결제완료</p>
+                                        <div className={styles.detailTableWrap}>
+                                            <table className={styles.detailTable}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>주문번호</th>
+                                                        <th>금액</th>
+                                                        <th>품목수</th>
+                                                        <th>주문일시</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sortedDetailOrdersPaid.length === 0 ? (
+                                                        <tr><td colSpan={5} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
+                                                    ) : (
+                                                        sortedDetailOrdersPaid.map((o) => (
+                                                            <tr key={o.id}>
+                                                                <td>{o.id}</td>
+                                                                <td>₩{(o.totalAmount ?? 0).toLocaleString()}</td>
+                                                                <td>{o.itemCount ?? 0}</td>
+                                                                <td>{o.createdAt ? new Date(o.createdAt).toLocaleString('ko-KR') : '-'}</td>
+                                                                <td><Link href={`/admin/orders/${o.id}`} className={styles.detailLink}>상세</Link></td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </>
                                 )}
                             </>
                         )}

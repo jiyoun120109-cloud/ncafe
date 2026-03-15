@@ -45,7 +45,7 @@
 /* ── 통계 그리드 ── */
 .statsGrid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1px;
     background: rgba(0, 0, 0, 0.07);
     border: 1px solid rgba(0, 0, 0, 0.07);
@@ -276,9 +276,12 @@
    ================================================================ */
 
 .detailPanel {
-    width: 420px;
-    min-width: 420px;
+    width: 520px;
+    min-width: 360px;
+    max-width: min(90vw, 720px);
     flex-shrink: 0;
+    resize: horizontal;
+    overflow: hidden;
     background: #faf9f7;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 10px;
@@ -329,6 +332,36 @@
     overflow: auto;
     flex: 1;
 }
+
+.revenueSummary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 8px;
+}
+
+.revenueSummary p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #1c1917;
+}
+
+.revenueSummary strong {
+    margin-right: 0.35rem;
+}
+
+.breakdownSectionTitle {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.45);
+    margin: 1rem 0 0.5rem 0;
+}
+
 
 .detailLoading {
     font-size: 0.875rem;
@@ -387,8 +420,9 @@
 
 @media (max-width: 1200px) {
     .detailPanel {
-        width: 360px;
-        min-width: 360px;
+        width: 480px;
+        min-width: 320px;
+        max-width: min(90vw, 640px);
     }
 }
 
@@ -401,8 +435,10 @@
     .detailPanel {
         width: 100%;
         min-width: 0;
+        max-width: none;
         max-height: 70vh;
         margin-right: 0;
         margin-top: 1rem;
+        resize: none;
     }
 }

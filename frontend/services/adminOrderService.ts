@@ -131,3 +131,18 @@ export async function cancelAdminOrder(orderId: number): Promise<AdminOrderDetai
   }
   return res.json();
 }
+
+/** 오늘 매출 상세: 상품별/카테고리별 건수·매출, 총건수·총매출 (결제완료만) */
+export interface TodayRevenueBreakdown {
+  byProduct: { menuName: string; count: number; revenue: number }[];
+  byCategory: { categoryName: string; count: number; revenue: number }[];
+  totalCount: number;
+  totalRevenue: number;
+}
+
+export async function fetchTodayRevenueBreakdown(date?: string): Promise<TodayRevenueBreakdown> {
+  const params = date ? `?date=${date}` : '';
+  const res = await fetch(`${getApiBase()}/admin/orders/stats/today-breakdown${params}`, { credentials: 'include' });
+  if (!res.ok) throw new Error('오늘 매출 상세를 불러올 수 없습니다.');
+  return res.json();
+}

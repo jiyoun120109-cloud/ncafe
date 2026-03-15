@@ -71,6 +71,15 @@ public class AdminOrderController {
         return ResponseEntity.ok(adminOrderUseCase.getOrderStatsByPeriod(period));
     }
 
+    @GetMapping("/stats/today-breakdown")
+    public ResponseEntity<Map<String, Object>> todayBreakdown(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(adminOrderUseCase.getTodayRevenueBreakdown(date));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> get(
             @RequestHeader(value = "Authorization", required = false) String authorization,

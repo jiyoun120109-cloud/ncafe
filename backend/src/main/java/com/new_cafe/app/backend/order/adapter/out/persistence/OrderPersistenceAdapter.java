@@ -153,6 +153,12 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         return orderJpaRepository.sumTotalAmountByCreatedAtBetween(from, to);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public long sumTotalAmountByStatusAndCreatedAtBetween(String status, LocalDateTime from, LocalDateTime to) {
+        return orderJpaRepository.sumTotalAmountByStatusAndCreatedAtBetween(status, from, to);
+    }
+
     private Order toDomain(OrderEntity e) {
         List<OrderItem> items = orderItemJpaRepository.findByOrderId(e.getId()).stream()
             .map(oi -> OrderItem.builder()
