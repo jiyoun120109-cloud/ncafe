@@ -11,7 +11,7 @@ import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
 import com.new_cafe.app.backend.order.model.Order;
 import com.new_cafe.app.backend.payment.application.port.in.ProcessPaymentUseCase;
 import com.new_cafe.app.backend.payment.application.port.out.PaymentRepositoryPort;
-import com.new_cafe.app.backend.payment.adapter.out.portone.PortOneClient;
+import com.new_cafe.app.backend.payment.adapter.out.tosspayments.TossPaymentsClient;
 import com.new_cafe.app.backend.payment.model.Payment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 결제 서비스. 포트원(아임포트) 테스트 결제 연동.
+ * 결제 서비스. 토스페이먼츠 연동.
  * 결제 완료 시 회원이면 스탬프 1개 적립, 10개 모이면 아메리카노 무료 쿠폰 발급.
  */
 @Service
@@ -36,7 +36,7 @@ public class PaymentService implements ProcessPaymentUseCase {
     private final UserStampJpaRepository userStampJpaRepository;
     private final UserCouponJpaRepository userCouponJpaRepository;
     private final CouponJpaRepository couponJpaRepository;
-    private final PortOneClient portOneClient;
+    private final TossPaymentsClient tossPaymentsClient;
 
     @Value("${kakao.pay.redirect-url:}")
     private String kakaoPayRedirectUrl;
@@ -46,14 +46,14 @@ public class PaymentService implements ProcessPaymentUseCase {
                           UserStampJpaRepository userStampJpaRepository,
                           UserCouponJpaRepository userCouponJpaRepository,
                           CouponJpaRepository couponJpaRepository,
-                          PortOneClient portOneClient) {
+                          TossPaymentsClient tossPaymentsClient) {
         this.paymentRepository = paymentRepository;
         this.getOrderUseCase = getOrderUseCase;
         this.orderRepositoryPort = orderRepositoryPort;
         this.userStampJpaRepository = userStampJpaRepository;
         this.userCouponJpaRepository = userCouponJpaRepository;
         this.couponJpaRepository = couponJpaRepository;
-        this.portOneClient = portOneClient;
+        this.tossPaymentsClient = tossPaymentsClient;
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class PaymentService implements ProcessPaymentUseCase {
         Order order = orderOpt.get();
         Payment payment = paymentRepository.save(Payment.builder()
                 .orderId(orderId)
-                .method(method != null ? method : "PORTONE")
+                .method(method != null ? method : "TOSS")
                 .status("PENDING")
                 .amount(order.getTotalAmount())
                 .createdAt(LocalDateTime.now())
@@ -82,11 +82,11 @@ public class PaymentService implements ProcessPaymentUseCase {
 
     @Transactional
     public void complete(Long orderId, String pgTid) {
-        if (portOneClient.isConfigured()) {
+        if (tossPaymentsClient.isConfigured()) {
             if (pgTid == null || pgTid.isBlank()) {
-                throw new IllegalArgumentException("결제 거래번호가 없습니다. 포트원 결제 후 다시 시도해 주세요.");
+                throw new IllegalArgumentException("결제 키가 없습니다. 토스페이먼츠 결제 후 다시 시도해 주세요.");
             }
-            portOneClient.verifyPayment(pgTid, orderId, getOrderUseCase);
+            tossPaymentsClient.verifyAndConfirm(pgTid, orderId, getOrderUseCase);
         }
         paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
             p.setStatus("DONE");

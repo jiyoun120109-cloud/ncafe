@@ -12,38 +12,38 @@ import { getUserCoupons, type UserCouponDto } from '@/services/userService';
 import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import styles from './page.module.css';
 
-const PORTONE_SCRIPT = 'https://cdn.iamport.kr/v1/iamport.js';
-const STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID || 'imp68052782';
-/** 포트원 PG 코드. 나이스페이먼츠 복수 채널 시 nice.상점ID (예: nice.iamport03m). 단일 채널이면 nice. (값 변경 후 dev 서버 재시작·브라우저 강력 새로고침 필요) */
-const PG_CODE = process.env.NEXT_PUBLIC_PORTONE_PG ?? 'nice_v2.iamport03m';
+const TOSS_SCRIPT = 'https://js.tosspayments.com/v1/payment';
+const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
+
+/** 토스 orderId 형식: 6~64자 (백엔드와 동일) */
+function toTossOrderId(orderId: number): string {
+  return `ncafe-${orderId}`;
+}
 
 declare global {
   interface Window {
-    IMP?: {
-      init: (storeId: string) => void;
-      request_pay: (
+    TossPayments?: (clientKey: string) => {
+      requestPayment: (
+        method: string,
         params: {
-          pg?: string;
-          pay_method?: string;
-          merchant_uid: string;
-          name?: string;
           amount: number;
-          buyer_email?: string;
-          buyer_name?: string;
-          buyer_tel?: string;
-          m_redirect_url?: string;
-        },
-        callback: (rsp: { success?: boolean; imp_uid?: string; error_msg?: string }) => void
-      ) => void;
+          orderId: string;
+          orderName: string;
+          successUrl: string;
+          failUrl: string;
+        }
+      ) => Promise<void>;
     };
   }
 }
 
-function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
+function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const searchParams = useSearchParams();
   const orderIdParam = searchParams.get('orderId');
   const complete = searchParams.get('complete') === '1';
-  const impUidParam = searchParams.get('imp_uid');
+  const fail = searchParams.get('fail') === '1';
+  const paymentKeyParam = searchParams.get('paymentKey');
+  const failMessage = searchParams.get('message') || searchParams.get('code') || null;
   const orderId = orderIdParam ? parseInt(orderIdParam, 10) : null;
 
   const { clearAll } = useCart();
@@ -62,8 +62,11 @@ function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
       setError('주문 정보가 없습니다.');
       return;
     }
+    if (fail && failMessage) {
+      setError(decodeURIComponent(failMessage));
+    }
     if (complete) {
-      const pgTid = impUidParam || undefined;
+      const pgTid = paymentKeyParam || undefined;
       paymentComplete(orderId, pgTid)
         .then(() => {
           setCompleted(true);
@@ -77,7 +80,7 @@ function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
       .then(setOrder)
       .catch((e) => setError(e instanceof Error ? e.message : '주문을 불러올 수 없습니다.'))
       .finally(() => setLoading(false));
-  }, [orderId, complete, impUidParam, clearAll]);
+  }, [orderId, complete, fail, failMessage, paymentKeyParam, clearAll]);
 
   useEffect(() => {
     if (isAuthenticated && orderId && !complete) {
@@ -103,59 +106,35 @@ function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
     }
   };
 
-  const handlePortOnePay = async () => {
+  const handleTossPay = async () => {
     if (!orderId || isNaN(orderId) || !order) return;
-    if (!portoneLoaded || !window.IMP) {
+    if (!tossLoaded || !TOSS_CLIENT_KEY || !window.TossPayments) {
       setError('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
       return;
     }
     setPaying(true);
     setError(null);
     try {
-      await paymentReady(orderId, 'PORTONE');
-      const redirectUrl =
-        typeof window !== 'undefined' ? `${window.location.origin}/payment?orderId=${orderId}&complete=1` : '';
-      window.IMP.init(STORE_ID);
-      const payParams: {
-        pg?: string;
-        pay_method: string;
-        merchant_uid: string;
-        name?: string;
-        amount: number;
-        buyer_email?: string;
-        buyer_name?: string;
-        buyer_tel?: string;
-        m_redirect_url?: string;
-      } = {
-          pay_method: 'card',
-          merchant_uid: String(orderId),
-          name: order.items.length > 0 ? `${order.items[0].menuName} 외 ${order.items.length - 1}건` : `주문 #${orderId}`,
-          amount: order.totalAmount,
-          buyer_email: order.guestEmail || 'guest@test.com',
-          buyer_name: '주문자',
-          buyer_tel: order.guestPhone || '010-0000-0000',
-          m_redirect_url: redirectUrl,
-        };
-      if (PG_CODE) payParams.pg = PG_CODE;
-      window.IMP.request_pay(
-        payParams,
-        (rsp) => {
-          setPaying(false);
-          if (rsp.success && rsp.imp_uid) {
-            paymentComplete(orderId, rsp.imp_uid)
-              .then(() => {
-                setCompleted(true);
-                clearAll();
-              })
-              .catch((e) => setError(e instanceof Error ? e.message : '결제 완료 처리에 실패했습니다.'));
-          } else {
-            const msg = rsp.error_msg || '결제가 취소되었거나 실패했습니다.';
-            setError(msg);
-          }
-        }
-      );
+      await paymentReady(orderId, 'TOSS');
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const successUrl = `${origin}/payment?orderId=${orderId}&complete=1`;
+      const failUrl = `${origin}/payment?orderId=${orderId}&fail=1`;
+      const orderName =
+        order.items.length > 0
+          ? `${order.items[0].menuName} 외 ${order.items.length - 1}건`
+          : `주문 #${orderId}`;
+
+      const tossPayments = window.TossPayments(TOSS_CLIENT_KEY);
+      await tossPayments.requestPayment('CARD', {
+        amount: order.totalAmount,
+        orderId: toTossOrderId(orderId),
+        orderName,
+        successUrl,
+        failUrl,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : '결제 준비에 실패했습니다.');
+    } finally {
       setPaying(false);
     }
   };
@@ -281,14 +260,14 @@ function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
 
             <section className={styles.paymentSection}>
               <p className={styles.paymentHint}>
-                포트원 결제창으로 안전하게 결제합니다. (테스트 환경)
+                토스페이먼츠 결제창으로 안전하게 결제합니다. (테스트 환경)
               </p>
               {error && <p className={styles.error} role="alert">{error}</p>}
               <button
                 type="button"
                 className={styles.kakaoBtn}
-                onClick={handlePortOnePay}
-                disabled={paying || !portoneLoaded}
+                onClick={handleTossPay}
+                disabled={paying || !tossLoaded || !TOSS_CLIENT_KEY}
               >
                 <CreditCard size={20} />
                 {paying ? '결제창을 여는 중...' : '결제하기'}
@@ -303,29 +282,21 @@ function PaymentContent({ portoneLoaded }: { portoneLoaded: boolean }) {
 export default function PaymentPage() {
   return (
     <>
-      <Script
-        src={PORTONE_SCRIPT}
-        strategy="afterInteractive"
-        onLoad={() => {
-          if (typeof window !== 'undefined' && window.IMP) {
-            window.IMP.init(STORE_ID);
-          }
-        }}
-      />
+      <Script src={TOSS_SCRIPT} strategy="afterInteractive" />
       <PaymentContentWrapper />
     </>
   );
 }
 
 function PaymentContentWrapper() {
-  const [portoneLoaded, setPortoneLoaded] = useState(false);
+  const [tossLoaded, setTossLoaded] = useState(false);
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.IMP) {
-      setPortoneLoaded(true);
+    if (typeof window !== 'undefined' && window.TossPayments) {
+      setTossLoaded(true);
     }
     const t = setInterval(() => {
-      if (typeof window !== 'undefined' && window.IMP) {
-        setPortoneLoaded(true);
+      if (typeof window !== 'undefined' && window.TossPayments) {
+        setTossLoaded(true);
         clearInterval(t);
       }
     }, 300);
@@ -340,7 +311,7 @@ function PaymentContentWrapper() {
         </div>
       </CheckoutLayout>
     }>
-      <PaymentContent portoneLoaded={portoneLoaded} />
+      <PaymentContent tossLoaded={tossLoaded} />
     </Suspense>
   );
 }

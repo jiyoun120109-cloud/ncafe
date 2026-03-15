@@ -3,8 +3,7 @@
 #   COMPOSE_PROJECT_NAME, USER_ID, FRONTEND_PORT, NEXT_PUBLIC_API_URL
 # GitHub Secrets (Settings → Secrets and variables → Actions → Secrets):
 #   SESSION_SECRET, JWT_SECRET, DB_PASSWORD, GEMINI_API_KEY,
-#   NEXT_PUBLIC_KAKAO_MAP_APP_KEY, NEXT_PUBLIC_PORTONE_STORE_ID, NEXT_PUBLIC_PORTONE_PG,
-#   PORTONE_API_KEY, PORTONE_API_SECRET
+#   NEXT_PUBLIC_KAKAO_MAP_APP_KEY, NEXT_PUBLIC_TOSS_CLIENT_KEY, TOSS_SECRET_KEY
 name: Deploy
 
 on:
@@ -48,10 +47,8 @@ jobs:
           echo "GEMINI_API_KEY=${GEMINI_API_KEY}" >> .env
           echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" >> .env
           echo "NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}" >> .env
-          echo "NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}" >> .env
-          echo "NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}" >> .env
-          echo "PORTONE_API_KEY=${PORTONE_API_KEY}" >> .env
-          echo "PORTONE_API_SECRET=${PORTONE_API_SECRET}" >> .env
+          echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${NEXT_PUBLIC_TOSS_CLIENT_KEY}" >> .env
+          echo "TOSS_SECRET_KEY=${TOSS_SECRET_KEY}" >> .env
           # RAG: agent-server가 같은 DB(ncafedb)에 pgvector로 문서 임베딩 저장. 미설정 시 메모리만 사용해 배포에서 문서 저장이 동작하지 않음.
           echo "RAG_DATABASE_URL=postgresql://ncafe:${DB_PASSWORD}@db:5432/ncafedb" >> .env
         env:
@@ -64,10 +61,8 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NEXT_PUBLIC_KAKAO_MAP_APP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_APP_KEY }}
-          NEXT_PUBLIC_PORTONE_STORE_ID: ${{ secrets.NEXT_PUBLIC_PORTONE_STORE_ID }}
-          NEXT_PUBLIC_PORTONE_PG: ${{ secrets.NEXT_PUBLIC_PORTONE_PG }}
-          PORTONE_API_KEY: ${{ secrets.PORTONE_API_KEY }}
-          PORTONE_API_SECRET: ${{ secrets.PORTONE_API_SECRET }}
+          NEXT_PUBLIC_TOSS_CLIENT_KEY: ${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}
+          TOSS_SECRET_KEY: ${{ secrets.TOSS_SECRET_KEY }}
 
       - name: Build and Deploy
         run: docker compose --profile with-db up --build -d

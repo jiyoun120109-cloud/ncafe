@@ -5,14 +5,14 @@ import styles from './MenusHeroShowcase.module.css';
 
 const SLIDE_INTERVAL_MS = 5000;
 
-/** 카페 히어로 슬라이드 6종 — 커피·카페·디저트 톤 */
+/** 카페 히어로 슬라이드 6종 — 첫 장 커피·라떼아트, 나머지 랜덤 배치(스틸라이프·건물·빵·원두) */
 const HERO_SLIDES = [
   { id: 'brew', en: 'Fresh Brew', image: '/images/menus-hero/hero-1.png' },
-  { id: 'space', en: 'Our Space', image: '/images/menus-hero/hero-2.png' },
-  { id: 'moment', en: 'Stay A While', image: '/images/menus-hero/hero-3.png' },
-  { id: 'beans', en: 'Every Bean', image: '/images/menus-hero/hero-4.png' },
+  { id: 'moment', en: 'Stay A While', image: '/images/menus-hero/hero-2.png' },
+  { id: 'quiet', en: 'Quiet Moment', image: '/images/menus-hero/hero-3.png' },
+  { id: 'space', en: 'Our Space', image: '/images/menus-hero/hero-4.png' },
   { id: 'bakery', en: 'Daily Bake', image: '/images/menus-hero/hero-5.png' },
-  { id: 'savor', en: 'Savor the Moment', image: '/images/menus-hero/hero-6.png' },
+  { id: 'beans', en: 'Every Bean', image: '/images/menus-hero/hero-6.png' },
 ] as const;
 
 /** 첫 슬라이드를 끝에 복제해 마지막→첫 전환을 자연스럽게 */

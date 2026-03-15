@@ -39,8 +39,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ncafe}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
-      - PORTONE_API_KEY=${PORTONE_API_KEY}
-      - PORTONE_API_SECRET=${PORTONE_API_SECRET}
+      - TOSS_SECRET_KEY=${TOSS_SECRET_KEY}
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
     depends_on:
@@ -56,8 +55,7 @@ services:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
         - API_BASE_URL=http://backend:8011
         - NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}
-        - NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}
-        - NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}
+        - NEXT_PUBLIC_TOSS_CLIENT_KEY=${NEXT_PUBLIC_TOSS_CLIENT_KEY}
     container_name: ${USER_ID:-yun}-frontend
     ports:
       - "${FRONTEND_PORT:-3011}:3011"
@@ -68,8 +66,7 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://eunami.newlecture.com}
       - NEXT_PUBLIC_KAKAO_MAP_APP_KEY=${NEXT_PUBLIC_KAKAO_MAP_APP_KEY}
-      - NEXT_PUBLIC_PORTONE_STORE_ID=${NEXT_PUBLIC_PORTONE_STORE_ID}
-      - NEXT_PUBLIC_PORTONE_PG=${NEXT_PUBLIC_PORTONE_PG}
+      - NEXT_PUBLIC_TOSS_CLIENT_KEY=${NEXT_PUBLIC_TOSS_CLIENT_KEY}
     depends_on:
       backend:
         condition: service_started
