@@ -43,6 +43,15 @@ const WELCOME_MESSAGE: ChatMessage = {
 
 const EMOJI_LIST = ['😀', '😊', '🥰', '😘', '🙂', '👍', '👋', '❤️', '☕', '🍰', '🥐', '🍪', '🙏', '✨', '💬', '😅', '🐶', '🐕'];
 
+/** 챗봇 장바구니 옵션 선택용 원두 목록 (메뉴 디테일과 동일) */
+const BEAN_OPTIONS = [
+  { value: '', label: '기본' },
+  { value: '에티오피아', label: '에티오피아' },
+  { value: '콜롬비아', label: '콜롬비아' },
+  { value: '케냐', label: '케냐' },
+  { value: '브라질', label: '브라질' },
+];
+
 /** 자주 쓰는 문구 – 클릭 시 입력창에 넣음 */
 const QUICK_PHRASES = [
   '영업시간',
@@ -111,6 +120,10 @@ export default function GuestChat() {
   const [isMobileView, setIsMobileView] = useState(false);
   const [addingCartId, setAddingCartId] = useState<number | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('잠깐만요~');
+  /** 메시지별 add_to_cart 옵션 선택값. key: `cart-${messageId}-${toolIndex}` */
+  const [cartSelections, setCartSelections] = useState<
+    Record<string, { temperature: 'HOT' | 'ICED'; decaf: boolean; beanOption: string; quantity: number }>
+  >({});
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -119,7 +132,7 @@ export default function GuestChat() {
     async (
       menuId: number,
       quantity: number = 1,
-      options?: { temperature?: 'HOT' | 'ICED'; decaf?: boolean },
+      options?: { temperature?: 'HOT' | 'ICED'; decaf?: boolean; beanOption?: string },
       menuDisplayName?: string
     ) => {
       if (addingCartId !== null) return;
@@ -141,6 +154,41 @@ export default function GuestChat() {
       }
     },
     [addItem, addingCartId]
+  );
+
+  const getCartSelectionKey = (messageId: string, toolIndex: number) => `cart-${messageId}-${toolIndex}`;
+  const defaultCartSelection = (): {
+    temperature: 'HOT' | 'ICED';
+    decaf: boolean;
+    beanOption: string;
+    quantity: number;
+  } => ({ temperature: 'HOT', decaf: false, beanOption: '', quantity: 1 });
+
+  const handleAddToCartWithSelection = useCallback(
+    async (messageId: string, toolIndex: number, menuId: number, menuName: string) => {
+      if (addingCartId !== null) return;
+      const key = getCartSelectionKey(messageId, toolIndex);
+      const sel = cartSelections[key] ?? defaultCartSelection();
+      setAddingCartId(menuId);
+      try {
+        await addItem(menuId, sel.quantity, {
+          temperature: sel.temperature,
+          decaf: sel.decaf,
+          beanOption: sel.beanOption || undefined,
+        });
+        const tempLabel = sel.temperature === 'ICED' ? '아이스' : 'HOT';
+        const beanLabel = sel.beanOption ? ` (${sel.beanOption} 원두)` : '';
+        const decafLabel = sel.decaf ? ' 디카페인' : '';
+        const summary = `${menuName} ${tempLabel} ${sel.quantity}잔${beanLabel}${decafLabel} 담았어요! 🛒`;
+        setMessages((prev) => [
+          ...prev,
+          { id: `b-${Date.now()}`, role: 'bot', text: summary, at: new Date() },
+        ]);
+      } finally {
+        setAddingCartId(null);
+      }
+    },
+    [addItem, addingCartId, cartSelections]
   );
 
   useEffect(() => {
@@ -466,30 +514,99 @@ export default function GuestChat() {
                         );
                       }
                       if (tool.name === 'add_to_cart' && typeof tool.args.menuId === 'number') {
+                        const menuId = tool.args.menuId as number;
                         const menuName = (tool.args.menuName as string) || '메뉴';
-                        const qty = Math.max(1, Number(tool.args.quantity) || 1);
-                        const temp = tool.args.temperature === 'ICED' ? ('ICED' as const) : ('HOT' as const);
-                        const decaf = tool.args.decaf === true;
-                        const tempLabel = temp === 'ICED' ? ' 아이스' : '';
-                        const qtyLabel = qty > 1 ? ` ${qty}잔` : '';
-                        const decafLabel = decaf ? ' 디카페인' : '';
-                        const options: { temperature?: 'HOT' | 'ICED'; decaf?: boolean } =
-                          temp === 'ICED' ? { temperature: 'ICED' } : {};
-                        if (decaf) options.decaf = true;
-                        const displayName = `${menuName}${tempLabel}${decafLabel}${qtyLabel}`.trim();
+                        const cartKey = getCartSelectionKey(m.id, i);
+                        const sel = cartSelections[cartKey] ?? defaultCartSelection();
+                        const setSel = (patch: Partial<typeof sel>) =>
+                          setCartSelections((prev) => ({ ...prev, [cartKey]: { ...(prev[cartKey] ?? defaultCartSelection()), ...patch } }));
+                        const isAdding = addingCartId === menuId;
                         return (
-                          <button
-                            key={`cart-${i}`}
-                            type="button"
-                            className={styles.toolButton}
-                            onClick={() => handleAddToCart(tool.args.menuId as number, qty, options, displayName)}
-                            disabled={addingCartId === tool.args.menuId}
-                          >
-                            <ShoppingCart size={12} />
-                            {addingCartId === tool.args.menuId
-                              ? '담는 중…'
-                              : `${displayName} 담기`}
-                          </button>
+                          <div key={`cart-${i}`} className={styles.cartOptionBlock}>
+                            <p className={styles.cartOptionHint}>
+                              아래에서 온도·디카페인·원두·수량을 선택한 뒤 담기 버튼을 눌러 주세요.
+                            </p>
+                            <div className={styles.cartOptionRow}>
+                              <span className={styles.cartOptionLabel}>온도</span>
+                              <div className={styles.cartOptionBtns}>
+                                {(['HOT', 'ICED'] as const).map((t) => (
+                                  <button
+                                    key={t}
+                                    type="button"
+                                    className={`${styles.cartOptionBtn} ${sel.temperature === t ? styles.cartOptionBtnActive : ''}`}
+                                    onClick={() => setSel({ temperature: t })}
+                                  >
+                                    {t === 'ICED' ? '아이스' : 'HOT'}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div className={styles.cartOptionRow}>
+                              <span className={styles.cartOptionLabel}>디카페인</span>
+                              <div className={styles.cartOptionBtns}>
+                                <button
+                                  type="button"
+                                  className={`${styles.cartOptionBtn} ${!sel.decaf ? styles.cartOptionBtnActive : ''}`}
+                                  onClick={() => setSel({ decaf: false })}
+                                >
+                                  일반
+                                </button>
+                                <button
+                                  type="button"
+                                  className={`${styles.cartOptionBtn} ${sel.decaf ? styles.cartOptionBtnActive : ''}`}
+                                  onClick={() => setSel({ decaf: true })}
+                                >
+                                  디카페인
+                                </button>
+                              </div>
+                            </div>
+                            <div className={styles.cartOptionRow}>
+                              <span className={styles.cartOptionLabel}>원두</span>
+                              <div className={styles.cartOptionBtns}>
+                                {BEAN_OPTIONS.map((b) => (
+                                  <button
+                                    key={b.value || 'default'}
+                                    type="button"
+                                    className={`${styles.cartOptionBtn} ${sel.beanOption === b.value ? styles.cartOptionBtnActive : ''}`}
+                                    onClick={() => setSel({ beanOption: b.value })}
+                                  >
+                                    {b.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                            <div className={styles.cartOptionRow}>
+                              <span className={styles.cartOptionLabel}>수량</span>
+                              <div className={styles.cartQuantityWrap}>
+                                <button
+                                  type="button"
+                                  className={styles.cartQuantityBtn}
+                                  onClick={() => setSel({ quantity: Math.max(1, sel.quantity - 1) })}
+                                  aria-label="수량 줄이기"
+                                >
+                                  −
+                                </button>
+                                <span className={styles.cartQuantityNum}>{sel.quantity}</span>
+                                <button
+                                  type="button"
+                                  className={styles.cartQuantityBtn}
+                                  onClick={() => setSel({ quantity: Math.min(99, sel.quantity + 1) })}
+                                  aria-label="수량 늘리기"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className={styles.cartSubmitBtn}
+                              onClick={() => handleAddToCartWithSelection(m.id, i, menuId, menuName)}
+                              disabled={isAdding}
+                            >
+                              <ShoppingCart size={14} />
+                              {isAdding ? '담는 중…' : '장바구니에 담기'}
+                            </button>
+                          </div>
                         );
                       }
                       return null;

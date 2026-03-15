@@ -281,6 +281,117 @@
   cursor: wait;
 }
 
+/* 챗봇 장바구니 옵션 선택 블록 */
+.cartOptionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(139, 90, 60, 0.06);
+  border: 1px solid rgba(139, 90, 60, 0.15);
+  border-radius: 8px;
+}
+.cartOptionHint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-gray-600);
+  line-height: 1.35;
+}
+.cartOptionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.cartOptionLabel {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  min-width: 3rem;
+}
+.cartOptionBtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.cartOptionBtn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  background: var(--bg-primary);
+  border: 1px solid var(--color-gray-300);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.cartOptionBtn:hover {
+  border-color: var(--color-primary-400);
+  color: var(--color-primary-700);
+}
+.cartOptionBtnActive {
+  background: var(--color-primary-100);
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-700);
+}
+.cartQuantityWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cartQuantityBtn {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  background: var(--bg-primary);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cartQuantityBtn:hover {
+  background: var(--color-gray-100);
+}
+.cartQuantityNum {
+  min-width: 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+}
+.cartSubmitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary-600);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+.cartSubmitBtn:hover:not(:disabled) {
+  background: var(--color-primary-700);
+}
+.cartSubmitBtn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
 /* 검색 결과 목록 */
 .searchResults {
   display: flex;

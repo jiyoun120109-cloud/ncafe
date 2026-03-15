@@ -150,6 +150,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #1c1917;
   vertical-align: middle;
+  text-align: center;
 }
 
 .tr:last-child .td {

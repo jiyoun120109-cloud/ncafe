@@ -166,6 +166,7 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     color: #1c1917;
     vertical-align: top;
+    text-align: center;
 }
 
 .tr:last-child .td {
@@ -389,6 +390,7 @@
     .th,
     .td {
         padding: 0.5rem 0.75rem;
+        text-align: center;
     }
 
     .contentPreview {

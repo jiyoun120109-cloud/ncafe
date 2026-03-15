@@ -143,6 +143,11 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #1c1917;
   vertical-align: middle;
+  text-align: center;
+}
+.td.cellTitle {
+  text-align: left;
+  padding-left: 1rem;
 }
 
 .tr:last-child .td {
