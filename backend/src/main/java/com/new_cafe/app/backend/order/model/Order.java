@@ -15,6 +15,9 @@ public class Order {
     private Long userId;
     private String guestEmail;
     private String guestPhone;
+    /** 주문 유형 (배포 DB orders.type NOT NULL 대응, 기본 GENERAL) */
+    @Builder.Default
+    private String type = "GENERAL";
     @Builder.Default
     private String status = "PENDING";
     @Builder.Default

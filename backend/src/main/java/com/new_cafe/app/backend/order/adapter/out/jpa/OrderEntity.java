@@ -35,6 +35,11 @@ public class OrderEntity {
     @Column(name = "guest_phone", length = 50)
     private String guestPhone;
 
+    /** 주문 유형 (배포 DB에 type NOT NULL 컬럼이 있는 경우: GENERAL 등) */
+    @Column(name = "type", nullable = false, length = 50)
+    @Builder.Default
+    private String type = "GENERAL";
+
     @Column(name = "status", nullable = false, length = 30)
     @Builder.Default
     private String status = "PENDING";
