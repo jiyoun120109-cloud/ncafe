@@ -2,12 +2,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { getOrder, type OrderDto } from '@/services/orderService';
 import { getUserProfile, type UserProfileDto } from '@/services/userService';
 import { getApiBase } from '@/services/api';
 import { menuImageUrl } from '@/utils/menuImageUrl';
-import { useAuthStore } from '@/stores/authStore';
 import PageWithHero from '@/components/PageWithHero/PageWithHero';
 import styles from './page.module.css';
 
@@ -43,8 +42,6 @@ interface MenuImageMap {
 
 export default function UserOrderDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
   const idParam = params?.id;
   const id = idParam != null && idParam !== '' ? Number(idParam) : null;
   const [order, setOrder] = useState<OrderDto | null>(null);
@@ -52,19 +49,8 @@ export default function UserOrderDetailPage() {
   const [menuImageMap, setMenuImageMap] = useState<MenuImageMap>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    if (!isAuthenticated) {
-      const returnUrl = idParam != null ? `/user/orders/${idParam}` : '/user?tab=orders';
-      router.replace(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
-      return;
-    }
     if (id == null || isNaN(id)) {
       setLoading(false);
       setError('주문 번호가 올바르지 않습니다.');
@@ -92,15 +78,7 @@ export default function UserOrderDetailPage() {
         setError(e instanceof Error ? e.message : '불러오기 실패');
       })
       .finally(() => setLoading(false));
-  }, [id, idParam, isAuthenticated, mounted, router]);
-
-  if (!mounted || (!isAuthenticated && !order)) {
-    return (
-      <PageWithHero title="주문 상세" backHref="/user?tab=orders" backLabel="주문 내역" mainClassName={styles.main}>
-        <p className={styles.loading}>불러오는 중...</p>
-      </PageWithHero>
-    );
-  }
+  }, [id]);
 
   if (loading) {
     return (
