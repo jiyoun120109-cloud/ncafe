@@ -34,6 +34,8 @@ public class GlobalExceptionHandler {
         String message = "해당 리소스를 참조하는 데이터가 있어 삭제할 수 없습니다.";
         if (ex.getMessage() != null && ex.getMessage().contains("category")) {
             message = "해당 카테고리에 메뉴가 있어 삭제할 수 없습니다.";
+        } else if (ex.getMessage() != null && (ex.getMessage().contains("orders") || ex.getMessage().contains("user") || ex.getMessage().contains("order_items"))) {
+            message = "주문 저장에 실패했습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.";
         }
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)

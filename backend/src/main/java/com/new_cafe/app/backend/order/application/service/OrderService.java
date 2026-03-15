@@ -1,5 +1,6 @@
 package com.new_cafe.app.backend.order.application.service;
 
+import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
 import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
@@ -17,9 +18,11 @@ import java.util.stream.Collectors;
 public class OrderService implements CreateOrderUseCase {
 
     private final OrderRepositoryPort orderRepositoryPort;
+    private final MemberRepositoryPort memberRepositoryPort;
 
-    public OrderService(OrderRepositoryPort orderRepositoryPort) {
+    public OrderService(OrderRepositoryPort orderRepositoryPort, MemberRepositoryPort memberRepositoryPort) {
         this.orderRepositoryPort = orderRepositoryPort;
+        this.memberRepositoryPort = memberRepositoryPort;
     }
 
     @Override
@@ -27,6 +30,9 @@ public class OrderService implements CreateOrderUseCase {
     public CreateOrderResult createOrder(CreateOrderCommand command) {
         if (command.getItems() == null || command.getItems().isEmpty()) {
             throw new IllegalArgumentException("주문 항목이 없습니다.");
+        }
+        if (command.getUserId() != null && memberRepositoryPort.findById(command.getUserId()).isEmpty()) {
+            throw new IllegalArgumentException("회원 정보를 찾을 수 없습니다. 다시 로그인한 뒤 주문해 주세요.");
         }
         int total = 0;
         List<OrderItem> items = new ArrayList<>();

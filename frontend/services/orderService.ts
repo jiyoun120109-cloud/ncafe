@@ -29,7 +29,16 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
     credentials: 'include',
     body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error('주문 생성에 실패했습니다.');
+  if (!res.ok) {
+    let message = '주문 생성에 실패했습니다.';
+    try {
+      const body = await res.json();
+      if (body?.message && typeof body.message === 'string') message = body.message;
+    } catch {
+      /* 응답이 JSON이 아니면 기본 메시지 유지 */
+    }
+    throw new Error(message);
+  }
   return res.json();
 }
 
