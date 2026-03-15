@@ -304,6 +304,11 @@ export default function OrderPage() {
                         </option>
                       ))}
                     </select>
+                    {selectedCouponId && (
+                      <p className={styles.couponDesc}>
+                        선택한 쿠폰에 따라 결제 단계에서 해당 금액만큼 할인됩니다.
+                      </p>
+                    )}
                     {coupons.length === 0 && <p className={styles.couponNote}>사용 가능한 쿠폰이 없습니다.</p>}
                   </div>
                 )}

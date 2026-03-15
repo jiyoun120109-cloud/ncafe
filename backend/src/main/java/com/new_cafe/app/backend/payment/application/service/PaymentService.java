@@ -96,18 +96,32 @@ public class PaymentService implements ProcessPaymentUseCase {
     public void complete(Long orderId, String pgTid) {
         var existingPayment = paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId);
         boolean alreadyDone = existingPayment.map(p -> "DONE".equals(p.getStatus())).orElse(false);
-        if (!alreadyDone && tossPaymentsClient.isConfigured()) {
+        Optional<Order> orderOpt = getOrderUseCase.getById(orderId);
+        int orderAmount = orderOpt.map(o -> o.getTotalAmount() != null ? o.getTotalAmount() : 0).orElse(0);
+        /* 총결제금액 0원(쿠폰 전액 할인 등)이면 PG 검증 없이 완료 허용 */
+        if (!alreadyDone && tossPaymentsClient.isConfigured() && orderAmount > 0) {
             if (pgTid == null || pgTid.isBlank()) {
                 throw new IllegalArgumentException("결제 키가 없습니다. 토스페이먼츠 결제 후 다시 시도해 주세요.");
             }
             tossPaymentsClient.verifyAndConfirm(pgTid, orderId, getOrderUseCase);
         }
-        paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId).ifPresent(p -> {
+        if (existingPayment.isPresent()) {
+            var p = existingPayment.get();
             p.setStatus("DONE");
             if (pgTid != null && !pgTid.isBlank()) p.setPgTid(pgTid);
             p.setPaidAt(LocalDateTime.now());
             paymentRepository.save(p);
-        });
+        } else if (orderAmount == 0) {
+            /* 0원 주문은 paymentReady 없이 완료 호출 가능 → 결제 기록 생성 */
+            paymentRepository.save(Payment.builder()
+                    .orderId(orderId)
+                    .method("FREE")
+                    .status("DONE")
+                    .amount(0)
+                    .paidAt(LocalDateTime.now())
+                    .createdAt(LocalDateTime.now())
+                    .build());
+        }
         getOrderUseCase.getById(orderId).ifPresent(order -> {
             order.setStatus("PAID");
             orderRepositoryPort.save(order);

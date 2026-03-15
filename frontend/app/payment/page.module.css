@@ -255,12 +255,33 @@
   flex-shrink: 0;
 }
 
+.summaryRows {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--color-gray-700);
+  margin-bottom: 0.35rem;
+}
+
+.summaryRow.discountRow {
+  color: var(--color-primary-600, #8b5a2b);
+  font-weight: 500;
+}
+
 .totalRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
   border-top: 1px solid var(--color-gray-200);
   font-size: var(--text-sm);
   font-weight: 600;

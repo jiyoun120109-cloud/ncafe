@@ -44,11 +44,6 @@ export default function AddToCartModal({
         router.push('/menus');
     };
 
-    const goToOrder = () => {
-        onClose();
-        router.push('/order');
-    };
-
     if (!open) return null;
 
     const message = menuName
@@ -91,17 +86,10 @@ export default function AddToCartModal({
                     </button>
                     <button
                         type="button"
-                        className={styles.btnSecondary}
+                        className={styles.btnPrimary}
                         onClick={goToCart}
                     >
                         장바구니
-                    </button>
-                    <button
-                        type="button"
-                        className={styles.btnPrimary}
-                        onClick={goToOrder}
-                    >
-                        주문하기
                     </button>
                 </div>
             </div>

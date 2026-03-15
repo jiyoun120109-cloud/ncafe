@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { CreditCard, CheckCircle, Receipt, AlertCircle, Ticket } from 'lucide-react';
+import { CreditCard, CheckCircle, ListOrdered, AlertCircle, Ticket } from 'lucide-react';
 import { getOrder, paymentReady, paymentComplete, applyCouponToOrder, cancelOrder, type OrderDto } from '@/services/orderService';
 import { useCart } from '@/contexts/CartContext';
 import { useAuthStore } from '@/stores/authStore';
@@ -197,13 +197,22 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
 
   const handleTossPay = async () => {
     if (!orderId || isNaN(orderId) || !order) return;
-    if (!tossLoaded || !TOSS_CLIENT_KEY || !window.TossPayments) {
-      setError('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
-      return;
-    }
     setPaying(true);
     setError(null);
     try {
+      /* 총결제금액 0원(쿠폰 전액 할인 등)이면 PG 호출 없이 바로 완료 처리 */
+      if (order.totalAmount === 0) {
+        await paymentComplete(orderId);
+        await clearAll();
+        const updated = await getOrder(orderId);
+        setCompletedOrder(updated);
+        setCompleted(true);
+        return;
+      }
+      if (!tossLoaded || !TOSS_CLIENT_KEY || !window.TossPayments) {
+        setError('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.');
+        return;
+      }
       await paymentReady(orderId, 'TOSS');
       const origin = typeof window !== 'undefined' ? window.location.origin : '';
       const successUrl = `${origin}/payment?orderId=${orderId}&complete=1`;
@@ -272,8 +281,8 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
           <>
             <section className={styles.section} aria-labelledby="payment-order-heading">
               <h2 id="payment-order-heading" className={styles.sectionTitle}>
-                <Receipt size={20} />
-                주문 내용
+                <ListOrdered size={20} />
+                주문내역
               </h2>
               <p className={styles.orderId}>주문 번호 <strong>#{order.id}</strong></p>
               <ul className={styles.itemList}>
@@ -294,10 +303,31 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
                   );
                 })}
               </ul>
-              <div className={styles.totalRow}>
-                <span>총 결제 금액</span>
-                <span className={styles.totalAmount}>{order.totalAmount.toLocaleString()}원</span>
-              </div>
+              {(() => {
+                const itemsSubtotal = order.items.reduce(
+                  (sum, it) => sum + (it.unitPrice + (it.optionExtraPrice ?? 0)) * it.quantity,
+                  0
+                );
+                const discountAmount = order.appliedUserCouponId ? itemsSubtotal - order.totalAmount : 0;
+                return (
+                  <div className={styles.summaryRows}>
+                    <div className={styles.summaryRow}>
+                      <span>상품 합계</span>
+                      <span>{itemsSubtotal.toLocaleString()}원</span>
+                    </div>
+                    {discountAmount > 0 && (
+                      <div className={`${styles.summaryRow} ${styles.discountRow}`}>
+                        <span>쿠폰 할인</span>
+                        <span>-{discountAmount.toLocaleString()}원</span>
+                      </div>
+                    )}
+                    <div className={styles.totalRow}>
+                      <span>총 결제 금액</span>
+                      <span className={styles.totalAmount}>{order.totalAmount.toLocaleString()}원</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </section>
 
             {isAuthenticated && (coupons.length > 0 || order.appliedUserCouponId) && (
@@ -345,10 +375,10 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
                 type="button"
                 className={styles.kakaoBtn}
                 onClick={handleTossPay}
-                disabled={paying || !tossLoaded || !TOSS_CLIENT_KEY}
+                disabled={paying || (order.totalAmount > 0 && (!tossLoaded || !TOSS_CLIENT_KEY))}
               >
                 <CreditCard size={20} />
-                {paying ? '결제창을 여는 중...' : '결제하기'}
+                {paying ? (order.totalAmount === 0 ? '처리 중...' : '결제창을 여는 중...') : (order.totalAmount === 0 ? '무료 주문 완료' : '결제하기')}
               </button>
             </section>
           </>

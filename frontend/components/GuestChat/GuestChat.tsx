@@ -439,7 +439,13 @@ export default function GuestChat() {
                       </span>
                     </div>
                   ) : (
-                    <span className={styles.msgBubble}>{m.text}</span>
+                    <span className={styles.msgBubble}>
+                      {m.text || (m.tools && m.tools.length > 0
+                        ? (m.tools.some((t) => t.name === 'navigate_to_page')
+                          ? '바로 데려다줄게요! 아래 버튼을 눌러 이동해요 🐾'
+                          : '원하는 걸 골라주세요~ 아래에서 눌러 주세요 🐶')
+                        : '')}
+                    </span>
                   )}
                 {m.role === 'bot' && m.tools && m.tools.length > 0 && (
                   <div className={styles.toolActions}>
@@ -453,9 +459,8 @@ export default function GuestChat() {
                             key={`nav-${i}`}
                             href={path}
                             className={styles.toolLink}
-                            onClick={() => setOpen(false)}
                           >
-                            <ExternalLink size={14} />
+                            <ExternalLink size={12} />
                             {label}
                           </Link>
                         );
@@ -480,7 +485,7 @@ export default function GuestChat() {
                             onClick={() => handleAddToCart(tool.args.menuId as number, qty, options, displayName)}
                             disabled={addingCartId === tool.args.menuId}
                           >
-                            <ShoppingCart size={14} />
+                            <ShoppingCart size={12} />
                             {addingCartId === tool.args.menuId
                               ? '담는 중…'
                               : `${displayName} 담기`}
@@ -498,7 +503,6 @@ export default function GuestChat() {
                         key={item.id}
                         href={`/menus/${item.id}`}
                         className={styles.searchResultItem}
-                        onClick={() => setOpen(false)}
                       >
                         <Search size={12} />
                         <span className={styles.searchResultName}>
