@@ -278,26 +278,23 @@ INSERT INTO images (menu_id, src_url, sort_order, created_at) VALUES
 (1,  'blank.png',            3, CURRENT_TIMESTAMP);
 
 -- ========== 주문·결제·쿠폰·공지·1:1문의·찜·알림 ==========
--- 주문 (회원: user_id, 비회원: guest_email/guest_phone)
+-- 주문·주문항목·결제: OrderEntity, OrderItemEntity, PaymentEntity와 스키마 통일. (배포 재생성 시 V11과 동일 DDL)
 CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
+    order_number VARCHAR(64),
     user_id BIGINT,
+    customer_id BIGINT,
     guest_email VARCHAR(255),
     guest_phone VARCHAR(50),
+    type VARCHAR(50) NOT NULL DEFAULT 'PICK_UP',
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING',
     total_amount INT NOT NULL DEFAULT 0,
+    total_price INT,
     applied_user_coupon_id BIGINT,
+    payment_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'orders' AND column_name = 'applied_user_coupon_id') THEN
-    ALTER TABLE orders ADD COLUMN applied_user_coupon_id BIGINT;
-  END IF;
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;
 
 CREATE TABLE IF NOT EXISTS order_items (
     id BIGSERIAL PRIMARY KEY,

@@ -54,11 +54,13 @@ export async function getMyOrders(): Promise<OrderDto[]> {
 
 export interface OrderDto {
   id: number;
+  orderNumber?: string | null;
   userId?: number | null;
   guestEmail?: string | null;
   guestPhone?: string | null;
   status: string;
   totalAmount: number;
+  totalPrice?: number | null;
   appliedUserCouponId?: number | null;
   createdAt: string;
   items: { id: number; menuId: number; menuName: string; quantity: number; unitPrice: number; optionExtraPrice?: number; optionsDisplay?: string }[];

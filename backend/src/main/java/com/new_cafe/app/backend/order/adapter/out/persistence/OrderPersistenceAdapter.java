@@ -39,7 +39,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         if (order.getId() == null) {
             String orderNumber = "ORD-" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "-" + String.format("%04d", ThreadLocalRandom.current().nextInt(10_000));
             int amount = order.getTotalAmount() != null ? order.getTotalAmount() : 0;
-            String orderType = order.getType() != null ? order.getType() : "GENERAL";
+            String orderType = order.getType() != null ? order.getType() : "PICK_UP";
             entity = OrderEntity.builder()
                 .orderNumber(orderNumber)
                 .userId(order.getUserId())
@@ -55,6 +55,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 .build();
             entity = orderJpaRepository.save(entity);
             order.setId(entity.getId());
+            order.setOrderNumber(entity.getOrderNumber());
+            order.setCustomerId(entity.getCustomerId());
+            order.setTotalPrice(entity.getTotalPrice());
             order.setCreatedAt(now);
             order.setUpdatedAt(now);
             for (OrderItem item : order.getItems()) {
@@ -165,12 +168,15 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
             .collect(Collectors.toList());
         return Order.builder()
             .id(e.getId())
+            .orderNumber(e.getOrderNumber())
             .userId(e.getUserId())
+            .customerId(e.getCustomerId())
             .guestEmail(e.getGuestEmail())
             .guestPhone(e.getGuestPhone())
-            .type(e.getType() != null ? e.getType() : "GENERAL")
+            .type(e.getType() != null ? e.getType() : "PICK_UP")
             .status(e.getStatus())
             .totalAmount(e.getTotalAmount())
+            .totalPrice(e.getTotalPrice())
             .appliedUserCouponId(e.getAppliedUserCouponId())
             .paymentId(e.getPaymentId())
             .items(items)

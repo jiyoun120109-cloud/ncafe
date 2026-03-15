@@ -12,19 +12,25 @@ import java.util.List;
 @Builder
 public class Order {
     private Long id;
+    /** 노출용 주문 번호 (예: ORD-20260315135256-1234) */
+    private String orderNumber;
     private Long userId;
+    /** 회원 주문 시 user_id와 동일 (customer_id 컬럼) */
+    private Long customerId;
     private String guestEmail;
     private String guestPhone;
-    /** 주문 유형 (배포 DB orders.type NOT NULL 대응, 기본 GENERAL) */
+    /** 주문 유형: PICK_UP, DINE_IN, DELIVERY 등 */
     @Builder.Default
-    private String type = "GENERAL";
+    private String type = "PICK_UP";
     @Builder.Default
     private String status = "PENDING";
     @Builder.Default
     private Integer totalAmount = 0;
+    /** 결제 금액 (total_amount와 동일하게 저장) */
+    private Integer totalPrice;
     /** 결제 시 적용한 보유 쿠폰 ID (user_coupons.id) */
     private Long appliedUserCouponId;
-    /** 결제 준비 시 생성된 payments.id (배포 DB에 orders.payment_id NOT NULL이면 필수) */
+    /** 결제 준비 시 생성된 payments.id */
     private Long paymentId;
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

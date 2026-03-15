@@ -137,11 +137,13 @@ public class OrderController {
     private Map<String, Object> orderToMap(Order order) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", order.getId());
+        m.put("orderNumber", order.getOrderNumber());
         m.put("userId", order.getUserId());
         m.put("guestEmail", order.getGuestEmail());
         m.put("guestPhone", order.getGuestPhone());
         m.put("status", order.getStatus());
         m.put("totalAmount", order.getTotalAmount());
+        m.put("totalPrice", order.getTotalPrice());
         if (order.getAppliedUserCouponId() != null) {
             m.put("appliedUserCouponId", order.getAppliedUserCouponId());
         }

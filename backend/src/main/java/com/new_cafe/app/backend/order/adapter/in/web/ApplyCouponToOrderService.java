@@ -66,6 +66,7 @@ public class ApplyCouponToOrderService {
         }
         int newTotal = order.getTotalAmount() - discount;
         order.setTotalAmount(newTotal);
+        order.setTotalPrice(newTotal);
         order.setAppliedUserCouponId(userCouponId);
         return orderRepositoryPort.save(order);
     }

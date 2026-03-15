@@ -35,10 +35,10 @@ public class OrderEntity {
     @Column(name = "guest_phone", length = 50)
     private String guestPhone;
 
-    /** 주문 유형 (배포 DB에 type NOT NULL 컬럼이 있는 경우: GENERAL 등) */
+    /** 주문 유형. 배포 DB type CHECK(DINE_IN|PICK_UP|DELIVERY) 있으면 이 중 하나 사용 */
     @Column(name = "type", nullable = false, length = 50)
     @Builder.Default
-    private String type = "GENERAL";
+    private String type = "PICK_UP";
 
     @Column(name = "status", nullable = false, length = 30)
     @Builder.Default

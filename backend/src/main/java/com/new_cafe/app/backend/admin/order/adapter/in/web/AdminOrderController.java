@@ -123,11 +123,13 @@ public class AdminOrderController {
     private Map<String, Object> orderToListMap(Order order) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", order.getId());
+        m.put("orderNumber", order.getOrderNumber());
         m.put("userId", order.getUserId());
         m.put("guestEmail", order.getGuestEmail());
         m.put("guestPhone", order.getGuestPhone());
         m.put("status", order.getStatus());
         m.put("totalAmount", order.getTotalAmount());
+        m.put("totalPrice", order.getTotalPrice());
         m.put("createdAt", order.getCreatedAt());
         m.put("itemCount", order.getItems() != null ? order.getItems().size() : 0);
         return m;
@@ -136,11 +138,13 @@ public class AdminOrderController {
     private Map<String, Object> orderToMap(Order order) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", order.getId());
+        m.put("orderNumber", order.getOrderNumber());
         m.put("userId", order.getUserId());
         m.put("guestEmail", order.getGuestEmail());
         m.put("guestPhone", order.getGuestPhone());
         m.put("status", order.getStatus());
         m.put("totalAmount", order.getTotalAmount());
+        m.put("totalPrice", order.getTotalPrice());
         m.put("appliedUserCouponId", order.getAppliedUserCouponId());
         m.put("createdAt", order.getCreatedAt());
         m.put("updatedAt", order.getUpdatedAt());
