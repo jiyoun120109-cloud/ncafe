@@ -46,10 +46,10 @@ public class PaymentPersistenceAdapter implements PaymentRepositoryPort {
         return PaymentEntity.builder()
                 .id(m.getId())
                 .orderId(m.getOrderId())
-                .method(m.getMethod())
-                .status(m.getStatus())
+                .method(m.getMethod() != null ? m.getMethod() : "TOSS")
+                .status(m.getStatus() != null ? m.getStatus() : "PENDING")
                 .pgTid(m.getPgTid())
-                .amount(m.getAmount())
+                .amount(m.getAmount() != null ? m.getAmount() : 0)
                 .paidAt(m.getPaidAt())
                 .createdAt(m.getCreatedAt())
                 .build();

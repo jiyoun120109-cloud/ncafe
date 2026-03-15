@@ -38,6 +38,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         OrderEntity entity;
         if (order.getId() == null) {
             String orderNumber = "ORD-" + now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + "-" + String.format("%04d", ThreadLocalRandom.current().nextInt(10_000));
+            int amount = order.getTotalAmount() != null ? order.getTotalAmount() : 0;
             entity = OrderEntity.builder()
                 .orderNumber(orderNumber)
                 .userId(order.getUserId())
@@ -45,7 +46,8 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
                 .guestEmail(order.getGuestEmail())
                 .guestPhone(order.getGuestPhone())
                 .status(order.getStatus())
-                .totalAmount(order.getTotalAmount())
+                .totalAmount(amount)
+                .totalPrice(amount)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
@@ -62,7 +64,9 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         } else {
             entity = orderJpaRepository.findById(order.getId()).orElseThrow();
             entity.setStatus(order.getStatus());
-            entity.setTotalAmount(order.getTotalAmount());
+            Integer amount = order.getTotalAmount() != null ? order.getTotalAmount() : 0;
+            entity.setTotalAmount(amount);
+            entity.setTotalPrice(amount);
             entity.setAppliedUserCouponId(order.getAppliedUserCouponId());
             entity.setUpdatedAt(now);
             orderJpaRepository.save(entity);

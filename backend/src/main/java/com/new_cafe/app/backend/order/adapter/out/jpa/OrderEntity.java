@@ -43,6 +43,10 @@ public class OrderEntity {
     @Builder.Default
     private Integer totalAmount = 0;
 
+    /** 배포 DB에 total_price NOT NULL 컬럼이 있는 경우: total_amount와 동일 값으로 저장 */
+    @Column(name = "total_price")
+    private Integer totalPrice;
+
     @Column(name = "applied_user_coupon_id")
     private Long appliedUserCouponId;
 

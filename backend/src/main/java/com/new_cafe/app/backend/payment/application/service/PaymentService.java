@@ -63,17 +63,18 @@ public class PaymentService implements ProcessPaymentUseCase {
             throw new IllegalArgumentException("주문을 찾을 수 없습니다.");
         }
         Order order = orderOpt.get();
+        int amount = order.getTotalAmount() != null ? order.getTotalAmount() : 0;
         Payment payment = paymentRepository.save(Payment.builder()
                 .orderId(orderId)
                 .method(method != null ? method : "TOSS")
                 .status("PENDING")
-                .amount(order.getTotalAmount())
+                .amount(amount)
                 .createdAt(LocalDateTime.now())
                 .build());
         Map<String, Object> result = new HashMap<>();
         result.put("paymentId", payment.getId());
         result.put("orderId", orderId);
-        result.put("amount", order.getTotalAmount());
+        result.put("amount", amount);
         result.put("redirectUrl", (kakaoPayRedirectUrl != null && !kakaoPayRedirectUrl.isEmpty())
                 ? kakaoPayRedirectUrl
                 : "/order/complete?orderId=" + orderId);
