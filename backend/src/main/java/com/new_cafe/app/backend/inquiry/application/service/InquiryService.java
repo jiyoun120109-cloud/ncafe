@@ -174,4 +174,13 @@ public class InquiryService implements InquiryUseCase {
         }
         inquiryRepository.deleteById(inquiryId);
     }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        if (inquiryRepository.findById(id).isEmpty()) {
+            throw new IllegalArgumentException("문의를 찾을 수 없습니다.");
+        }
+        inquiryRepository.deleteById(id);
+    }
 }

@@ -11,19 +11,19 @@ import { logoutApi } from '@/services/authService';
 import { clearCartSessionId } from '@/services/cartService';
 import styles from './AdminHeader.module.css';
 
-function getSectionForPath(pathname: string): string {
-    if (!pathname || pathname === '/admin') return 'Content';
-    if (pathname.startsWith('/admin/notices') || pathname.startsWith('/admin/inquiries')) return 'Customer Service';
-    if (pathname.startsWith('/admin/rag') || pathname.startsWith('/admin/settings')) return 'Settings';
-    if (pathname.startsWith('/admin/menus') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/members') || pathname.startsWith('/admin/orders')) return 'Content';
-    return 'Content';
+/** 사이드바 navSectionTitle과 동일한 구분만 표시 (헤더에는 navItem 제목 미표시) */
+function getSectionTitleForPath(pathname: string): string {
+    if (!pathname || pathname === '/admin') return '콘텐츠';
+    if (pathname.startsWith('/admin/notices') || pathname.startsWith('/admin/inquiries')) return '고객지원';
+    if (pathname.startsWith('/admin/rag') || pathname.startsWith('/admin/settings')) return '세팅';
+    if (pathname.startsWith('/admin/menus') || pathname.startsWith('/admin/categories') || pathname.startsWith('/admin/members') || pathname.startsWith('/admin/orders')) return '콘텐츠';
+    return '콘텐츠';
 }
 
 export default function AdminHeader() {
     const pathname = usePathname();
-    const { toggleSidebar, title } = useUIStore();
-    const section = useMemo(() => getSectionForPath(pathname ?? ''), [pathname]);
-    const displayTitle = title ? `${section} · ${title}` : section;
+    const { toggleSidebar } = useUIStore();
+    const displayTitle = useMemo(() => getSectionTitleForPath(pathname ?? ''), [pathname]);
     const { user, clearUser } = useAuthStore();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -55,7 +55,7 @@ export default function AdminHeader() {
                 >
                     <Menu size={24} />
                 </motion.button>
-                <h1 className={styles.pageTitle}>{displayTitle}</h1>
+                <h1 className={styles.pageTitle} aria-label="현재 섹션">{displayTitle}</h1>
             </div>
 
             <div className={styles.right}>

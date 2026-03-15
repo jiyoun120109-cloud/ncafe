@@ -103,6 +103,7 @@ export default function RichEditor({
   const attachmentHandler = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = '*/*';
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
@@ -110,7 +111,8 @@ export default function RichEditor({
       try {
         const { url } = await uploadNoticeFile(file);
         const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${url.startsWith('/') ? url : '/' + url}` : url;
-        insertHtml(` <a href="${fullUrl}" target="_blank" rel="noopener noreferrer">[첨부: ${file.name}]</a> `);
+        const safeName = file.name.replace(/"/g, '&quot;');
+        insertHtml(` <a href="${fullUrl}" target="_blank" rel="noopener noreferrer" download="${safeName}">[첨부: ${file.name}]</a> `);
       } catch (e) {
         console.error(e);
         alert(e instanceof Error ? e.message : '첨부파일 업로드에 실패했습니다.');
@@ -168,6 +170,11 @@ export default function RichEditor({
         style={{ minHeight }}
         onInput={handleInput}
         onPaste={handlePaste}
+        onMouseDown={(e) => {
+          if (editorRef.current?.contains(e.target as Node)) {
+            editorRef.current.focus();
+          }
+        }}
       />
     </div>
   );

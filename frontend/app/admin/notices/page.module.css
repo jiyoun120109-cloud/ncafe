@@ -132,8 +132,9 @@
   margin-bottom: 1rem;
 }
 
-.listHeader .sectionTitle {
-  margin-bottom: 0;
+.listHeader .searchForm {
+  flex: 0 1 auto;
+  margin-right: auto;
 }
 
 .listToolbar {
@@ -141,8 +142,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
 }
 
 /* 공지 상세/수정 페이지 2/3 너비 가운데 정렬용 */
@@ -324,8 +324,23 @@
 .form {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.formInner {
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
   max-width: 640px;
+  width: 100%;
+}
+
+.formRowGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
 }
 
 .formLabel {
@@ -337,8 +352,23 @@
   color: rgba(0, 0, 0, 0.8);
 }
 
+.formLabelCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+}
+
+.formLabelText {
+  display: inline;
+}
+
 .required {
   color: #b91c1c;
+  margin-left: 0.15em;
 }
 
 .checkboxRow {

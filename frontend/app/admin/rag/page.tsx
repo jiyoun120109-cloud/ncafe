@@ -171,13 +171,15 @@ export default function AdminRagPage() {
                             required
                         />
                     </div>
-                    <button
-                        type="submit"
-                        className={styles.submitBtn}
-                        disabled={submitLoading || !content.trim()}
-                    >
-                        {submitLoading ? '저장 중…' : '문서 전송 및 임베딩 저장'}
-                    </button>
+                    <div className={styles.formActions}>
+                        <button
+                            type="submit"
+                            className={styles.submitBtn}
+                            disabled={submitLoading || !content.trim()}
+                        >
+                            {submitLoading ? '저장 중…' : '문서 전송 및 임베딩 저장'}
+                        </button>
+                    </div>
                 </form>
             </section>
 

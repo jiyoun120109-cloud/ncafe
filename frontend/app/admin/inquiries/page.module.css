@@ -73,12 +73,20 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.thLeft {
+  text-align: left;
+}
+
 .td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #1c1917;
   vertical-align: middle;
   text-align: center;
+}
+
+.tdLeft {
+  text-align: left;
 }
 
 .tr:last-child .td {
@@ -146,4 +154,19 @@
 .actionBtn:hover {
   background: rgba(0, 0, 0, 0.05);
   color: #1c1917;
+}
+
+.actionBtnDelete {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+}
+
+.actionBtnDelete:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+.actionBtnDelete:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

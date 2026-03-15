@@ -170,6 +170,72 @@ export default function AdminSettingsPage() {
               placeholder="상세주소 (동, 호수 등)"
             />
           </div>
+          <h4 className={styles.subSectionTitle}>사업자 정보</h4>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="businessRegistrationNumber">
+              사업자등록번호
+            </label>
+            <input
+              id="businessRegistrationNumber"
+              type="text"
+              className={styles.input}
+              value={settings.businessRegistrationNumber ?? ''}
+              onChange={(e) => updateField('businessRegistrationNumber', e.target.value)}
+              placeholder="예: 123-45-67890"
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="companyName">
+              상호명
+            </label>
+            <input
+              id="companyName"
+              type="text"
+              className={styles.input}
+              value={settings.companyName ?? ''}
+              onChange={(e) => updateField('companyName', e.target.value)}
+              placeholder="예: (주)엔카페"
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="representativeName">
+              대표자명
+            </label>
+            <input
+              id="representativeName"
+              type="text"
+              className={styles.input}
+              value={settings.representativeName ?? ''}
+              onChange={(e) => updateField('representativeName', e.target.value)}
+              placeholder="예: 홍길동"
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="businessType">
+              업태
+            </label>
+            <input
+              id="businessType"
+              type="text"
+              className={styles.input}
+              value={settings.businessType ?? ''}
+              onChange={(e) => updateField('businessType', e.target.value)}
+              placeholder="예: 음식점업"
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="businessItem">
+              종목
+            </label>
+            <input
+              id="businessItem"
+              type="text"
+              className={styles.input}
+              value={settings.businessItem ?? ''}
+              onChange={(e) => updateField('businessItem', e.target.value)}
+              placeholder="예: 커피음료"
+            />
+          </div>
         </div>
 
         <div className={styles.section}>
@@ -203,18 +269,69 @@ export default function AdminSettingsPage() {
         </div>
 
         <div className={styles.section}>
-          <h3 className={styles.sectionTitle}>운영</h3>
-          <div className={styles.fieldRow}>
-            <input
-              id="maintenanceMode"
-              type="checkbox"
-              className={styles.checkbox}
-              checked={(settings.maintenanceMode ?? 'false') === 'true'}
-              onChange={(e) => updateField('maintenanceMode', e.target.checked ? 'true' : 'false')}
-            />
-            <label className={styles.checkboxLabel} htmlFor="maintenanceMode">
-              점검 모드 (활성화 시 일반 사용자에게 점검 안내가 노출될 수 있습니다)
-            </label>
+          <h3 className={styles.sectionTitle}>운영 (도메인별 활성/비활성)</h3>
+          <p className={styles.hint}>비활성 시 해당 메뉴·기능이 사용자에게 노출되지 않거나 제한될 수 있습니다.</p>
+          <div className={styles.featureGrid}>
+            <div className={styles.fieldRow}>
+              <input
+                id="featureMenu"
+                type="checkbox"
+                className={styles.checkbox}
+                checked={(settings.featureMenu ?? 'true') === 'true'}
+                onChange={(e) => updateField('featureMenu', e.target.checked ? 'true' : 'false')}
+              />
+              <label className={styles.checkboxLabel} htmlFor="featureMenu">
+                메뉴
+              </label>
+            </div>
+            <div className={styles.fieldRow}>
+              <input
+                id="featureOrder"
+                type="checkbox"
+                className={styles.checkbox}
+                checked={(settings.featureOrder ?? 'true') === 'true'}
+                onChange={(e) => updateField('featureOrder', e.target.checked ? 'true' : 'false')}
+              />
+              <label className={styles.checkboxLabel} htmlFor="featureOrder">
+                주문
+              </label>
+            </div>
+            <div className={styles.fieldRow}>
+              <input
+                id="featureNotice"
+                type="checkbox"
+                className={styles.checkbox}
+                checked={(settings.featureNotice ?? 'true') === 'true'}
+                onChange={(e) => updateField('featureNotice', e.target.checked ? 'true' : 'false')}
+              />
+              <label className={styles.checkboxLabel} htmlFor="featureNotice">
+                공지사항
+              </label>
+            </div>
+            <div className={styles.fieldRow}>
+              <input
+                id="featureInquiry"
+                type="checkbox"
+                className={styles.checkbox}
+                checked={(settings.featureInquiry ?? 'true') === 'true'}
+                onChange={(e) => updateField('featureInquiry', e.target.checked ? 'true' : 'false')}
+              />
+              <label className={styles.checkboxLabel} htmlFor="featureInquiry">
+                1:1 문의
+              </label>
+            </div>
+            <div className={styles.fieldRow}>
+              <input
+                id="featureMember"
+                type="checkbox"
+                className={styles.checkbox}
+                checked={(settings.featureMember ?? 'true') === 'true'}
+                onChange={(e) => updateField('featureMember', e.target.checked ? 'true' : 'false')}
+              />
+              <label className={styles.checkboxLabel} htmlFor="featureMember">
+                회원 / 마이페이지
+              </label>
+            </div>
           </div>
         </div>
 

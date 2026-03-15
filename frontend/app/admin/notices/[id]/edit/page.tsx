@@ -109,81 +109,82 @@ export default function AdminNoticeEditPage() {
         <div className={styles.divider} />
 
         <section className={styles.card}>
-        <h3 className={styles.cardTitle}>공지 수정</h3>
-        <form onSubmit={handleSubmit} className={styles.form}>
-        <label className={styles.formLabel}>
-          <span className={styles.checkboxRow}>
-            <input
-              type="checkbox"
-              checked={isPinned}
-              onChange={(e) => setIsPinned(e.target.checked)}
-              className={styles.checkbox}
-            />
-            <span>상단 고정</span>
-          </span>
-        </label>
-        <label className={styles.formLabel}>
-          구분
-          <select
-            value={noticeType}
-            onChange={(e) => setNoticeType(e.target.value)}
-            className={styles.select}
-          >
-            {NOTICE_TYPE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-        </label>
-        <label className={styles.formLabel}>
-          제목 <span className={styles.required}>*</span>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitleInput(e.target.value)}
-            className={styles.input}
-            required
-          />
-        </label>
-        <label className={styles.formLabel}>
-          내용
-          <RichEditor
-            value={content}
-            onChange={setContent}
-            placeholder="내용을 입력하세요. 글자 크기, 굵기, 색상, 이미지·첨부파일 등을 사용할 수 있습니다."
-            minHeight={320}
-          />
-        </label>
-        {error && <p className={styles.error}>{error}</p>}
-        <div className={styles.formActions}>
-          <button type="button" onClick={() => setShowPreview((v) => !v)} className={styles.previewToggleBtn}>
-            {showPreview ? '미리보기 닫기' : '미리보기'}
-          </button>
-          <Link href={`/admin/notices/${id}`} className={styles.cancelBtn}>취소</Link>
-          <button type="submit" className={styles.submitBtn} disabled={submitting}>
-            {submitting ? '저장 중...' : '저장'}
-          </button>
-        </div>
-        {showPreview && (
-          <div className={styles.previewWrap}>
-            <div className={styles.previewHeader}>
-              <span>미리보기</span>
-              <button type="button" onClick={() => setShowPreview(false)} className={styles.previewClose}>
-                닫기
-              </button>
-            </div>
-            <div className={styles.previewBody}>
-              {title.trim() ? <div className={styles.previewTitle}>{title}</div> : null}
-              <div className={styles.previewContent}>
-                {content.trim() ? (
-                  <div dangerouslySetInnerHTML={{ __html: content }} />
-                ) : (
-                  <p className={styles.previewEmpty}>내용이 없습니다.</p>
-                )}
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.formInner}>
+              <div className={styles.formRowGroup}>
+                <label className={styles.formLabel}>
+                  구분
+                  <select
+                    value={noticeType}
+                    onChange={(e) => setNoticeType(e.target.value)}
+                    className={styles.select}
+                  >
+                    {NOTICE_TYPE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{o.label}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className={styles.formLabelCheck}>
+                  <input
+                    type="checkbox"
+                    checked={isPinned}
+                    onChange={(e) => setIsPinned(e.target.checked)}
+                    className={styles.checkbox}
+                  />
+                  <span>상단 고정</span>
+                </label>
               </div>
+              <label className={styles.formLabel}>
+                <span className={styles.formLabelText}>제목<span className={styles.required}>*</span></span>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitleInput(e.target.value)}
+                  className={styles.input}
+                  required
+                />
+              </label>
+              <div className={styles.formLabel}>
+                <span className={styles.formLabelText}>내용</span>
+                <RichEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="내용을 입력하세요. 글자 크기, 굵기, 색상, 이미지·첨부파일 등을 사용할 수 있습니다."
+                  minHeight={320}
+                />
+              </div>
+              {error && <p className={styles.error}>{error}</p>}
+              <div className={styles.formActions}>
+                <button type="button" onClick={() => setShowPreview((v) => !v)} className={styles.previewToggleBtn}>
+                  {showPreview ? '미리보기 닫기' : '미리보기'}
+                </button>
+                <Link href={`/admin/notices/${id}`} className={styles.cancelBtn}>취소</Link>
+                <button type="submit" className={styles.submitBtn} disabled={submitting}>
+                  {submitting ? '저장 중...' : '저장'}
+                </button>
+              </div>
+              {showPreview && (
+                <div className={styles.previewWrap}>
+                  <div className={styles.previewHeader}>
+                    <span>미리보기</span>
+                    <button type="button" onClick={() => setShowPreview(false)} className={styles.previewClose}>
+                      닫기
+                    </button>
+                  </div>
+                  <div className={styles.previewBody}>
+                    {title.trim() ? <div className={styles.previewTitle}>{title}</div> : null}
+                    <div className={styles.previewContent}>
+                      {content.trim() ? (
+                        <div dangerouslySetInnerHTML={{ __html: content }} />
+                      ) : (
+                        <p className={styles.previewEmpty}>내용이 없습니다.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-        </form>
+          </form>
         </section>
       </div>
     </div>

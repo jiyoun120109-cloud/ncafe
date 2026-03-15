@@ -9,6 +9,19 @@
   gap: 2rem;
 }
 
+.listLink {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+  align-self: flex-start;
+  margin-bottom: -0.5rem;
+}
+
+.listLink:hover {
+  color: #1c1917;
+  text-decoration: underline;
+}
+
 .card {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -68,69 +81,38 @@
   color: rgba(0, 0, 0, 0.5);
 }
 
-.footer {
-  margin-top: 0.5rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+.prevNextRow {
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.footerNav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.listBtn {
-  display: inline-flex;
+  justify-content: space-between;
   align-items: center;
-  width: fit-content;
-  padding: 0.5rem 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.prevNextLeft {
+  margin-right: auto;
+}
+
+.prevNextRight {
+  margin-left: auto;
+}
+
+.prevNextText {
   font-size: 0.9rem;
-  font-weight: 500;
+  color: rgba(0, 0, 0, 0.65);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.prevNextText:hover {
   color: #1c1917;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  text-decoration: none;
-  background: #fff;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.listBtn:hover {
-  background: #f5f5f4;
-  border-color: rgba(0, 0, 0, 0.25);
-}
-
-.prevNext {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1rem;
-}
-
-.prevNextBtn {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
-  color: #44403c;
-  text-decoration: none;
-  border-radius: 6px;
-  background: #fafaf9;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  transition: background 0.15s ease;
-}
-
-.prevNextBtn:hover {
-  background: #f5f5f4;
+  text-decoration: underline;
 }
 
 .prevNextDisabled {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: rgba(0, 0, 0, 0.35);
-  border-radius: 6px;
-  background: #fafaf9;
-  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .actions {
@@ -138,8 +120,8 @@
   justify-content: flex-end;
   gap: 0.5rem;
   flex-wrap: wrap;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .editBtn {

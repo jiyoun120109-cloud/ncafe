@@ -9,9 +9,11 @@ import styles from './page.module.css';
 interface InquiryDetail {
   id: number;
   userId: number;
+  inquiryType?: string | null;
   title: string;
   content: string;
   isPrivate: boolean;
+  attachmentUrl?: string | null;
   createdAt: string;
   replies: { id: number; content: string; authorId?: number; createdAt: string }[];
 }
@@ -60,21 +62,44 @@ export default function AdminInquiryDetailPage() {
     );
   }
 
+  const attachmentHref = inquiry.attachmentUrl
+    ? (inquiry.attachmentUrl.startsWith('http') ? inquiry.attachmentUrl : inquiry.attachmentUrl.startsWith('/') ? inquiry.attachmentUrl : `/${inquiry.attachmentUrl}`)
+    : null;
+
   return (
     <div className={styles.page}>
       <Link href="/admin/inquiries" className={styles.backLink}>← 문의 목록</Link>
       <div className={styles.pageHeader}>
         <p className={styles.pageLabel}>Inquiry</p>
         <h2 className={styles.pageTitle}>{inquiry.isPrivate ? '[비밀] ' : ''}{inquiry.title}</h2>
-        <p className={styles.meta}>
-          작성자 ID: {inquiry.userId} · {new Date(inquiry.createdAt).toLocaleString('ko-KR')}
-        </p>
+        <dl className={styles.infoList}>
+          <div className={styles.infoRow}>
+            <dt>문의항목</dt>
+            <dd>{inquiry.inquiryType ?? '—'}</dd>
+          </div>
+          <div className={styles.infoRow}>
+            <dt>작성자 ID</dt>
+            <dd>{inquiry.userId}</dd>
+          </div>
+          <div className={styles.infoRow}>
+            <dt>작성일시</dt>
+            <dd>{new Date(inquiry.createdAt).toLocaleString('ko-KR')}</dd>
+          </div>
+        </dl>
       </div>
-      <div style={{ height: 1, background: 'rgba(0,0,0,0.07)' }} />
+      <div className={styles.divider} />
 
       <section className={styles.card}>
         <h3 className={styles.cardTitle}>문의 내용</h3>
         <div className={styles.content}>{inquiry.content}</div>
+        {attachmentHref && (
+          <div className={styles.attachmentBlock}>
+            <span className={styles.attachmentLabel}>첨부파일</span>
+            <a href={attachmentHref} target="_blank" rel="noopener noreferrer" className={styles.attachmentLink}>
+              첨부파일 보기 / 다운로드
+            </a>
+          </div>
+        )}
       </section>
 
       {inquiry.replies?.length ? (
@@ -114,13 +139,15 @@ export default function AdminInquiryDetailPage() {
               required
             />
           </div>
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={submitting || !replyContent.trim()}
-          >
-            {submitting ? '등록 중…' : '답변 등록 (작성자에게 알림 발송)'}
-          </button>
+          <div className={styles.formActions}>
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={submitting || !replyContent.trim()}
+            >
+              {submitting ? '등록 중…' : '답변 등록 (작성자에게 알림 발송)'}
+            </button>
+          </div>
         </form>
       </section>
     </div>

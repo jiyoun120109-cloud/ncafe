@@ -135,18 +135,17 @@ export default function AdminNoticesListPage() {
 
       <section>
         <div className={styles.listHeader}>
-          <h3 className={styles.sectionTitle}>공지사항 목록</h3>
+          <form onSubmit={handleSearch} className={styles.searchForm}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="제목·내용 검색"
+              className={styles.searchInput}
+              aria-label="제목·내용 검색"
+            />
+          </form>
           <div className={styles.listToolbar}>
-            <form onSubmit={handleSearch} className={styles.searchForm}>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="제목·내용 검색"
-                className={styles.searchInput}
-                aria-label="제목·내용 검색"
-              />
-            </form>
             {someSelected && (
               <button
                 type="button"

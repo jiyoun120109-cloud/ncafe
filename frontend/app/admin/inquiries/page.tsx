@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { getApiBase } from '@/services/api';
 import styles from './page.module.css';
@@ -8,6 +8,7 @@ import styles from './page.module.css';
 interface Inquiry {
   id: number;
   userId: number;
+  inquiryType?: string | null;
   title: string;
   content: string;
   isPrivate: boolean;
@@ -34,14 +35,38 @@ function formatDate(iso: string): string {
 export default function AdminInquiriesPage() {
   const [list, setList] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  useEffect(() => {
+  const loadList = useCallback(() => {
+    setLoading(true);
     fetch(`${getApiBase()}/admin/inquiries`, { credentials: 'include' })
       .then((res) => (res.ok ? res.json() : []))
       .then(setList)
       .catch(() => setList([]))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadList();
+  }, [loadList]);
+
+  const handleDelete = async (id: number, title: string) => {
+    if (!confirm(`문의 "${title}"(ID: ${id})을(를) 삭제하시겠습니까?`)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`${getApiBase()}/admin/inquiries/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.status === 404) throw new Error('문의를 찾을 수 없습니다.');
+      if (!res.ok) throw new Error('삭제에 실패했습니다.');
+      loadList();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -63,9 +88,10 @@ export default function AdminInquiriesPage() {
               <thead>
                 <tr>
                   <th className={styles.th}>ID</th>
-                  <th className={styles.th}>제목</th>
+                  <th className={styles.th}>문의항목속성</th>
+                  <th className={`${styles.th} ${styles.thLeft}`}>제목</th>
                   <th className={styles.th}>답변</th>
-                  <th className={styles.th}>내용 미리보기</th>
+                  <th className={`${styles.th} ${styles.thLeft}`}>내용 미리보기</th>
                   <th className={styles.th}>작성일시</th>
                   <th className={styles.th}>관리</th>
                 </tr>
@@ -74,7 +100,8 @@ export default function AdminInquiriesPage() {
                 {list.map((i) => (
                   <tr key={i.id} className={styles.tr}>
                     <td className={`${styles.td} ${styles.idCell}`}>{i.id}</td>
-                    <td className={styles.td}>
+                    <td className={styles.td}>{i.inquiryType ?? '—'}</td>
+                    <td className={`${styles.td} ${styles.tdLeft}`}>
                       {i.isPrivate ? '[비밀] ' : ''}{i.title}
                     </td>
                     <td className={styles.td}>
@@ -84,7 +111,7 @@ export default function AdminInquiriesPage() {
                         <span className={styles.replyPending}>—</span>
                       )}
                     </td>
-                    <td className={styles.td}>
+                    <td className={`${styles.td} ${styles.tdLeft}`}>
                       <span className={styles.contentPreview}>
                         {i.content || '—'}
                       </span>
@@ -97,6 +124,15 @@ export default function AdminInquiriesPage() {
                         <Link href={`/admin/inquiries/${i.id}`} className={styles.actionBtn}>
                           상세
                         </Link>
+                        <button
+                          type="button"
+                          className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                          onClick={() => handleDelete(i.id, i.title)}
+                          disabled={deletingId === i.id}
+                          title="삭제"
+                        >
+                          {deletingId === i.id ? '처리 중…' : '삭제'}
+                        </button>
                       </div>
                     </td>
                   </tr>

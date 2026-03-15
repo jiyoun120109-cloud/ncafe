@@ -53,6 +53,17 @@ public class AdminInquiryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        if (inquiryUseCase.findById(id).isEmpty()) return ResponseEntity.notFound().build();
+        inquiryUseCase.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/replies")
     public ResponseEntity<Map<String, Object>> addReply(
             @RequestHeader(value = "Authorization", required = false) String authorization,
@@ -77,9 +88,11 @@ public class AdminInquiryController {
         Map<String, Object> m = new HashMap<>();
         m.put("id", i.getId());
         m.put("userId", i.getUserId());
+        m.put("inquiryType", i.getInquiryType());
         m.put("title", i.getTitle());
         m.put("content", i.getContent());
         m.put("isPrivate", i.getIsPrivate());
+        m.put("attachmentUrl", i.getAttachmentUrl());
         m.put("createdAt", i.getCreatedAt());
         m.put("updatedAt", i.getUpdatedAt());
         return m;

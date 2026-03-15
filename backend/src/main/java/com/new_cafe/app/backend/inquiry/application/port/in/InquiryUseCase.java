@@ -31,4 +31,7 @@ public interface InquiryUseCase {
     void deleteUserReply(Long replyId, Long userId);
 
     void deleteByUser(Long inquiryId, Long userId);
+
+    /** 관리자: 문의 삭제 (답변 포함) */
+    void deleteById(Long id);
 }
