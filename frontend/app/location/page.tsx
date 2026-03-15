@@ -18,9 +18,15 @@ declare global {
       maps: {
         load: (callback: () => void) => void;
         LatLng: new (lat: number, lng: number) => { getLat: () => number; getLng: () => number };
-        Map: new (container: HTMLElement, options: { center: unknown; level: number }) => void;
-        Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void };
+        Map: new (container: HTMLElement, options: { center: unknown; level: number }) => { setCenter: (center: unknown) => void };
+        Marker: new (options: { position: unknown }) => { setMap: (map: unknown) => void; setPosition: (position: unknown) => void };
         event: { addListener: (target: unknown, type: string, handler: () => void) => void };
+        services?: {
+          Geocoder: new () => {
+            addressSearch: (address: string, callback: (result: { x: string; y: string }[], status: string) => void) => void;
+          };
+          Status: { OK: string };
+        };
       };
     };
   }
@@ -28,6 +34,8 @@ declare global {
 
 export default function LocationPage() {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<InstanceType<NonNullable<Window['kakao']>['maps']['Map']> | null>(null);
+  const markerInstanceRef = useRef<InstanceType<NonNullable<Window['kakao']>['maps']['Marker']> | null>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const { siteName, address, businessHours } = useSiteSettings();
 
@@ -42,23 +50,43 @@ export default function LocationPage() {
       const container = mapRef.current;
       if (!container || !k?.maps) return;
 
-      const center = new k.maps.LatLng(DEFAULT_LAT, DEFAULT_LNG);
-      const mapOption = {
-        center,
-        level: 3,
-      };
-      const map = new k.maps.Map(container, mapOption);
+      const defaultCenter = new k.maps.LatLng(DEFAULT_LAT, DEFAULT_LNG);
+      let map = mapInstanceRef.current;
+      let marker = markerInstanceRef.current;
 
-      const marker = new k.maps.Marker({ position: center });
-      marker.setMap(map);
+      if (!map) {
+        map = new k.maps.Map(container, { center: defaultCenter, level: 3 });
+        marker = new k.maps.Marker({ position: defaultCenter });
+        marker.setMap(map);
+        mapInstanceRef.current = map;
+        markerInstanceRef.current = marker;
+      }
+
+      const addressToSearch = (address || '').trim();
+      const geocoder = k.maps.services?.Geocoder ? new k.maps.services.Geocoder() : null;
+
+      if (addressToSearch && geocoder) {
+        geocoder.addressSearch(addressToSearch, (result: { x: string; y: string }[], status: string) => {
+          if (status === k.maps.services?.Status?.OK && result?.[0]) {
+            const lat = Number(result[0].y);
+            const lng = Number(result[0].x);
+            const coords = new k.maps.LatLng(lat, lng);
+            marker.setPosition(coords);
+            map.setCenter(coords);
+          }
+        });
+      } else {
+        marker.setPosition(defaultCenter);
+        map.setCenter(defaultCenter);
+      }
     });
-  }, [scriptLoaded]);
+  }, [scriptLoaded, address]);
 
   return (
     <>
       {KAKAO_APP_KEY && (
         <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&autoload=false`}
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_APP_KEY}&libraries=services&autoload=false`}
           strategy="afterInteractive"
           onLoad={() => setScriptLoaded(true)}
         />

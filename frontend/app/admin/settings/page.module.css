@@ -118,6 +118,39 @@
   color: rgba(0, 0, 0, 0.35);
 }
 
+.addressRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.addressRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.addressSearchBtn {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-primary-700, #6d4520);
+  background: var(--color-primary-100, #f2e8e5);
+  border: 1px solid var(--color-primary-300, #d4b8a5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.addressSearchBtn:hover {
+  background: var(--color-primary-200, #eaddd7);
+  border-color: var(--color-primary-400, #b8917a);
+}
+
+.addressDetailInput {
+  margin-top: 0.5rem;
+}
+
 .fieldRow {
   display: flex;
   align-items: center;

@@ -102,16 +102,16 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  background: #1c1917;
   color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--color-primary-600, #8b5a2b);
+  border: none;
   border-radius: 6px;
   text-decoration: none;
   transition: background 0.2s ease;
 }
 
 .writeBtn:hover {
-  background: #44403c;
+  background: var(--color-primary-700, #6f4a31);
 }
 
 /* 관리자 테이블 스타일 참고 */

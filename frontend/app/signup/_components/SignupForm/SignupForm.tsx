@@ -68,6 +68,7 @@ interface SignupFormValues {
     birthDate: string;
     phone: string;
     address: string;
+    addressDetail: string;
     displayNickname: string;
     email: string;
 }
@@ -104,13 +105,35 @@ export default function SignupForm({ onError }: SignupFormProps) {
         register,
         handleSubmit,
         watch,
+        setValue,
         setError,
         clearErrors,
         formState: { errors },
-    } = useForm<SignupFormValues>({ mode: 'onBlur' });
+    } = useForm<SignupFormValues>({ mode: 'onBlur', defaultValues: { addressDetail: '' } });
 
     const password = watch('password');
     const username = watch('username');
+
+    const openAddressSearch = () => {
+        type DaumPostcodeData = { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string };
+        const onComplete = (data: DaumPostcodeData) => {
+            let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+            if (data.buildingName) full += ` ${data.buildingName}`;
+            setValue('address', full);
+        };
+        if (typeof window !== 'undefined' && (window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } }).daum?.Postcode) {
+            new (window as unknown as { daum: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } }).daum.Postcode({ oncomplete: onComplete }).open();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.async = true;
+        script.onload = () => {
+            const w = window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } };
+            if (w.daum?.Postcode) new w.daum.Postcode({ oncomplete: onComplete }).open();
+        };
+        document.body.appendChild(script);
+    };
 
     const handleCheckUsername = async () => {
         const value = (username || '').trim();
@@ -160,7 +183,7 @@ export default function SignupForm({ onError }: SignupFormProps) {
                 name: data.name.trim() || undefined,
                 birthDate: birthDateVal.length === 8 ? `${birthDateVal.slice(0, 4)}-${birthDateVal.slice(4, 6)}-${birthDateVal.slice(6, 8)}` : undefined,
                 phone: phoneVal || undefined,
-                address: (data.address || '').trim() || undefined,
+                address: [data.address, data.addressDetail].map((s) => (s || '').trim()).filter(Boolean).join(' ') || undefined,
                 displayNickname: (data.displayNickname || '').trim() || undefined,
                 email: data.email?.trim() || undefined,
             });
@@ -405,17 +428,30 @@ export default function SignupForm({ onError }: SignupFormProps) {
                     <label htmlFor="address" className={styles.label}>
                         주소 <span className={styles.optional}>(선택)</span>
                     </label>
-                    <div className={styles.inputWrapper}>
-                        <MapPin className={styles.inputIcon} />
-                        <input
-                            id="address"
-                            type="text"
-                            className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
-                            placeholder="예: 서울시 강남구 테헤란로 123"
-                            autoComplete="street-address"
-                            {...register('address')}
-                        />
+                    <div className={styles.addressRow}>
+                        <div className={styles.inputWrapper}>
+                            <MapPin className={styles.inputIcon} />
+                            <input
+                                id="address"
+                                type="text"
+                                className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
+                                placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
+                                autoComplete="street-address"
+                                {...register('address')}
+                            />
+                        </div>
+                        <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
+                            주소 검색
+                        </button>
                     </div>
+                    <input
+                        id="addressDetail"
+                        type="text"
+                        className={`${styles.input} ${styles.addressDetailInput} ${errors.addressDetail ? styles.inputError : ''}`}
+                        placeholder="상세주소 (동, 호수 등)"
+                        autoComplete="address-line2"
+                        {...register('addressDetail')}
+                    />
                     {errors.address && (
                         <span className={styles.fieldError}>{errors.address.message}</span>
                     )}

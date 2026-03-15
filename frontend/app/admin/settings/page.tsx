@@ -5,9 +5,12 @@ import { useUIStore } from '@/stores/uiStore';
 import { fetchAdminSettings, updateAdminSettings, type AdminSettingsDto } from '@/services/adminSettingsService';
 import styles from './page.module.css';
 
+type DaumPostcodeData = { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string };
+
 export default function AdminSettingsPage() {
   const { setTitle } = useUIStore();
   const [settings, setSettings] = useState<AdminSettingsDto | null>(null);
+  const [addressDetail, setAddressDetail] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -15,6 +18,7 @@ export default function AdminSettingsPage() {
   const load = useCallback(() => {
     setLoading(true);
     setMessage(null);
+    setAddressDetail('');
     fetchAdminSettings()
       .then((data) => setSettings(data))
       .catch(() => setSettings(null))
@@ -35,14 +39,38 @@ export default function AdminSettingsPage() {
     setSaving(true);
     setMessage(null);
     try {
-      const updated = await updateAdminSettings(settings);
+      const combinedAddress = [settings.address ?? '', addressDetail.trim()].filter(Boolean).join(' ');
+      const payload = { ...settings, address: combinedAddress || undefined };
+      const updated = await updateAdminSettings(payload);
       setSettings(updated);
+      setAddressDetail('');
       setMessage({ type: 'success', text: '설정이 저장되었습니다.' });
     } catch (err) {
       setMessage({ type: 'error', text: err instanceof Error ? err.message : '저장에 실패했습니다.' });
     } finally {
       setSaving(false);
     }
+  };
+
+  const openAddressSearch = () => {
+    const onComplete = (data: DaumPostcodeData) => {
+      let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      if (data.buildingName) full += ` ${data.buildingName}`;
+      updateField('address', full);
+    };
+    const w = typeof window !== 'undefined' ? window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } } : null;
+    if (w?.daum?.Postcode) {
+      new w.daum.Postcode({ oncomplete: onComplete }).open();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    script.onload = () => {
+      const ww = window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } };
+      if (ww.daum?.Postcode) new ww.daum.Postcode({ oncomplete: onComplete }).open();
+    };
+    document.body.appendChild(script);
   };
 
   const updateField = (key: keyof AdminSettingsDto, value: string) => {
@@ -120,13 +148,26 @@ export default function AdminSettingsPage() {
             <label className={styles.label} htmlFor="address">
               주소
             </label>
+            <div className={styles.addressRow}>
+              <input
+                id="address"
+                type="text"
+                className={styles.input}
+                value={settings.address ?? ''}
+                onChange={(e) => updateField('address', e.target.value)}
+                placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
+              />
+              <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
+                주소 검색
+              </button>
+            </div>
             <input
-              id="address"
+              id="addressDetail"
               type="text"
-              className={styles.input}
-              value={settings.address ?? ''}
-              onChange={(e) => updateField('address', e.target.value)}
-              placeholder="예: 서울시 강남구 테헤란로 123"
+              className={`${styles.input} ${styles.addressDetailInput}`}
+              value={addressDetail}
+              onChange={(e) => setAddressDetail(e.target.value)}
+              placeholder="상세주소 (동, 호수 등)"
             />
           </div>
         </div>

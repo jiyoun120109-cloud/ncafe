@@ -105,7 +105,7 @@ function UserPageContent() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', birthDate: '', phone: '', address: '', displayNickname: '' });
+  const [form, setForm] = useState({ name: '', email: '', birthDate: '', phone: '', address: '', addressDetail: '', displayNickname: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -242,6 +242,7 @@ function UserPageContent() {
             birthDate: (p.birthDate ?? '').replace(/\D/g, '').slice(0, 8),
             phone: p.phone ?? '',
             address: p.address ?? '',
+            addressDetail: '',
             displayNickname: p.displayNickname ?? '',
           });
         })
@@ -285,7 +286,7 @@ function UserPageContent() {
         email: form.email.trim() || undefined,
         birthDate: birthDateValue,
         phone: form.phone.trim() || undefined,
-        address: form.address.trim() || null,
+        address: [form.address.trim(), form.addressDetail.trim()].filter(Boolean).join(' ') || null,
         displayNickname: form.displayNickname.trim() || undefined,
       });
       setProfile(updated);
@@ -303,7 +304,7 @@ function UserPageContent() {
     const onComplete = (data: { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string }) => {
       let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
       if (data.buildingName) full += ` ${data.buildingName}`;
-      setForm((f) => ({ ...f, address: full }));
+      setForm((f) => ({ ...f, address: full, addressDetail: f.addressDetail }));
     };
     if (typeof window !== 'undefined' && window.daum?.Postcode) {
       new window.daum.Postcode({ oncomplete: onComplete }).open();
@@ -596,13 +597,21 @@ function UserPageContent() {
                             type="text"
                             value={form.address}
                             onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                            placeholder="주소 검색 또는 직접 입력"
+                            placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
                             className={styles.addressInput}
                           />
                           <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
                             주소 검색
                           </button>
                         </div>
+                        <input
+                          id="profile-addressDetail"
+                          type="text"
+                          value={form.addressDetail}
+                          onChange={(e) => setForm((f) => ({ ...f, addressDetail: e.target.value }))}
+                          placeholder="상세주소 (동, 호수 등)"
+                          className={styles.addressDetailInput}
+                        />
                       </div>
                       <div className={styles.formRow}>
                         <label>권한</label>
