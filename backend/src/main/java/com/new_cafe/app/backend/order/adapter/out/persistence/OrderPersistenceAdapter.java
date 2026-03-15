@@ -37,6 +37,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         if (order.getId() == null) {
             entity = OrderEntity.builder()
                 .userId(order.getUserId())
+                .customerId(order.getUserId())
                 .guestEmail(order.getGuestEmail())
                 .guestPhone(order.getGuestPhone())
                 .status(order.getStatus())

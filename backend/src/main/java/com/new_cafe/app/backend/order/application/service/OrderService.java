@@ -1,6 +1,7 @@
 package com.new_cafe.app.backend.order.application.service;
 
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
+import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
 import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
 import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
@@ -19,10 +20,13 @@ public class OrderService implements CreateOrderUseCase {
 
     private final OrderRepositoryPort orderRepositoryPort;
     private final MemberRepositoryPort memberRepositoryPort;
+    private final MenuRepositoryPort menuRepositoryPort;
 
-    public OrderService(OrderRepositoryPort orderRepositoryPort, MemberRepositoryPort memberRepositoryPort) {
+    public OrderService(OrderRepositoryPort orderRepositoryPort, MemberRepositoryPort memberRepositoryPort,
+                        MenuRepositoryPort menuRepositoryPort) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.memberRepositoryPort = memberRepositoryPort;
+        this.menuRepositoryPort = menuRepositoryPort;
     }
 
     @Override
@@ -33,6 +37,11 @@ public class OrderService implements CreateOrderUseCase {
         }
         if (command.getUserId() != null && memberRepositoryPort.findById(command.getUserId()).isEmpty()) {
             throw new IllegalArgumentException("회원 정보를 찾을 수 없습니다. 다시 로그인한 뒤 주문해 주세요.");
+        }
+        for (CreateOrderCommand.OrderItemDto dto : command.getItems()) {
+            if (menuRepositoryPort.findById(dto.getMenuId()) == null) {
+                throw new IllegalArgumentException("주문에 포함된 메뉴를 찾을 수 없습니다. 장바구니를 비운 뒤 다시 시도해 주세요.");
+            }
         }
         int total = 0;
         List<OrderItem> items = new ArrayList<>();
