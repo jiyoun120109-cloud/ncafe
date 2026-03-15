@@ -540,7 +540,7 @@ export default function Home() {
 
           <div>
             <h4 className={styles.footerColumnTitle}>운영 시간</h4>
-            <p className={styles.footerLink} style={{ cursor: "default" }}>
+            <p className={`${styles.footerLink} ${styles.footerBusinessHours}`} style={{ cursor: "default" }}>
               <Clock size={13} style={{ display: "inline", verticalAlign: "-2px", marginRight: "6px" }} />
               {businessHours || "월-금 08:00 – 22:00 / 토-일 09:00 – 22:00"}
             </p>

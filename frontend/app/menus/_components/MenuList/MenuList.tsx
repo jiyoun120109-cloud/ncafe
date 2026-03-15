@@ -9,6 +9,8 @@ const DEFAULT_PAGE_SIZE = 12;
 
 interface MenuListProps {
     selectedCategory: number | null;
+    /** 음료 등 복수 카테고리 이름 필터 (라떼,에이드,티,스무디) */
+    categoryNamesFilter?: string[];
     searchQuery: string;
     sort?: string;
     page?: number;
@@ -16,8 +18,8 @@ interface MenuListProps {
     pageSize?: number;
 }
 
-export default function MenuList({ selectedCategory, searchQuery, sort = 'priority', page = 1, onPageChange, pageSize = DEFAULT_PAGE_SIZE }: MenuListProps) {
-    const { menus, loading } = useUserMenus({ categoryId: selectedCategory, searchQuery, sort });
+export default function MenuList({ selectedCategory, categoryNamesFilter, searchQuery, sort = 'priority', page = 1, onPageChange, pageSize = DEFAULT_PAGE_SIZE }: MenuListProps) {
+    const { menus, loading } = useUserMenus({ categoryId: selectedCategory, categoryNames: categoryNamesFilter, searchQuery, sort });
     const total = menus.length;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
     const currentPage = Math.min(Math.max(1, page), totalPages);

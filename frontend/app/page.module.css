@@ -874,6 +874,13 @@
   color: #fff;
 }
 
+.footerBusinessHours {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
 .footerBottom {
   max-width: 1100px;
   margin: 0 auto;

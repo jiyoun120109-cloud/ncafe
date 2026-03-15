@@ -25,8 +25,15 @@ function MenusPageContent() {
     const [sort, setSort] = useState<string>('priority');
     const [page, setPage] = useState(1);
 
+    /** URL이 ?category=음료 일 때 라떼·에이드·티·스무디만 표시 */
+    const beverageCategoryNames = categoryParam === '음료' ? ['라떼', '에이드', '티', '스무디'] : undefined;
+
     useEffect(() => {
         if (!categoryParam || categories.length === 0) return;
+        if (categoryParam === '음료') {
+            setSelectedCategory(null);
+            return;
+        }
         const found = categories.find((c) => c.name === categoryParam);
         if (found) setSelectedCategory(found.id);
     }, [categoryParam, categories]);
@@ -65,6 +72,7 @@ function MenusPageContent() {
                 </div>
                 <MenuList
                     selectedCategory={selectedCategory}
+                    categoryNamesFilter={beverageCategoryNames}
                     searchQuery={searchQuery}
                     sort={sort}
                     page={page}

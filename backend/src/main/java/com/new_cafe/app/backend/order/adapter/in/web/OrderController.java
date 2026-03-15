@@ -9,6 +9,7 @@ import com.new_cafe.app.backend.order.adapter.in.web.dto.CreateOrderRequestDto;
 import com.new_cafe.app.backend.payment.application.port.in.ProcessPaymentUseCase;
 import io.jsonwebtoken.Claims;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +46,17 @@ public class OrderController {
     ) {
         Long userId = null;
         if (authorization != null && authorization.startsWith("Bearer ")) {
-            Claims claims = jwtService.parseToken(authorization);
-            userId = jwtService.getUserIdFromClaims(claims);
+            try {
+                Claims claims = jwtService.parseToken(authorization);
+                userId = jwtService.getUserIdFromClaims(claims);
+            } catch (Exception ignored) {
+                /* 토큰 만료/무효 시 userId는 null 유지 */
+            }
+        }
+        // 로그인 주문으로 보내왔는데 JWT가 없으면 세션 만료 → 401 (guest 주문으로 저장 시 customer_id 등으로 409 나는 배포 DB 방지)
+        if (request.getUserId() != null && userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Unauthorized", "message", "로그인 세션이 만료되었습니다. 다시 로그인한 뒤 주문해 주세요."));
         }
         CreateOrderCommand command = CreateOrderCommand.builder()
                 .userId(userId)

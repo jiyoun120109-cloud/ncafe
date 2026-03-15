@@ -26,7 +26,7 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
   const res = await fetch(`${getApiBase()}/orders`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
+    credentials: 'include', // 세션 쿠키 전송 → BFF가 JWT를 백엔드 Authorization으로 전달
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
@@ -36,6 +36,9 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
       if (body?.message && typeof body.message === 'string') message = body.message;
     } catch {
       /* 응답이 JSON이 아니면 기본 메시지 유지 */
+    }
+    if (res.status === 401) {
+      message = '로그인 세션이 만료되었습니다. 다시 로그인한 뒤 주문해 주세요.';
     }
     throw new Error(message);
   }

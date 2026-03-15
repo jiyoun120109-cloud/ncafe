@@ -26,6 +26,8 @@ export interface UserMenuListResponse {
 
 export interface UserMenuListRequest {
     categoryId: number | null;
+    /** 여러 카테고리 이름으로 필터 (예: 음료 = 라떼,에이드,티,스무디) */
+    categoryNames?: string[];
     searchQuery: string;
     /** 정렬: price_desc | price_asc | likes | name */
     sort?: string;
@@ -37,7 +39,7 @@ export function useUserMenus(request: UserMenuListRequest) {
 
     useEffect(() => {
         const url = new URL(`${getApiBase()}/menus`);
-        if (request.categoryId != null) {
+        if (request.categoryId != null && !(request.categoryNames?.length)) {
             url.searchParams.set('categoryId', request.categoryId.toString());
         }
         if (request.searchQuery) {
@@ -53,7 +55,13 @@ export function useUserMenus(request: UserMenuListRequest) {
                 return res.json();
             })
             .then((data: UserMenuListResponse) => {
-                if (!cancelled) setMenus(data.menus ?? []);
+                if (cancelled) return;
+                let list = data.menus ?? [];
+                if (request.categoryNames?.length) {
+                    const set = new Set(request.categoryNames);
+                    list = list.filter((m) => set.has((m as UserMenuResponse).categoryName));
+                }
+                setMenus(list);
             })
             .catch((err) => {
                 if (!cancelled) {
@@ -65,7 +73,7 @@ export function useUserMenus(request: UserMenuListRequest) {
                 if (!cancelled) setLoading(false);
             });
         return () => { cancelled = true; };
-    }, [request.categoryId, request.searchQuery, request.sort]);
+    }, [request.categoryId, request.categoryNames?.join(','), request.searchQuery, request.sort]);
 
     return { menus, loading };
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, FileText, MessageCircle, User, ShoppingCart, Bell } from 'lucide-react';
+import { Menu, X, ChevronDown, FileText, MessageCircle, User, ShoppingCart, Bell, MapPin, Clock, Package, Heart, Ticket } from 'lucide-react';
 import HeaderAuth from '@/components/HeaderAuth';
 import HeaderCart from '@/components/HeaderCart';
 import { useCart } from '@/contexts/CartContext';
@@ -17,6 +17,8 @@ export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [myPageOpen, setMyPageOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { totalQuantity } = useCart();
   const { isAuthenticated } = useAuthStore();
@@ -53,6 +55,8 @@ export default function SiteHeader() {
   useEffect(() => {
     setMobileOpen(false);
     setInfoOpen(false);
+    setMenuOpen(false);
+    setMyPageOpen(false);
   }, [pathname]);
 
   const closeMobile = () => setMobileOpen(false);
@@ -98,7 +102,7 @@ export default function SiteHeader() {
           </div>
 
           <nav className={styles.navLinks}>
-            <Link href="/#features" className={linkClass()} onClick={closeMobile}>
+            <Link href="/#about" className={linkClass()} onClick={closeMobile}>
               About
             </Link>
 
@@ -118,6 +122,14 @@ export default function SiteHeader() {
                 <ChevronDown size={14} className={styles.infoChevron} />
               </button>
               <div className={`${styles.infoDropdown} ${infoOpen ? styles.infoDropdownOpen : ''}`}>
+                <Link href="/location" className={styles.infoItem} onClick={closeMobile}>
+                  <MapPin size={16} />
+                  매장 위치
+                </Link>
+                <Link href="/#visit" className={styles.infoItem} onClick={closeMobile}>
+                  <Clock size={16} />
+                  영업시간
+                </Link>
                 <Link href="/notices" className={styles.infoItem} onClick={closeMobile}>
                   <FileText size={16} />
                   공지사항
@@ -129,14 +141,69 @@ export default function SiteHeader() {
               </div>
             </div>
 
-            <Link href="/menus" className={linkClass(isMenus)} onClick={closeMobile}>
-              Menu
-            </Link>
+            <div
+              className={`${styles.infoWrap} ${menuOpen ? styles.infoWrapOpen : ''}`}
+              onMouseEnter={() => !mobileOpen && setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+            >
+              <button
+                type="button"
+                className={linkClass(isMenus)}
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-expanded={menuOpen}
+                aria-haspopup="true"
+              >
+                Menu
+                <ChevronDown size={14} className={styles.infoChevron} />
+              </button>
+              <div className={`${styles.infoDropdown} ${menuOpen ? styles.infoDropdownOpen : ''}`}>
+                <Link href="/menus?category=커피" className={styles.infoItem} onClick={closeMobile}>
+                  커피
+                </Link>
+                <Link href="/menus?category=음료" className={styles.infoItem} onClick={closeMobile}>
+                  음료
+                </Link>
+                <Link href="/menus?category=베이커리" className={styles.infoItem} onClick={closeMobile}>
+                  베이커리
+                </Link>
+              </div>
+            </div>
 
-            <Link href="/user" className={linkClass()} onClick={closeMobile}>
-              <User size={18} />
-              마이페이지
-            </Link>
+            <div
+              className={`${styles.infoWrap} ${myPageOpen ? styles.infoWrapOpen : ''}`}
+              onMouseEnter={() => !mobileOpen && setMyPageOpen(true)}
+              onMouseLeave={() => setMyPageOpen(false)}
+            >
+              <button
+                type="button"
+                className={linkClass(pathname === '/user')}
+                onClick={() => setMyPageOpen((o) => !o)}
+                aria-expanded={myPageOpen}
+                aria-haspopup="true"
+              >
+                <User size={18} />
+                마이페이지
+                <ChevronDown size={14} className={styles.infoChevron} />
+              </button>
+              <div className={`${styles.infoDropdown} ${myPageOpen ? styles.infoDropdownOpen : ''}`}>
+                <Link href="/user?tab=profile" className={styles.infoItem} onClick={closeMobile}>
+                  <User size={16} />
+                  프로필
+                </Link>
+                <Link href="/user?tab=orders" className={styles.infoItem} onClick={closeMobile}>
+                  <Package size={16} />
+                  주문내역
+                </Link>
+                <Link href="/favorites" className={styles.infoItem} onClick={closeMobile}>
+                  <Heart size={16} />
+                  찜
+                </Link>
+                <Link href="/user?tab=coupons" className={styles.infoItem} onClick={closeMobile}>
+                  <Ticket size={16} />
+                  쿠폰
+                </Link>
+              </div>
+            </div>
 
             {isAuthenticated && (
               <Link
