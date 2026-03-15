@@ -397,7 +397,7 @@ export default function GuestChat() {
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? '채팅 닫기' : '댕댕이 챗봇 열기'}
         >
-          {open ? <X size={24} /> : <span className={styles.fabIcon} aria-hidden>🐶</span>}
+          {open ? <X size={24} className={styles.fabCloseIcon} /> : <img src="/images/chat/chatbot-main.png" alt="" className={styles.fabImg} aria-hidden />}
         </button>
       )}
 
@@ -407,7 +407,7 @@ export default function GuestChat() {
           style={isMobileView ? undefined : { width: panelSize.width, height: panelSize.height }}
         >
           <div className={styles.panelHeader}>
-            <span className={styles.panelTitleIcon} aria-hidden>🐶</span>
+            <img src="/images/chat/chatbot-header.png" alt="" className={styles.panelHeaderImg} aria-hidden />
             <span className={styles.panelTitle}>댕댕이 도우미</span>
             <span className={styles.panelBadge}>채팅</span>
             {isMobileView && (

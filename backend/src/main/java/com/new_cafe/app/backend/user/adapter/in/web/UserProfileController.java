@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,8 +186,11 @@ public class UserProfileController {
             m.put("couponId", uc.getCouponId());
             m.put("usedAt", uc.getUsedAt());
             m.put("issuedAt", uc.getIssuedAt());
+            LocalDateTime validUntil = uc.getIssuedAt() != null ? uc.getIssuedAt().plusDays(30) : null;
+            m.put("validUntil", validUntil != null ? validUntil.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
             couponJpaRepository.findById(uc.getCouponId()).ifPresent(c -> {
                 m.put("couponName", c.getName());
+                m.put("couponCode", c.getName());
                 m.put("menuId", c.getMenuId());
             });
             return m;

@@ -614,7 +614,7 @@ function UserPageContent() {
                             <span className={styles.orderTabTotalAmount}>
                               총 금액: ₩{(o.totalPrice ?? o.totalAmount)?.toLocaleString() ?? '0'}
                             </span>
-                            <Link href={`/user/orders/${o.id}`} className={styles.orderTabDetailBtn}>
+                            <Link href={`/user/orders/${Number(o.id)}`} className={styles.orderTabDetailBtn} scroll={true}>
                               주문 상세보기
                             </Link>
                           </div>
@@ -680,14 +680,35 @@ function UserPageContent() {
               {coupons.length === 0 ? (
                 <p className={styles.empty}>보유 쿠폰이 없습니다.</p>
               ) : (
-                <ul className={styles.couponList}>
-                  {coupons.map((c) => (
-                    <li key={c.id} className={c.usedAt ? styles.used : ''}>
-                      <span>{c.couponName ?? '쿠폰'}</span>
-                      <span>{c.usedAt ? '사용완료' : '사용가능'}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className={styles.couponTableWrap}>
+                  <table className={styles.couponTable}>
+                    <thead>
+                      <tr>
+                        <th>순서</th>
+                        <th>쿠폰코드</th>
+                        <th>유효기간</th>
+                        <th>상태</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {coupons.map((c, index) => {
+                        const validUntil = c.validUntil ? new Date(c.validUntil) : null;
+                        const isExpired = validUntil != null && new Date() > validUntil;
+                        const isUsed = !!c.usedAt;
+                        const isInactive = isUsed || isExpired;
+                        const statusText = isUsed ? '사용완료' : isExpired ? '만료됨' : '사용가능';
+                        return (
+                          <tr key={c.id} className={isInactive ? styles.couponRowInactive : ''}>
+                            <td>{index + 1}</td>
+                            <td>{c.couponCode ?? c.couponName ?? '-'}</td>
+                            <td>{validUntil ? validUntil.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' }) : '-'}</td>
+                            <td><span className={isInactive ? styles.couponStatusInactive : styles.couponStatusActive}>{statusText}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
               </div>
               <div className={styles.couponRegisterWrap}>

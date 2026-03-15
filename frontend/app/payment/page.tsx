@@ -40,6 +40,8 @@ declare global {
 function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const searchParams = useSearchParams();
   const orderIdParam = searchParams.get('orderId');
+  const userCouponIdParam = searchParams.get('userCouponId');
+  const userCouponIdFromUrl = userCouponIdParam ? parseInt(userCouponIdParam, 10) : null;
   const complete = searchParams.get('complete') === '1';
   const fail = searchParams.get('fail') === '1';
   const paymentKeyParam = searchParams.get('paymentKey');
@@ -49,6 +51,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const { clearAll } = useCart();
   const { isAuthenticated } = useAuthStore();
   const [order, setOrder] = useState<OrderDto | null>(null);
+  const [completedOrder, setCompletedOrder] = useState<OrderDto | null>(null);
   const [coupons, setCoupons] = useState<UserCouponDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
@@ -56,6 +59,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const [completed, setCompleted] = useState(complete);
   const [error, setError] = useState<string | null>(null);
   const completeRequestSent = useRef(false);
+  const couponFromUrlApplied = useRef(false);
 
   useEffect(() => {
     if (!orderId || isNaN(orderId)) {
@@ -77,8 +81,12 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
       const pgTid = paymentKeyParam || undefined;
       paymentComplete(orderId, pgTid)
         .then(() => {
-          setCompleted(true);
           clearAll();
+          return getOrder(orderId);
+        })
+        .then((o) => {
+          setCompletedOrder(o);
+          setCompleted(true);
         })
         .catch((e) => setError(e instanceof Error ? e.message : '결제 완료 처리에 실패했습니다.'))
         .finally(() => setLoading(false));
@@ -89,6 +97,18 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
       .catch((e) => setError(e instanceof Error ? e.message : '주문을 불러올 수 없습니다.'))
       .finally(() => setLoading(false));
   }, [orderId, complete, fail, failMessage, paymentKeyParam, clearAll]);
+
+  /* 주문 페이지에서 선택한 쿠폰이 있으면 자동 적용 */
+  useEffect(() => {
+    if (!orderId || !order || !userCouponIdFromUrl || isNaN(userCouponIdFromUrl) || couponFromUrlApplied.current) return;
+    if (order.appliedUserCouponId != null) return;
+    couponFromUrlApplied.current = true;
+    setApplyingCoupon(true);
+    applyCouponToOrder(orderId, userCouponIdFromUrl)
+      .then(setOrder)
+      .catch(() => { couponFromUrlApplied.current = false; })
+      .finally(() => setApplyingCoupon(false));
+  }, [orderId, order, userCouponIdFromUrl]);
 
   useEffect(() => {
     if (isAuthenticated && orderId && !complete) {
@@ -172,6 +192,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   }
 
   if (completed) {
+    const displayOrderNumber = completedOrder?.orderNumber ?? (orderId ? `ORD-${orderId}` : '-');
     return (
       <CheckoutLayout currentStep="payment">
         <div className={styles.completeCard}>
@@ -180,9 +201,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
           </div>
           <h1 className={styles.completeTitle}>결제가 완료되었어요</h1>
           <p className={styles.completeDesc}>주문이 정상적으로 접수되었습니다.</p>
-          {orderId && (
-            <p className={styles.orderNumber}>주문 번호 <strong>{orderId}</strong></p>
-          )}
+          <p className={styles.orderNumber}>주문 번호 <strong>{displayOrderNumber}</strong></p>
           <div className={styles.completeActions}>
             <Link href="/user?tab=orders" className={styles.primaryBtn}>
               주문 내역 보기
@@ -190,6 +209,16 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
             <Link href="/menus" className={styles.secondaryBtn}>
               메뉴 더 보기
             </Link>
+            {orderId && (
+              <>
+                <Link href={`/user/orders/${orderId}`} className={styles.tertiaryBtn}>
+                  결제취소
+                </Link>
+                <Link href="/inquiries/new" className={styles.tertiaryBtn}>
+                  문의하기
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </CheckoutLayout>

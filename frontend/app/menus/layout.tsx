@@ -1,8 +1,6 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import MenusHeroShowcase from './_components/MenusHeroShowcase/MenusHeroShowcase';
 import styles from './layout.module.css';
@@ -16,15 +14,19 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
 
     return (
         <div className={styles.root}>
-            {/* ── 목록: 인기·추천·NEW 쇼케이스 / 디테일: 뒤로가기 ── */}
+            {/* ── 목록: 인기·추천·NEW 쇼케이스 / 디테일: 문구 ── */}
             {isDetail ? (
                 <div className={styles.heroBanner}>
                     <div className={styles.heroBannerOverlay} />
                     <div className={styles.heroBannerContent}>
-                        <Link href="/menus" className={styles.backLink}>
-                            <ArrowLeft size={16} />
-                            메뉴로 돌아가기
-                        </Link>
+                        <span className={styles.bannerLabel}>Menu</span>
+                        <h1 className={styles.bannerTitle}>
+                            <span className={styles.bannerTitleSerif}>한 잔의 여유,</span>
+                            <span className={styles.bannerTitleSans}>특별한 맛을 만나다</span>
+                        </h1>
+                        <p className={styles.bannerDesc}>
+                            정성으로 내린 오늘의 한 잔이 당신을 기다립니다.
+                        </p>
                     </div>
                 </div>
             ) : (

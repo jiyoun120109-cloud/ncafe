@@ -72,9 +72,11 @@ export interface UserCouponDto {
   id: number;
   couponId: number;
   couponName?: string;
+  couponCode?: string;
   menuId?: number;
   usedAt: string | null;
   issuedAt: string;
+  validUntil?: string | null;
 }
 
 export async function getUserCoupons(): Promise<UserCouponDto[]> {

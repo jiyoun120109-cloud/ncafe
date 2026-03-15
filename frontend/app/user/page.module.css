@@ -934,6 +934,49 @@
   opacity: 0.6;
 }
 
+.couponTableWrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.couponTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.couponTable th,
+.couponTable td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.couponTable th {
+  background: rgba(0, 0, 0, 0.04);
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.couponTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.couponRowInactive {
+  opacity: 0.6;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.couponStatusActive {
+  color: var(--color-success, #0d9488);
+  font-weight: 500;
+}
+
+.couponStatusInactive {
+  color: rgba(0, 0, 0, 0.45);
+}
+
 .empty {
   color: rgba(0, 0, 0, 0.5);
   font-size: 0.95rem;
