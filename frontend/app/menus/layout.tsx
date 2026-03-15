@@ -21,11 +21,11 @@ export default function MenusLayout({ children }: { children: React.ReactNode })
                     <div className={styles.heroBannerContent}>
                         <span className={styles.bannerLabel}>Menu</span>
                         <h1 className={styles.bannerTitle}>
-                            <span className={styles.bannerTitleSerif}>한 잔의 여유,</span>
-                            <span className={styles.bannerTitleSans}>특별한 맛을 만나다</span>
+                            <span className={styles.bannerTitleSerif}>A moment of calm,</span>
+                            <span className={styles.bannerTitleSans}>a taste to remember</span>
                         </h1>
                         <p className={styles.bannerDesc}>
-                            정성으로 내린 오늘의 한 잔이 당신을 기다립니다.
+                            Today&apos;s cup, made with care, is waiting for you.
                         </p>
                     </div>
                 </div>

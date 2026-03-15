@@ -39,6 +39,16 @@ export default function AddToCartModal({
         router.push('/cart');
     };
 
+    const goToMenus = () => {
+        onClose();
+        router.push('/menus');
+    };
+
+    const goToOrder = () => {
+        onClose();
+        router.push('/order');
+    };
+
     if (!open) return null;
 
     const message = menuName
@@ -75,16 +85,23 @@ export default function AddToCartModal({
                     <button
                         type="button"
                         className={styles.btnSecondary}
-                        onClick={onClose}
+                        onClick={goToMenus}
                     >
                         쇼핑 계속하기
                     </button>
                     <button
                         type="button"
-                        className={styles.btnPrimary}
+                        className={styles.btnSecondary}
                         onClick={goToCart}
                     >
-                        장바구니로 이동
+                        장바구니
+                    </button>
+                    <button
+                        type="button"
+                        className={styles.btnPrimary}
+                        onClick={goToOrder}
+                    >
+                        주문하기
                     </button>
                 </div>
             </div>
