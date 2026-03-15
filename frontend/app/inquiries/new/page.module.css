@@ -32,4 +32,26 @@
 .fileHint { font-size: 0.8rem; color: rgba(0,0,0,0.45); margin: 0.25rem 0 0 0; }
 .checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
 .error { color: #b91c1c; font-size: 0.9rem; margin-bottom: 0.5rem; }
-.submit { padding: 0.6rem 1.25rem; font-size: 0.9rem; background: #1c1917; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.submitWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+.submit {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a3c);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.submit:hover:not(:disabled) {
+  background: var(--color-primary-700, #6f4a31);
+}
+.submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

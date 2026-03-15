@@ -137,7 +137,9 @@ export default function NewInquiryPage() {
           비밀글로 작성
         </label>
         {error && <p className={styles.error}>{error}</p>}
-        <button type="submit" className={styles.submit} disabled={submitting}>{submitting ? '등록 중...' : '문의하기'}</button>
+        <div className={styles.submitWrap}>
+          <button type="submit" className={styles.submit} disabled={submitting}>{submitting ? '등록 중...' : '문의하기'}</button>
+        </div>
       </form>
     </main>
   );

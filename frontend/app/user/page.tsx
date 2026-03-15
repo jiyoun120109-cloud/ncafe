@@ -72,6 +72,25 @@ function getOrderMonthRange(monthsBack: number): { from: string; to: string } {
   return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) };
 }
 
+/* 프로필/회원가입 동일 유효성 검사 */
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const NICKNAME_REGEX = /^[a-zA-Z0-9가-힣_]{2,20}$/;
+function isValidBirthDate(value: string): boolean {
+  if (!value || value.length !== 8) return false;
+  const y = parseInt(value.slice(0, 4), 10);
+  const m = parseInt(value.slice(4, 6), 10);
+  const d = parseInt(value.slice(6, 8), 10);
+  if (y < 1900 || y > 2100 || m < 1 || m > 12 || d < 1) return false;
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+}
+
+declare global {
+  interface Window {
+    daum?: { Postcode: new (options: { oncomplete: (data: { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string }) => void }) => { open: () => void } };
+  }
+}
+
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -87,6 +106,7 @@ function UserPageContent() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', birthDate: '', phone: '', address: '', displayNickname: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<FavoriteDto[]>([]);
@@ -219,7 +239,7 @@ function UserPageContent() {
           setForm({
             name: p.name ?? '',
             email: p.email ?? '',
-            birthDate: p.birthDate ?? '',
+            birthDate: (p.birthDate ?? '').replace(/\D/g, '').slice(0, 8),
             phone: p.phone ?? '',
             address: p.address ?? '',
             displayNickname: p.displayNickname ?? '',
@@ -230,15 +250,40 @@ function UserPageContent() {
     }
   }, [isAuthenticated, profile, profileLoading]);
 
+  const validateProfileForm = (): Record<string, string> => {
+    const err: Record<string, string> = {};
+    if (!form.name.trim()) err.name = '이름을 입력해주세요.';
+    const emailVal = form.email.trim();
+    if (emailVal && !EMAIL_REGEX.test(emailVal)) err.email = '올바른 이메일 형식을 입력해주세요.';
+    const birthVal = form.birthDate.replace(/\D/g, '');
+    if (birthVal && (birthVal.length !== 8 || !isValidBirthDate(birthVal))) err.birthDate = '생년월일을 8자리 숫자로 입력해주세요. (예: 19880301)';
+    const phoneVal = form.phone.replace(/\D/g, '');
+    if (!phoneVal) err.phone = '핸드폰 번호를 입력해주세요.';
+    else if (phoneVal.length < 10 || phoneVal.length > 11 || !phoneVal.startsWith('01')) err.phone = '올바른 휴대폰 번호를 입력해주세요. (010으로 시작, 10~11자리 숫자)';
+    const nickVal = form.displayNickname.trim();
+    if (nickVal && (nickVal.length < 2 || nickVal.length > 20 || !NICKNAME_REGEX.test(nickVal))) err.displayNickname = '닉네임은 영문, 한글, 숫자, _ 만 사용 가능합니다. (2~20자)';
+    return err;
+  };
+
   const handleSaveProfile = async () => {
     if (!profile) return;
+    const errors = validateProfileForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
     setSaving(true);
     setProfileError(null);
     try {
+      const birthDigits = form.birthDate.replace(/\D/g, '');
+      const birthDateValue = birthDigits.length === 8
+        ? `${birthDigits.slice(0, 4)}-${birthDigits.slice(4, 6)}-${birthDigits.slice(6, 8)}`
+        : (form.birthDate.trim() || null);
       const updated = await updateUserProfile({
         name: form.name.trim() || undefined,
         email: form.email.trim() || undefined,
-        birthDate: form.birthDate.trim() || null,
+        birthDate: birthDateValue,
         phone: form.phone.trim() || undefined,
         address: form.address.trim() || null,
         displayNickname: form.displayNickname.trim() || undefined,
@@ -252,6 +297,25 @@ function UserPageContent() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const openAddressSearch = () => {
+    const onComplete = (data: { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string }) => {
+      let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+      if (data.buildingName) full += ` ${data.buildingName}`;
+      setForm((f) => ({ ...f, address: full }));
+    };
+    if (typeof window !== 'undefined' && window.daum?.Postcode) {
+      new window.daum.Postcode({ oncomplete: onComplete }).open();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.daum?.Postcode) new window.daum.Postcode({ oncomplete: onComplete }).open();
+    };
+    document.body.appendChild(script);
   };
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,7 +466,7 @@ function UserPageContent() {
                   </button>
                 )}
                 {profile && editing && (
-                  <button type="button" className={styles.cancelBtn} onClick={() => setEditing(false)}>
+                  <button type="button" className={styles.cancelBtn} onClick={() => { setEditing(false); setFormErrors({}); }}>
                     <X size={16} /> 취소
                   </button>
                 )}
@@ -459,9 +523,11 @@ function UserPageContent() {
                           id="profile-name"
                           type="text"
                           value={form.name}
-                          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                          onChange={(e) => { setForm((f) => ({ ...f, name: e.target.value })); setFormErrors((prev) => ({ ...prev, name: '' })); }}
                           placeholder="실명"
+                          className={formErrors.name ? styles.inputError : ''}
                         />
+                        {formErrors.name && <span className={styles.fieldError}>{formErrors.name}</span>}
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-displayNickname">닉네임</label>
@@ -469,9 +535,11 @@ function UserPageContent() {
                           id="profile-displayNickname"
                           type="text"
                           value={form.displayNickname}
-                          onChange={(e) => setForm((f) => ({ ...f, displayNickname: e.target.value }))}
-                          placeholder="서비스에서 보여질 이름"
+                          onChange={(e) => { setForm((f) => ({ ...f, displayNickname: e.target.value })); setFormErrors((prev) => ({ ...prev, displayNickname: '' })); }}
+                          placeholder="서비스에서 보여질 이름 (2~20자)"
+                          className={formErrors.displayNickname ? styles.inputError : ''}
                         />
+                        {formErrors.displayNickname && <span className={styles.fieldError}>{formErrors.displayNickname}</span>}
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-email">이메일</label>
@@ -479,46 +547,72 @@ function UserPageContent() {
                           id="profile-email"
                           type="email"
                           value={form.email}
-                          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                          onChange={(e) => { setForm((f) => ({ ...f, email: e.target.value })); setFormErrors((prev) => ({ ...prev, email: '' })); }}
                           placeholder="example@email.com"
+                          className={formErrors.email ? styles.inputError : ''}
                         />
+                        {formErrors.email && <span className={styles.fieldError}>{formErrors.email}</span>}
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-birthDate">생년월일</label>
                         <input
                           id="profile-birthDate"
-                          type="date"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={8}
                           value={form.birthDate}
-                          onChange={(e) => setForm((f) => ({ ...f, birthDate: e.target.value }))}
+                          onChange={(e) => {
+                            const next = e.target.value.replace(/\D/g, '').slice(0, 8);
+                            setForm((f) => ({ ...f, birthDate: next }));
+                            setFormErrors((prev) => ({ ...prev, birthDate: '' }));
+                          }}
+                          placeholder="예: 19880301 (8자리 숫자)"
+                          className={formErrors.birthDate ? styles.inputError : ''}
                         />
+                        {formErrors.birthDate && <span className={styles.fieldError}>{formErrors.birthDate}</span>}
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-phone">핸드폰 번호</label>
                         <input
                           id="profile-phone"
                           type="tel"
+                          inputMode="numeric"
                           value={form.phone}
-                          onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                          placeholder="010-0000-0000"
+                          onChange={(e) => {
+                            const next = e.target.value.replace(/\D/g, '').slice(0, 11);
+                            setForm((f) => ({ ...f, phone: next }));
+                            setFormErrors((prev) => ({ ...prev, phone: '' }));
+                          }}
+                          placeholder="예: 01039079055 (숫자만 10~11자리)"
+                          className={formErrors.phone ? styles.inputError : ''}
                         />
+                        {formErrors.phone && <span className={styles.fieldError}>{formErrors.phone}</span>}
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-address">주소</label>
-                        <input
-                          id="profile-address"
-                          type="text"
-                          value={form.address}
-                          onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                          placeholder="주소 입력"
-                        />
+                        <div className={styles.addressRow}>
+                          <input
+                            id="profile-address"
+                            type="text"
+                            value={form.address}
+                            onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                            placeholder="주소 검색 또는 직접 입력"
+                            className={styles.addressInput}
+                          />
+                          <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
+                            주소 검색
+                          </button>
+                        </div>
                       </div>
                       <div className={styles.formRow}>
                         <label>권한</label>
                         <span className={styles.readOnly}>{profile.role}</span>
                       </div>
-                      <button type="submit" className={styles.saveBtn} disabled={saving}>
-                        {saving ? '저장 중...' : '저장'}
-                      </button>
+                      <div className={styles.saveBtnWrap}>
+                        <button type="submit" className={styles.saveBtn} disabled={saving}>
+                          {saving ? '저장 중...' : '저장'}
+                        </button>
+                      </div>
                     </form>
                   ) : (
                     <ul className={styles.profileList}>
@@ -764,12 +858,10 @@ function UserPageContent() {
                         <Link href={`/menus/${f.menuId}`} className={styles.favoriteItem}>
                           <span className={styles.favoriteItemThumb} style={{ backgroundImage: `url(${menuImageUrl(menu?.imageSrc)})` }} aria-hidden />
                           <div className={styles.favoriteItemBody}>
-                            <div className={styles.favoriteItemHead}>
-                              <span className={styles.favoriteName}>{name}</span>
-                              {menu?.price != null && (
-                                <span className={styles.favoritePrice}>{menu.price.toLocaleString()}원</span>
-                              )}
-                            </div>
+                            <span className={styles.favoriteName}>{name}</span>
+                            {menu?.price != null && (
+                              <span className={styles.favoritePrice}>{menu.price.toLocaleString()}원</span>
+                            )}
                             {desc && <p className={styles.favoriteItemDesc}>{desc}{(menu?.description?.length ?? 0) > 60 ? '…' : ''}</p>}
                             <div className={styles.favoriteItemMeta}>
                               {menu?.categoryName && <span className={styles.favoriteItemCategory}>{menu.categoryName}</span>}
@@ -777,7 +869,6 @@ function UserPageContent() {
                               {addedDate && <span className={styles.favoriteItemDate}>추가 {addedDate}</span>}
                             </div>
                           </div>
-                          <ChevronRight size={20} className={styles.favoriteItemChevron} aria-hidden />
                         </Link>
                         <div className={styles.favoriteItemActions}>
                           <button
