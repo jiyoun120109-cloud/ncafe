@@ -24,5 +24,7 @@ public class CategoryListResult {
     public static class CategoryInfo {
         private Long id;
         private String name;
+        private String icon;
+        private String description;
     }
 }

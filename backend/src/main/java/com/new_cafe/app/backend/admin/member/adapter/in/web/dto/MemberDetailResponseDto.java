@@ -18,6 +18,7 @@ public class MemberDetailResponseDto {
     private String name;
     private String email;
     private String phone;
+    private String address;
     private String displayNickname;
     private String role;
     private String status;
@@ -34,6 +35,7 @@ public class MemberDetailResponseDto {
                 .name(m.getName())
                 .email(m.getEmail())
                 .phone(m.getPhone())
+                .address(m.getAddress())
                 .displayNickname(m.getDisplayNickname())
                 .role(m.getRole())
                 .status(m.getStatus())

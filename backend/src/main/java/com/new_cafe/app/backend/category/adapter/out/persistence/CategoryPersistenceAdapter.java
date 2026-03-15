@@ -43,6 +43,8 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
             Integer nextOrder = categoryJpaRepository.findMaxDisplayOrder().orElse(0) + 1;
             CategoryEntity entity = CategoryEntity.builder()
                 .name(category.getName())
+                .icon(category.getIcon())
+                .description(category.getDescription())
                 .displayOrder(nextOrder)
                 .createdAt(now)
                 .updatedAt(now)
@@ -67,6 +69,8 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
         return Category.builder()
             .id(e.getId())
             .name(e.getName())
+            .icon(e.getIcon())
+            .description(e.getDescription())
             .build();
     }
 }

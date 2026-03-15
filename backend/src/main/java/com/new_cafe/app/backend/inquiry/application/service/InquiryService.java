@@ -64,6 +64,28 @@ public class InquiryService implements InquiryUseCase {
 
     @Override
     @Transactional
+    public Inquiry updateByUser(Long inquiryId, Long userId, String inquiryType, String title, String content, boolean isPrivate, String attachmentUrl) {
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new IllegalArgumentException("문의를 찾을 수 없습니다."));
+        if (!userId.equals(inquiry.getUserId())) {
+            throw new IllegalArgumentException("본인 문의만 수정할 수 있습니다.");
+        }
+        Inquiry updated = Inquiry.builder()
+                .id(inquiry.getId())
+                .userId(inquiry.getUserId())
+                .inquiryType(inquiryType != null && !inquiryType.isBlank() ? inquiryType.trim() : null)
+                .title(title != null && !title.isBlank() ? title.trim() : inquiry.getTitle())
+                .content(content != null ? content : inquiry.getContent())
+                .isPrivate(isPrivate)
+                .attachmentUrl(attachmentUrl != null && !attachmentUrl.isBlank() ? attachmentUrl.trim() : inquiry.getAttachmentUrl())
+                .createdAt(inquiry.getCreatedAt())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return inquiryRepository.save(updated);
+    }
+
+    @Override
+    @Transactional
     public InquiryReply addReply(Long inquiryId, String content, Long authorId) {
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new IllegalArgumentException("문의를 찾을 수 없습니다."));

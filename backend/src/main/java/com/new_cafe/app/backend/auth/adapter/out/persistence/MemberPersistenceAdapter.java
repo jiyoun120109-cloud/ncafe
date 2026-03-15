@@ -118,6 +118,11 @@ public class MemberPersistenceAdapter implements MemberRepositoryPort, GetMember
             .collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteById(Long id) {
+        userJpaRepository.deleteById(id);
+    }
+
     private Member toDomain(UserEntity e) {
         return Member.builder()
             .id(e.getId())

@@ -20,7 +20,6 @@ import {
     fetchAdminOrderStatsPeriod,
     fetchAdminOrders,
     fetchTodayRevenueBreakdown,
-    getOrderStatusLabel,
     type AdminOrderStats,
     type AdminOrderStatsPeriodPoint,
     type AdminOrderListItem,
@@ -35,7 +34,7 @@ const PERIODS: { key: StatsPeriod; label: string }[] = [
     { key: 'month', label: '월간' },
 ];
 
-type DetailType = 'orders_today' | 'revenue_today' | 'pending_paid' | 'visitors' | 'period' | null;
+type DetailType = 'revenue_today' | 'pending_paid' | 'visitors' | 'period' | null;
 
 function todayISO(): string {
     const d = new Date();
@@ -51,7 +50,6 @@ export default function AdminDashboardPage() {
     const [periodError, setPeriodError] = useState<string | null>(null);
 
     const [selectedDetail, setSelectedDetail] = useState<DetailType>(null);
-    const [detailOrders, setDetailOrders] = useState<AdminOrderListItem[]>([]);
     const [detailOrdersPending, setDetailOrdersPending] = useState<AdminOrderListItem[]>([]);
     const [detailOrdersPaid, setDetailOrdersPaid] = useState<AdminOrderListItem[]>([]);
     const [todayRevenueBreakdown, setTodayRevenueBreakdown] = useState<TodayRevenueBreakdown | null>(null);
@@ -76,16 +74,6 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         loadPeriodStats(period);
     }, [period, loadPeriodStats]);
-
-    const loadDetailOrders = useCallback((type: 'orders_today') => {
-        setDetailError(null);
-        setDetailLoading(true);
-        const today = todayISO();
-        fetchAdminOrders(0, 100, { fromDate: today, toDate: today })
-            .then((res) => setDetailOrders(res.content ?? []))
-            .catch(() => setDetailError('목록을 불러올 수 없습니다.'))
-            .finally(() => setDetailLoading(false));
-    }, []);
 
     const loadPendingAndPaid = useCallback(() => {
         setDetailError(null);
@@ -116,8 +104,6 @@ export default function AdminDashboardPage() {
         setSelectedDetail(detail);
         if (detail === 'revenue_today') {
             loadTodayRevenueBreakdown();
-        } else if (detail === 'orders_today') {
-            loadDetailOrders('orders_today');
         } else if (detail === 'pending_paid') {
             loadPendingAndPaid();
         }
@@ -140,7 +126,7 @@ export default function AdminDashboardPage() {
     const periodTotalVisitors = periodStats.reduce((s, p) => s + (p.visitorCount ?? 0), 0);
 
     const statCards: { label: string; value: string; sub: string; alert?: boolean; detail: DetailType }[] = [
-        { label: '오늘 주문', value: String(ordersToday), sub: orderDiffText, detail: 'orders_today' },
+        { label: '오늘 주문', value: String(ordersToday), sub: orderDiffText, detail: null },
         { label: '오늘 매출', value: `₩${revenueToday.toLocaleString()}`, sub: revenueDiffText, detail: 'revenue_today' },
         { label: '결제대기/결제완료', value: `${pendingCount}/${paidCount}`, sub: '주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending_paid' },
         { label: '방문자 수', value: periodTotalVisitors.toLocaleString(), sub: `선택 기간 합계 (${PERIODS.find((x) => x.key === period)?.label})`, detail: 'visitors' },
@@ -154,9 +140,7 @@ export default function AdminDashboardPage() {
     }));
 
     const detailTitle =
-        selectedDetail === 'orders_today'
-            ? '오늘 주문 상세'
-            : selectedDetail === 'revenue_today'
+        selectedDetail === 'revenue_today'
               ? '오늘 매출 상세'
               : selectedDetail === 'pending_paid'
                 ? '결제대기 / 결제완료'
@@ -165,16 +149,9 @@ export default function AdminDashboardPage() {
                     : '';
 
     const showPeriodTable = selectedDetail === 'visitors' || selectedDetail === 'period';
-    const showOrdersTable =
-        selectedDetail === 'orders_today' || selectedDetail === 'pending_paid';
+    const showOrdersTable = selectedDetail === 'pending_paid';
     const showRevenueBreakdown = selectedDetail === 'revenue_today';
 
-    const sortedDetailOrders = useMemo(() =>
-        [...detailOrders].sort((a, b) =>
-            new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
-        ),
-        [detailOrders]
-    );
     const sortedDetailOrdersPending = useMemo(() =>
         [...detailOrdersPending].sort((a, b) =>
             new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
@@ -189,8 +166,8 @@ export default function AdminDashboardPage() {
     );
     const sortedPeriodStats = useMemo(() => {
         const list = [...periodStats];
-        if (period === 'week') return list;
-        return list.reverse();
+        if (period === 'week') return list.reverse();
+        return list;
     }, [periodStats, period]);
 
     return (
@@ -211,7 +188,7 @@ export default function AdminDashboardPage() {
                         key={s.label}
                         type="button"
                         className={`${styles.statCard} ${s.alert ? styles.statAlert : ''}`}
-                        onClick={() => handleStatClick(s.detail)}
+                        onClick={() => s.detail != null && handleStatClick(s.detail)}
                     >
                         <p className={styles.statLabel}>{s.label}</p>
                         <p className={styles.statValue}>{s.value}</p>
@@ -414,38 +391,6 @@ export default function AdminDashboardPage() {
                             <>
                                 {detailLoading && <p className={styles.detailLoading}>불러오는 중...</p>}
                                 {detailError && <p className={styles.errorText}>{detailError}</p>}
-                                {!detailLoading && !detailError && selectedDetail === 'orders_today' && (
-                                    <div className={styles.detailTableWrap}>
-                                        <table className={styles.detailTable}>
-                                            <thead>
-                                                <tr>
-                                                    <th>주문번호</th>
-                                                    <th>상태</th>
-                                                    <th>금액</th>
-                                                    <th>품목수</th>
-                                                    <th>주문일시</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {sortedDetailOrders.length === 0 ? (
-                                                    <tr><td colSpan={6} className={styles.detailEmpty}>데이터가 없습니다.</td></tr>
-                                                ) : (
-                                                    sortedDetailOrders.map((o) => (
-                                                        <tr key={o.id}>
-                                                            <td>{o.id}</td>
-                                                            <td>{getOrderStatusLabel(o.status)}</td>
-                                                            <td>₩{(o.totalAmount ?? 0).toLocaleString()}</td>
-                                                            <td>{o.itemCount ?? 0}</td>
-                                                            <td>{o.createdAt ? new Date(o.createdAt).toLocaleString('ko-KR') : '-'}</td>
-                                                            <td><Link href={`/admin/orders/${o.id}`} className={styles.detailLink}>상세</Link></td>
-                                                        </tr>
-                                                    ))
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
                                 {!detailLoading && !detailError && selectedDetail === 'pending_paid' && (
                                     <>
                                         <p className={styles.breakdownSectionTitle}>결제대기</p>

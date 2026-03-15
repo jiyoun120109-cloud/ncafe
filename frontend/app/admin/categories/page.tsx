@@ -32,8 +32,8 @@ export default function AdminCategoriesPage() {
             <CategoryManage
                 categories={categories}
                 loading={loading}
-                onCreate={async (name: string) => createCategory(name)}
-                onUpdate={updateCategory}
+                onCreate={async (name, icon, description) => createCategory(name, icon, description)}
+                onUpdate={(id, name, icon, description) => updateCategory(id, name, icon, description)}
                 onDelete={deleteCategory}
             />
         </div>

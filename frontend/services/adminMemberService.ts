@@ -17,6 +17,7 @@ export interface AdminMemberDetailDto {
   name: string | null;
   email: string | null;
   phone: string | null;
+  address: string | null;
   displayNickname: string | null;
   role: string;
   status: string | null;
@@ -96,14 +97,25 @@ export async function fetchAdminMember(id: number): Promise<AdminMemberDetailWit
 
 export async function updateAdminMemberProfile(
   id: number,
-  email: string | null,
-  phone: string | null
+  params: {
+    displayNickname?: string | null;
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  }
 ): Promise<AdminMemberDetailDto> {
   const res = await fetch(`${getApiBase()}/admin/members/${id}/profile`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ email: email ?? undefined, phone: phone ?? undefined }),
+    body: JSON.stringify({
+      displayNickname: params.displayNickname ?? undefined,
+      name: params.name ?? undefined,
+      phone: params.phone ?? undefined,
+      email: params.email ?? undefined,
+      address: params.address ?? undefined,
+    }),
   });
   if (!res.ok) throw new Error('프로필 수정에 실패했습니다.');
   return res.json();
@@ -149,4 +161,13 @@ export async function updateAdminMemberRole(id: number, role: string): Promise<A
   });
   if (!res.ok) throw new Error('역할 변경에 실패했습니다.');
   return res.json();
+}
+
+export async function deleteAdminMember(id: number): Promise<void> {
+  const res = await fetch(`${getApiBase()}/admin/members/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (res.status === 404) throw new Error('회원을 찾을 수 없습니다.');
+  if (!res.ok) throw new Error('회원 삭제에 실패했습니다.');
 }

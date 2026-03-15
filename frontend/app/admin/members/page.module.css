@@ -50,16 +50,35 @@
   margin-bottom: 1rem;
 }
 
-.searchForm {
+.filterForm {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 1rem 1.5rem;
+  align-items: end;
+}
+
+.filterGroup {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.55);
+  letter-spacing: 0.02em;
+}
+
+.filterLabel + .searchInput,
+.filterLabel + .filterSelect,
+.filterLabel + .dateRow {
+  margin-top: 0;
 }
 
 .searchInput {
-  flex: 1;
-  min-width: 160px;
+  min-width: 0;
+  width: 100%;
   max-width: 280px;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
@@ -74,15 +93,13 @@
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   background: #fff;
-  min-width: 100px;
+  min-width: 120px;
 }
 
-.dateLabel {
+.dateRow {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.5);
 }
 
 .dateInput {
@@ -95,6 +112,14 @@
 
 .dateSep {
   margin: 0 0.15rem;
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.filterActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .searchBtn {
@@ -111,6 +136,22 @@
 .searchBtn:hover {
   background: #efe6e0;
   border-color: #d0c2b8;
+}
+
+.resetBtn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.55);
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.resetBtn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #1c1917;
 }
 
 /* 목록 섹션 */
@@ -245,6 +286,23 @@
   color: #1c1917;
 }
 
+.actionBtnDanger {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.actionBtnDanger:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+.actionBtnDanger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .loading,
 .empty {
   padding: 2rem;
@@ -292,5 +350,10 @@
   .page { padding: 0 0.75rem; gap: 1.5rem; }
   .pageTitle { font-size: 1.5rem; }
   .card { padding: 1.25rem; }
+  .filterForm {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .filterActions { justify-content: flex-start; }
   .th, .td { padding: 0.5rem 0.75rem; }
 }

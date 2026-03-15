@@ -17,6 +17,8 @@ function parseErrorMessage(text: string, fallback: string): string {
 export interface AdminCategoryDto {
     id: number;
     name: string;
+    icon?: string | null;
+    description?: string | null;
 }
 
 export interface AdminCategoryListResponse {
@@ -54,13 +56,17 @@ export function useAdminCategories() {
      * API 스펙: 201 응답 본문은 반드시 { id: number, name: string } 플랫 형태.
      * 백엔드가 { data: { id, name } } 등 감싼 형태로 바꾸면 아래 파싱 한 곳만 수정.
      */
-    const createCategory = useCallback(async (name: string): Promise<AdminCategoryDto | null> => {
+    const createCategory = useCallback(async (name: string, icon?: string | null, description?: string | null): Promise<AdminCategoryDto | null> => {
         try {
             const res = await fetch(`${getApiBase()}/admin/categories`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ name: name.trim() }),
+                body: JSON.stringify({
+                    name: name.trim(),
+                    icon: icon?.trim() || undefined,
+                    description: description?.trim() || undefined,
+                }),
             });
             const text = await res.text();
             if (!res.ok) {
@@ -75,12 +81,16 @@ export function useAdminCategories() {
         }
     }, [fetchCategories]);
 
-    const updateCategory = useCallback(async (id: number, name: string): Promise<void> => {
+    const updateCategory = useCallback(async (id: number, name: string, icon?: string | null, description?: string | null): Promise<void> => {
         const res = await fetch(`${getApiBase()}/admin/categories/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ name: name.trim() }),
+            body: JSON.stringify({
+                name: name.trim(),
+                icon: icon?.trim() || undefined,
+                description: description?.trim() || undefined,
+            }),
         });
         const text = await res.text();
         if (!res.ok) {

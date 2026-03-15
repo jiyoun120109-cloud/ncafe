@@ -16,6 +16,8 @@ public interface InquiryUseCase {
 
     Inquiry create(Long userId, String inquiryType, String title, String content, boolean isPrivate, String attachmentUrl);
 
+    Inquiry updateByUser(Long inquiryId, Long userId, String inquiryType, String title, String content, boolean isPrivate, String attachmentUrl);
+
     InquiryReply addReply(Long inquiryId, String content, Long authorId);
 
     List<InquiryReply> getReplies(Long inquiryId);

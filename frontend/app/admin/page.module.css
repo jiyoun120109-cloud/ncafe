@@ -277,11 +277,7 @@
 
 .detailPanel {
     width: 520px;
-    min-width: 360px;
-    max-width: min(90vw, 720px);
     flex-shrink: 0;
-    resize: horizontal;
-    overflow: hidden;
     background: #faf9f7;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 10px;
@@ -421,8 +417,6 @@
 @media (max-width: 1200px) {
     .detailPanel {
         width: 480px;
-        min-width: 320px;
-        max-width: min(90vw, 640px);
     }
 }
 
@@ -434,11 +428,8 @@
 
     .detailPanel {
         width: 100%;
-        min-width: 0;
-        max-width: none;
         max-height: 70vh;
         margin-right: 0;
         margin-top: 1rem;
-        resize: none;
     }
 }

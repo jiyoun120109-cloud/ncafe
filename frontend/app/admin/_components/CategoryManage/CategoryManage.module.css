@@ -1,22 +1,31 @@
-.card {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  padding: 1.5rem;
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
-.cardTitle {
+.sectionTitle {
   font-size: 0.875rem;
   font-weight: 600;
   color: #1c1917;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
-.hint {
-  font-size: 0.75rem;
-  color: rgba(0, 0, 0, 0.4);
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
+.addBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #8b5a2b);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: var(--color-primary-700, #6d4520);
 }
 
 .formRow {
@@ -33,12 +42,25 @@
 
 .input {
   width: 100%;
-  max-width: 400px;
+  max-width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   background: #fff;
+  box-sizing: border-box;
+}
+
+.textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+  resize: vertical;
+  min-height: 60px;
+  box-sizing: border-box;
 }
 
 .submitBtn {
@@ -69,13 +91,6 @@
   margin-top: 0.5rem;
 }
 
-.sectionTitle {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1c1917;
-  margin-bottom: 1rem;
-}
-
 .tableWrap {
   overflow-x: auto;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -87,15 +102,27 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: fixed;
 }
 
+.colId { width: 4.5rem; }
+.colIcon { width: 5rem; }
+.colActions { width: 10rem; }
+.colName { width: auto; }
+
 .th {
-  text-align: center;
+  text-align: left;
   padding: 0.75rem 1rem;
   font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
   color: rgba(0, 0, 0, 0.6);
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.04);
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.thActions {
+  text-align: center;
 }
 
 .td {
@@ -103,7 +130,7 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   color: #1c1917;
   vertical-align: middle;
-  text-align: center;
+  text-align: left;
 }
 
 .tr:last-child .td {
@@ -111,15 +138,39 @@
 }
 
 .idCell {
-  width: 4rem;
   color: rgba(0, 0, 0, 0.45);
   font-variant-numeric: tabular-nums;
+}
+
+.iconCell {
+  display: inline-block;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  min-height: 1.5em;
+}
+
+.nameCell {
+  cursor: default;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nameCell[title]:hover {
+  cursor: help;
+}
+
+.actionsCell {
+  text-align: center;
 }
 
 .actions {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  justify-content: center;
 }
 
 .actionBtn {

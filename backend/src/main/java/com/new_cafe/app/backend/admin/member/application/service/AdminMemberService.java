@@ -105,11 +105,14 @@ public class AdminMemberService implements AdminMemberUseCase {
 
     @Override
     @Transactional
-    public Member updateMemberProfile(Long id, String email, String phone) {
+    public Member updateMemberProfile(Long id, String displayNickname, String name, String email, String phone, String address) {
         Member member = memberRepositoryPort.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        if (displayNickname != null) member.setDisplayNickname(displayNickname.trim().isEmpty() ? null : displayNickname.trim());
+        if (name != null) member.setName(name.trim().isEmpty() ? null : name.trim());
         if (email != null) member.setEmail(email.trim().isEmpty() ? null : email.trim());
         if (phone != null) member.setPhone(phone.trim().isEmpty() ? null : phone.trim());
+        if (address != null) member.setAddress(address.trim().isEmpty() ? null : address.trim());
         return memberRepositoryPort.save(member);
     }
 
@@ -160,5 +163,13 @@ public class AdminMemberService implements AdminMemberUseCase {
         }
         member.setRole(r);
         return memberRepositoryPort.save(member);
+    }
+
+    @Override
+    @Transactional
+    public void deleteMember(Long id) {
+        Member member = memberRepositoryPort.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        memberRepositoryPort.deleteById(id);
     }
 }

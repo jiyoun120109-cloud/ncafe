@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateCategoryCommand {
     private String name;
+    private String icon;
+    private String description;
 }

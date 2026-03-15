@@ -180,6 +180,32 @@ public class InquiryController {
         return ResponseEntity.ok(inquiryToMap(inquiry));
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> update(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body
+    ) {
+        Long userId = getUserIdOrNull(authorization);
+        if (userId == null) return ResponseEntity.status(401).build();
+        String inquiryType = body.get("inquiryType") != null ? body.get("inquiryType").toString().trim() : null;
+        String title = body.get("title") != null ? body.get("title").toString().trim() : null;
+        String content = body.get("content") != null ? (String) body.get("content") : null;
+        Boolean isPrivateObj = body.get("isPrivate") != null ? Boolean.TRUE.equals(body.get("isPrivate")) : null;
+        String attachmentUrl = body.get("attachmentUrl") != null ? body.get("attachmentUrl").toString().trim() : null;
+        try {
+            Inquiry inquiry = inquiryUseCase.updateByUser(id, userId,
+                    inquiryType,
+                    title != null && !title.isBlank() ? title : null,
+                    content != null ? content : "",
+                    isPrivateObj != null ? isPrivateObj : false,
+                    attachmentUrl != null && !attachmentUrl.isBlank() ? attachmentUrl : null);
+            return ResponseEntity.ok(inquiryToMap(inquiry));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).build();
+        }
+    }
+
     private Long getUserIdOrNull(String authorization) {
         if (authorization == null || !authorization.startsWith("Bearer ")) return null;
         return jwtService.getUserIdFromClaims(jwtService.parseToken(authorization));

@@ -28,9 +28,9 @@ public interface AdminMemberUseCase {
     Optional<MemberDetailWithActivityResponseDto> getMemberDetailWithActivity(Long id);
 
     /**
-     * 회원 프로필 수정 (이메일, 연락처)
+     * 회원 프로필 수정 (닉네임, 이름, 이메일, 연락처, 주소)
      */
-    Member updateMemberProfile(Long id, String email, String phone);
+    Member updateMemberProfile(Long id, String displayNickname, String name, String email, String phone, String address);
 
     /**
      * 비밀번호 초기화 (관리자 설정)
@@ -51,4 +51,9 @@ public interface AdminMemberUseCase {
      * 회원 역할(권한) 변경
      */
     Member updateMemberRole(Long id, String role);
+
+    /**
+     * 회원 삭제 (관리자 전용, 물리 삭제)
+     */
+    void deleteMember(Long id);
 }

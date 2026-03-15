@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useUIStore } from '@/stores/uiStore';
 import {
   fetchAdminMembers,
+  deleteAdminMember,
   type AdminMemberListResponse,
 } from '@/services/adminMemberService';
 import styles from './page.module.css';
@@ -34,6 +35,7 @@ export default function AdminMembersListPage() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const size = 20;
 
@@ -73,6 +75,19 @@ export default function AdminMembersListPage() {
     setPage(0);
   };
 
+  const handleDelete = async (memberId: number, username: string) => {
+    if (!confirm(`회원 "${username}"(ID: ${memberId})을(를) 삭제하시겠습니까? 연결된 주문·문의 등 데이터에 따라 삭제가 제한될 수 있습니다.`)) return;
+    setDeletingId(memberId);
+    try {
+      await deleteAdminMember(memberId);
+      load();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const totalPages = data?.totalPages ?? 0;
   const totalElements = data?.totalElements ?? 0;
 
@@ -86,46 +101,78 @@ export default function AdminMembersListPage() {
 
       <section className={styles.card}>
         <h3 className={styles.cardTitle}>회원 검색 · 필터</h3>
-        <form onSubmit={handleSearch} className={styles.searchForm}>
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="아이디 / 이름 / 이메일 검색"
-            className={styles.searchInput}
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className={styles.filterSelect}
-            aria-label="상태 필터"
-          >
-            <option value="">전체 상태</option>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-          <label className={styles.dateLabel}>
-            <span>가입일</span>
+        <form onSubmit={handleSearch} className={styles.filterForm}>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel} htmlFor="member-search">
+              검색어
+            </label>
             <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className={styles.dateInput}
+              id="member-search"
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="아이디 / 이름 / 이메일 검색"
+              className={styles.searchInput}
             />
-            <span className={styles.dateSep}>~</span>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className={styles.dateInput}
-            />
-          </label>
-          <button type="submit" className={styles.searchBtn}>
-            검색
-          </button>
+          </div>
+          <div className={styles.filterGroup}>
+            <label className={styles.filterLabel} htmlFor="member-status">
+              계정 상태
+            </label>
+            <select
+              id="member-status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={styles.filterSelect}
+              aria-label="상태 필터"
+            >
+              <option value="">전체 상태</option>
+              {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>가입일 범위</span>
+            <div className={styles.dateRow}>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className={styles.dateInput}
+                aria-label="가입일 시작"
+              />
+              <span className={styles.dateSep}>~</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className={styles.dateInput}
+                aria-label="가입일 끝"
+              />
+            </div>
+          </div>
+          <div className={styles.filterActions}>
+            <button type="submit" className={styles.searchBtn}>
+              검색
+            </button>
+            <button
+              type="button"
+              className={styles.resetBtn}
+              onClick={() => {
+                setSearchInput('');
+                setSearch('');
+                setStatusFilter('');
+                setFromDate('');
+                setToDate('');
+                setPage(0);
+              }}
+            >
+              초기화
+            </button>
+          </div>
         </form>
       </section>
 
@@ -204,6 +251,15 @@ export default function AdminMembersListPage() {
                           <Link href={`/admin/members/${m.id}`} className={styles.actionBtn}>
                             수정
                           </Link>
+                          <button
+                            type="button"
+                            className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                            onClick={() => handleDelete(m.id, m.username)}
+                            disabled={deletingId === m.id}
+                            title="삭제"
+                          >
+                            {deletingId === m.id ? '처리 중…' : '삭제'}
+                          </button>
                         </div>
                       </td>
                     </tr>

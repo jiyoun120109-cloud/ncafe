@@ -74,7 +74,12 @@ public class AdminMemberController {
         if (request == null) return ResponseEntity.badRequest().build();
         try {
             Member updated = adminMemberUseCase.updateMemberProfile(
-                    id, request.getEmail(), request.getPhone());
+                    id,
+                    request.getDisplayNickname(),
+                    request.getName(),
+                    request.getEmail(),
+                    request.getPhone(),
+                    request.getAddress());
             return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -142,6 +147,20 @@ public class AdminMemberController {
             return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMember(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long id
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        try {
+            adminMemberUseCase.deleteMember(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 

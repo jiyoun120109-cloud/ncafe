@@ -40,8 +40,11 @@ export default function AdminMemberDetailPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
+  const [profileDisplayNickname, setProfileDisplayNickname] = useState('');
+  const [profileName, setProfileName] = useState('');
   const [profileEmail, setProfileEmail] = useState('');
   const [profilePhone, setProfilePhone] = useState('');
+  const [profileAddress, setProfileAddress] = useState('');
   const [roleInput, setRoleInput] = useState<string>('USER');
   const [statusInput, setStatusInput] = useState<string>('ACTIVE');
   const [newPassword, setNewPassword] = useState('');
@@ -57,8 +60,11 @@ export default function AdminMemberDetailPage() {
       .then((res) => {
         setData(res);
         const m = res.member;
+        setProfileDisplayNickname(m.displayNickname ?? '');
+        setProfileName(m.name ?? '');
         setProfileEmail(m.email ?? '');
         setProfilePhone(m.phone ?? '');
+        setProfileAddress(m.address ?? '');
         setRoleInput(m.role ?? 'USER');
         setStatusInput(m.status ?? 'ACTIVE');
       })
@@ -74,8 +80,11 @@ export default function AdminMemberDetailPage() {
       .then((res) => {
         setData(res);
         const m = res.member;
+        setProfileDisplayNickname(m.displayNickname ?? '');
+        setProfileName(m.name ?? '');
         setProfileEmail(m.email ?? '');
         setProfilePhone(m.phone ?? '');
+        setProfileAddress(m.address ?? '');
         setRoleInput(m.role ?? 'USER');
         setStatusInput(m.status ?? 'ACTIVE');
       })
@@ -89,7 +98,13 @@ export default function AdminMemberDetailPage() {
     setSaving(true);
     setMessage(null);
     try {
-      await updateAdminMemberProfile(id, profileEmail || null, profilePhone || null);
+      await updateAdminMemberProfile(id, {
+        displayNickname: profileDisplayNickname.trim() || null,
+        name: profileName.trim() || null,
+        email: profileEmail.trim() || null,
+        phone: profilePhone.trim() || null,
+        address: profileAddress.trim() || null,
+      });
       setMessage('프로필이 저장되었습니다.');
       setMessageType('success');
       refresh();
@@ -211,191 +226,247 @@ export default function AdminMemberDetailPage() {
         </p>
       )}
 
-      <section className={styles.card}>
-        <h3 className={styles.cardTitle}>회원 정보</h3>
-        <dl className={styles.infoList}>
-          <div className={styles.infoRow}>
-            <dt>ID</dt>
-            <dd>{member.id}</dd>
-          </div>
-          <div className={styles.infoRow}>
-            <dt>아이디</dt>
-            <dd>{member.username}</dd>
-          </div>
-          <div className={styles.infoRow}>
-            <dt>표시 닉네임</dt>
-            <dd>{member.displayNickname ?? member.username}</dd>
-          </div>
-          <div className={styles.infoRow}>
-            <dt>이름</dt>
-            <dd>{member.name ?? '—'}</dd>
-          </div>
-          <div className={styles.infoRow}>
-            <dt>가입일</dt>
-            <dd>
-              {new Date(member.createdAt).toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </dd>
-          </div>
-          <div className={styles.infoRow}>
-            <dt>최근 로그인</dt>
-            <dd>{member.lastLoginAt ? new Date(member.lastLoginAt).toLocaleString('ko-KR') : '—'}</dd>
-          </div>
-          {isLocked && (
+      <div className={styles.twoCol}>
+        <section className={styles.card}>
+          <h3 className={styles.cardTitle}>회원 정보</h3>
+          <dl className={styles.infoList}>
             <div className={styles.infoRow}>
-              <dt>잠금 해제 시각</dt>
-              <dd>{new Date(member.lockedUntil!).toLocaleString('ko-KR')}</dd>
+              <dt>ID</dt>
+              <dd>{member.id}</dd>
             </div>
-          )}
-          {member.loginFailCount != null && member.loginFailCount > 0 && (
             <div className={styles.infoRow}>
-              <dt>로그인 실패 횟수</dt>
-              <dd>{member.loginFailCount}</dd>
+              <dt>아이디</dt>
+              <dd>{member.username}</dd>
             </div>
-          )}
-        </dl>
-      </section>
+            <div className={styles.infoRow}>
+              <dt>닉네임</dt>
+              <dd>{member.displayNickname ?? member.username ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>이름</dt>
+              <dd>{member.name ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>이메일</dt>
+              <dd>{member.email ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>연락처</dt>
+              <dd>{member.phone ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>주소</dt>
+              <dd>{member.address ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>비밀번호</dt>
+              <dd>설정됨</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>계정상태</dt>
+              <dd>{STATUS_OPTIONS.find((o) => o.value === member.status)?.label ?? member.status ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>역할권한</dt>
+              <dd>{ROLE_OPTIONS.find((o) => o.value === member.role)?.label ?? member.role ?? '—'}</dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>가입일</dt>
+              <dd>
+                {new Date(member.createdAt).toLocaleString('ko-KR', {
+                  year: 'numeric',
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </dd>
+            </div>
+            <div className={styles.infoRow}>
+              <dt>최근 로그인</dt>
+              <dd>{member.lastLoginAt ? new Date(member.lastLoginAt).toLocaleString('ko-KR') : '—'}</dd>
+            </div>
+            {isLocked && (
+              <div className={styles.infoRow}>
+                <dt>잠금 해제 시각</dt>
+                <dd>{new Date(member.lockedUntil!).toLocaleString('ko-KR')}</dd>
+              </div>
+            )}
+            {member.loginFailCount != null && member.loginFailCount > 0 && (
+              <div className={styles.infoRow}>
+                <dt>로그인 실패 횟수</dt>
+                <dd>{member.loginFailCount}</dd>
+              </div>
+            )}
+          </dl>
+        </section>
 
-      <section className={styles.card}>
-        <h3 className={styles.cardTitle}>프로필 수정</h3>
-        <form onSubmit={handleSaveProfile} className={styles.form}>
-          <div className={styles.formRow}>
-            <label className={styles.label}>
-              <span>이메일</span>
-              <input
-                type="email"
-                value={profileEmail}
-                onChange={(e) => setProfileEmail(e.target.value)}
-                className={styles.input}
-                placeholder="email@example.com"
-              />
-            </label>
-          </div>
-          <div className={styles.formRow}>
-            <label className={styles.label}>
-              <span>연락처</span>
-              <input
-                type="text"
-                value={profilePhone}
-                onChange={(e) => setProfilePhone(e.target.value)}
-                className={styles.input}
-                placeholder="010-0000-0000"
-              />
-            </label>
-          </div>
-          <button type="submit" className={styles.saveBtn} disabled={saving}>
-            {saving ? '저장 중…' : '프로필 저장'}
-          </button>
-        </form>
-      </section>
-
-      <section className={styles.card}>
-        <h3 className={styles.cardTitle}>비밀번호 초기화</h3>
-        {!showPasswordForm ? (
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setShowPasswordForm(true)}
-          >
-            비밀번호 초기화
-          </button>
-        ) : (
-          <form onSubmit={handleResetPassword} className={styles.form}>
+        <section className={styles.card}>
+          <h3 className={styles.cardTitle}>정보 수정</h3>
+          <form onSubmit={handleSaveProfile} className={styles.form}>
             <div className={styles.formRow}>
               <label className={styles.label}>
-                <span>새 비밀번호 (6자 이상)</span>
+                <span>닉네임</span>
                 <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  type="text"
+                  value={profileDisplayNickname}
+                  onChange={(e) => setProfileDisplayNickname(e.target.value)}
                   className={styles.input}
-                  minLength={6}
-                  autoComplete="new-password"
+                  placeholder="표시 닉네임"
+                  disabled={saving}
                 />
               </label>
             </div>
-            <div className={styles.buttonRow}>
-              <button type="submit" className={styles.saveBtn} disabled={saving || newPassword.length < 6}>
-                {saving ? '처리 중…' : '초기화'}
-              </button>
-              <button
-                type="button"
-                className={styles.secondaryBtn}
-                onClick={() => { setShowPasswordForm(false); setNewPassword(''); }}
-              >
-                취소
-              </button>
+            <div className={styles.formRow}>
+              <label className={styles.label}>
+                <span>이름</span>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className={styles.input}
+                  placeholder="실명"
+                  disabled={saving}
+                />
+              </label>
             </div>
+            <div className={styles.formRow}>
+              <label className={styles.label}>
+                <span>이메일</span>
+                <input
+                  type="email"
+                  value={profileEmail}
+                  onChange={(e) => setProfileEmail(e.target.value)}
+                  className={styles.input}
+                  placeholder="email@example.com"
+                  disabled={saving}
+                />
+              </label>
+            </div>
+            <div className={styles.formRow}>
+              <label className={styles.label}>
+                <span>연락처</span>
+                <input
+                  type="text"
+                  value={profilePhone}
+                  onChange={(e) => setProfilePhone(e.target.value)}
+                  className={styles.input}
+                  placeholder="010-0000-0000"
+                  disabled={saving}
+                />
+              </label>
+            </div>
+            <div className={styles.formRow}>
+              <label className={styles.label}>
+                <span>주소</span>
+                <input
+                  type="text"
+                  value={profileAddress}
+                  onChange={(e) => setProfileAddress(e.target.value)}
+                  className={styles.input}
+                  placeholder="주소"
+                  disabled={saving}
+                />
+              </label>
+            </div>
+            <button type="submit" className={styles.saveBtn} disabled={saving}>
+              {saving ? '저장 중…' : '프로필 저장'}
+            </button>
           </form>
-        )}
-      </section>
 
-      <section className={styles.card}>
-        <h3 className={styles.cardTitle}>계정 상태</h3>
-        <form onSubmit={handleSaveStatus} className={styles.roleForm}>
-          <label className={styles.roleLabel}>
-            <span>상태</span>
-            <select
-              value={statusInput}
-              onChange={(e) => setStatusInput(e.target.value)}
-              className={styles.roleSelect}
-              disabled={saving}
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button type="submit" className={styles.saveBtn} disabled={saving}>
-            상태 저장
-          </button>
-        </form>
-        {isLocked && (
-          <div className={styles.unlockRow}>
+          <h4 className={styles.editSubTitle}>비밀번호</h4>
+          {!showPasswordForm ? (
             <button
               type="button"
-              className={styles.unlockBtn}
-              onClick={handleUnlock}
-              disabled={saving}
+              className={styles.secondaryBtn}
+              onClick={() => setShowPasswordForm(true)}
             >
-              잠금 해제
+              비밀번호 초기화
             </button>
-          </div>
-        )}
-      </section>
+          ) : (
+            <form onSubmit={handleResetPassword} className={styles.form}>
+              <div className={styles.formRow}>
+                <label className={styles.label}>
+                  <span>새 비밀번호 (6자 이상)</span>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className={styles.input}
+                    minLength={6}
+                    autoComplete="new-password"
+                    disabled={saving}
+                  />
+                </label>
+              </div>
+              <div className={styles.buttonRow}>
+                <button type="submit" className={styles.saveBtn} disabled={saving || newPassword.length < 6}>
+                  {saving ? '처리 중…' : '초기화'}
+                </button>
+                <button
+                  type="button"
+                  className={styles.secondaryBtn}
+                  onClick={() => { setShowPasswordForm(false); setNewPassword(''); }}
+                  disabled={saving}
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          )}
 
-      <section className={styles.roleSection}>
-        <h3 id="role-heading" className={styles.roleHeading}>
-          역할 · 권한
-        </h3>
-        <form onSubmit={handleSaveRole} className={styles.roleForm}>
-          <label className={styles.roleLabel}>
-            <span>역할</span>
-            <select
-              value={roleInput}
-              onChange={(e) => setRoleInput(e.target.value)}
-              className={styles.roleSelect}
-              disabled={saving}
-            >
-              {ROLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button type="submit" className={styles.saveBtn} disabled={saving}>
-            역할 저장
-          </button>
-        </form>
-      </section>
+          <h4 className={styles.editSubTitle}>계정상태</h4>
+          <form onSubmit={handleSaveStatus} className={styles.roleForm}>
+            <label className={styles.roleLabel}>
+              <span>상태</span>
+              <select
+                value={statusInput}
+                onChange={(e) => setStatusInput(e.target.value)}
+                className={styles.roleSelect}
+                disabled={saving}
+              >
+                {STATUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" className={styles.saveBtn} disabled={saving}>
+              상태 저장
+            </button>
+          </form>
+          {isLocked && (
+            <div className={styles.unlockRow}>
+              <button type="button" className={styles.unlockBtn} onClick={handleUnlock} disabled={saving}>
+                잠금 해제
+              </button>
+            </div>
+          )}
+
+          <h4 className={styles.editSubTitle}>역할권한</h4>
+          <form onSubmit={handleSaveRole} className={styles.roleForm}>
+            <label className={styles.roleLabel}>
+              <span>역할</span>
+              <select
+                value={roleInput}
+                onChange={(e) => setRoleInput(e.target.value)}
+                className={styles.roleSelect}
+                disabled={saving}
+              >
+                {ROLE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" className={styles.saveBtn} disabled={saving}>
+              역할 저장
+            </button>
+          </form>
+        </section>
+      </div>
 
       {(data.recentOrders?.length > 0 || data.recentInquiries?.length > 0 || data.recentLoginLogs?.length > 0) && (
         <section className={styles.card}>

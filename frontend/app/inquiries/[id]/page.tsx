@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import {
   getInquiry,
+  updateInquiry,
+  deleteInquiry,
+  uploadInquiryAttachment,
   addReplyToReply,
   updateReply,
   deleteReply,
@@ -37,6 +40,7 @@ function buildReplyTree(replies: InquiryReplyDto[] = []) {
 
 export default function InquiryDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id ? Number(params.id) : null;
   const { isAuthenticated, user } = useAuthStore();
   const [inquiry, setInquiry] = useState<InquiryDto | null>(null);
@@ -46,6 +50,15 @@ export default function InquiryDetailPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  const [editingInquiry, setEditingInquiry] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [editIsPrivate, setEditIsPrivate] = useState(false);
+  const [editAttachmentUrl, setEditAttachmentUrl] = useState<string | null>(null);
+  const [editAttachmentName, setEditAttachmentName] = useState<string | null>(null);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const refetch = useCallback(() => {
     if (id == null || isNaN(id)) return;
@@ -112,12 +125,86 @@ export default function InquiryDetailPage() {
     }
   };
 
+  const isMine = inquiry != null && userId != null && inquiry.userId === userId;
+
+  const handleStartEditInquiry = () => {
+    if (!inquiry) return;
+    setEditTitle(inquiry.title);
+    setEditBody(inquiry.content ?? '');
+    setEditIsPrivate(inquiry.isPrivate ?? false);
+    setEditAttachmentUrl(inquiry.attachmentUrl ?? null);
+    setEditAttachmentName(inquiry.attachmentUrl ? inquiry.attachmentUrl.split('/').pop() ?? '첨부파일' : null);
+    setEditingInquiry(true);
+  };
+
+  const handleCancelEditInquiry = () => {
+    setEditingInquiry(false);
+    setEditTitle('');
+    setEditBody('');
+    setEditIsPrivate(false);
+    setEditAttachmentUrl(null);
+    setEditAttachmentName(null);
+  };
+
+  const handleFileChangeEdit = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFile(true);
+    try {
+      const { attachmentUrl: url } = await uploadInquiryAttachment(file);
+      setEditAttachmentUrl(url);
+      setEditAttachmentName(file.name);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : '파일 업로드에 실패했습니다.');
+    } finally {
+      setUploadingFile(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleSaveEditInquiry = async () => {
+    if (!id || !editTitle.trim()) return;
+    setSubmitting(true);
+    try {
+      const updated = await updateInquiry(id, {
+        title: editTitle.trim(),
+        content: editBody.trim(),
+        isPrivate: editIsPrivate,
+        attachmentUrl: editAttachmentUrl ?? undefined,
+      });
+      setInquiry(updated);
+      setEditingInquiry(false);
+      handleCancelEditInquiry();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '수정에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleCancelInquiry = async () => {
+    if (!id || !confirm('이 문의를 취소(삭제)하시겠습니까? 삭제 후에는 복구할 수 없습니다.')) return;
+    setSubmitting(true);
+    try {
+      await deleteInquiry(id);
+      router.push('/inquiries');
+    } catch (e) {
+      alert(e instanceof Error ? e.message : '취소에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (!isAuthenticated) return null;
   if (loading) return <main className={styles.main}><div className={styles.loading}>불러오는 중...</div></main>;
   if (!inquiry) return <main className={styles.main}><p className={styles.errorText}>문의를 찾을 수 없습니다.</p><Link href="/inquiries" className={styles.backLinkText}>← 이전으로</Link></main>;
 
   const userId = user?.id ? Number(user.id) : null;
   const { topLevel, byParent } = buildReplyTree(inquiry.replies);
+
+  const attachmentDownloadUrl = inquiry.attachmentUrl
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api/static/${inquiry.attachmentUrl}`
+    : null;
 
   return (
     <main className={styles.main}>
@@ -128,12 +215,91 @@ export default function InquiryDetailPage() {
           <div className={styles.titleRow}>
             <h1 className={styles.pageTitle}>{inquiry.isPrivate ? '[비밀] ' : ''}{inquiry.title}</h1>
             <span className={styles.inquiryTypeBadge}>{INQUIRY_TYPE_LABELS[inquiry.inquiryType ?? ''] ?? inquiry.inquiryType ?? '—'}</span>
+            {isMine && !editingInquiry && (
+              <div className={styles.inquiryActions}>
+                <button type="button" className={styles.btnText} onClick={handleStartEditInquiry} disabled={submitting}>
+                  수정
+                </button>
+                <span className={styles.actionDivider}>|</span>
+                <button type="button" className={styles.btnTextDanger} onClick={handleCancelInquiry} disabled={submitting}>
+                  취소
+                </button>
+              </div>
+            )}
           </div>
           <p className={styles.date}>{new Date(inquiry.createdAt).toLocaleString('ko-KR')}</p>
         </div>
-        <div className={styles.card}>
-          <div className={styles.content}>{inquiry.content || ''}</div>
-        </div>
+
+        {editingInquiry ? (
+          <div className={styles.card}>
+            <label className={styles.editLabel}>
+              제목
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                className={styles.editInput}
+                disabled={submitting}
+              />
+            </label>
+            <label className={styles.editLabel}>
+              내용
+              <textarea
+                value={editBody}
+                onChange={(e) => setEditBody(e.target.value)}
+                className={styles.editTextarea}
+                rows={6}
+                disabled={submitting}
+              />
+            </label>
+            <div className={styles.editLabel}>
+              첨부 파일
+              <div className={styles.fileRow}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
+                  onChange={handleFileChangeEdit}
+                  className={styles.fileInput}
+                  disabled={uploadingFile}
+                />
+                <button type="button" className={styles.fileBtn} onClick={() => fileInputRef.current?.click()} disabled={uploadingFile}>
+                  {uploadingFile ? '업로드 중...' : '파일 선택'}
+                </button>
+                {editAttachmentName && (
+                  <span className={styles.fileName}>
+                    {editAttachmentName}
+                    <button type="button" className={styles.fileRemove} onClick={() => { setEditAttachmentUrl(null); setEditAttachmentName(null); }} aria-label="제거">×</button>
+                  </span>
+                )}
+              </div>
+            </div>
+            <label className={styles.editCheckbox}>
+              <input type="checkbox" checked={editIsPrivate} onChange={(e) => setEditIsPrivate(e.target.checked)} disabled={submitting} />
+              비밀글로 작성
+            </label>
+            <div className={styles.replyActions}>
+              <button type="button" className={styles.btnPrimary} onClick={handleSaveEditInquiry} disabled={submitting || !editTitle.trim()}>
+                저장
+              </button>
+              <button type="button" className={styles.btnSecondary} onClick={handleCancelEditInquiry} disabled={submitting}>
+                취소
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.card}>
+            <div className={styles.content}>{inquiry.content || ''}</div>
+            {attachmentDownloadUrl && (
+              <p className={styles.attachmentRow}>
+                <span className={styles.attachmentLabel}>첨부:</span>
+                <a href={attachmentDownloadUrl} target="_blank" rel="noopener noreferrer" className={styles.attachmentLink}>
+                  {inquiry.attachmentUrl?.split('/').pop() ?? '첨부파일'}
+                </a>
+              </p>
+            )}
+          </div>
+        )}
 
         {topLevel.length > 0 && (
           <section className={styles.replies}>

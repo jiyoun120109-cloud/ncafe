@@ -110,7 +110,8 @@ export default function NewInquiryPage() {
           <textarea value={content} onChange={(e) => setContent(e.target.value)} className={styles.textarea} rows={6} placeholder="문의 내용을 입력해주세요." />
         </label>
         <div className={styles.label}>
-          첨부 파일
+          <span className={styles.fileLabelText}>첨부 파일</span>
+          <p className={styles.fileHint}>PDF, Word, 이미지 (JPG/PNG 등) 5MB 이하</p>
           <div className={styles.fileRow}>
             <input
               ref={fileInputRef}
@@ -119,6 +120,7 @@ export default function NewInquiryPage() {
               onChange={handleFileChange}
               className={styles.fileInput}
               disabled={uploading}
+              aria-label="첨부 파일 선택"
             />
             <button type="button" className={styles.fileBtn} onClick={() => fileInputRef.current?.click()} disabled={uploading}>
               {uploading ? '업로드 중...' : '파일 선택'}
@@ -130,7 +132,7 @@ export default function NewInquiryPage() {
               </span>
             )}
           </div>
-          {!attachmentName && <p className={styles.fileHint}>선택된 파일 없음</p>}
+          {attachmentName && <p className={styles.fileSuccess}>첨부됨 — 문의하기 버튼을 누르면 함께 등록됩니다.</p>}
         </div>
         <label className={styles.checkbox}>
           <input type="checkbox" checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} />

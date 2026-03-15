@@ -54,6 +54,29 @@ export async function createInquiry(params: {
   return res.json();
 }
 
+/** 문의 수정 (본인 문의만) */
+export async function updateInquiry(
+  id: number,
+  params: {
+    inquiryType?: string | null;
+    title?: string;
+    content?: string;
+    isPrivate?: boolean;
+    attachmentUrl?: string | null;
+  }
+): Promise<InquiryDto> {
+  const res = await fetch(`${getApiBase()}/inquiries/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(params),
+  });
+  if (res.status === 401) throw new Error('로그인이 필요합니다.');
+  if (res.status === 403) throw new Error('수정 권한이 없습니다.');
+  if (!res.ok) throw new Error('문의 수정에 실패했습니다.');
+  return res.json();
+}
+
 /** 문의 첨부파일 업로드. 반환된 attachmentUrl을 createInquiry 시 전달. */
 export async function uploadInquiryAttachment(file: File): Promise<{ attachmentUrl: string }> {
   const formData = new FormData();
