@@ -60,6 +60,8 @@ export default function InquiryDetailPage() {
   const [uploadingFile, setUploadingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const userId = user?.id ? Number(user.id) : null;
+
   const refetch = useCallback(() => {
     if (id == null || isNaN(id)) return;
     getInquiry(id).then(setInquiry).catch(() => setInquiry(null));
@@ -199,7 +201,6 @@ export default function InquiryDetailPage() {
   if (loading) return <main className={styles.main}><div className={styles.loading}>불러오는 중...</div></main>;
   if (!inquiry) return <main className={styles.main}><p className={styles.errorText}>문의를 찾을 수 없습니다.</p><Link href="/inquiries" className={styles.backLinkText}>← 이전으로</Link></main>;
 
-  const userId = user?.id ? Number(user.id) : null;
   const { topLevel, byParent } = buildReplyTree(inquiry.replies);
 
   const attachmentDownloadUrl = inquiry.attachmentUrl
