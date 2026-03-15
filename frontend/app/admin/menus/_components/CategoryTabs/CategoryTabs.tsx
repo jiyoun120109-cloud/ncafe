@@ -21,11 +21,12 @@ export default function CategoryTabs({
 }: CategoryTabsProps) {
     const { categories: publicCategories, categoryCount: publicTotalCount } = useCategories();
 
-    const categories = adminCategories ?? publicCategories;
-    const totalCountDisplay = totalCount ?? publicTotalCount ?? 0;
+    const useAdminData = adminCategories != null;
+    const categories = useAdminData ? adminCategories : publicCategories;
+    const totalCountDisplay = useAdminData ? (totalCount ?? 0) : (publicTotalCount ?? 0);
 
     const getMenuCount = (cat: { id: number; name: string }) => {
-        if (adminCategories && menuCountByCategoryName) {
+        if (useAdminData && menuCountByCategoryName) {
             return menuCountByCategoryName[cat.name] ?? 0;
         }
         return (cat as CategoryResponseDto).menuCount ?? 0;

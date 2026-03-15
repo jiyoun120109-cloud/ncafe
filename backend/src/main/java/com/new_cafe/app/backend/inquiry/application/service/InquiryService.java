@@ -9,9 +9,12 @@ import com.new_cafe.app.backend.inquiry.model.InquiryReply;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class InquiryService implements InquiryUseCase {
@@ -38,6 +41,32 @@ public class InquiryService implements InquiryUseCase {
     @Transactional(readOnly = true)
     public List<Inquiry> listAll() {
         return inquiryRepository.findAllOrderByCreatedAtDesc();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Inquiry> listForAdmin(String search, String inquiryType, LocalDate fromDate, LocalDate toDate) {
+        Stream<Inquiry> stream = inquiryRepository.findAllOrderByCreatedAtDesc().stream();
+        String searchTrim = (search != null && !search.isBlank()) ? search.trim().toLowerCase() : null;
+        if (searchTrim != null) {
+            stream = stream.filter(inq ->
+                (inq.getTitle() != null && inq.getTitle().toLowerCase().contains(searchTrim))
+                    || (inq.getContent() != null && inq.getContent().toLowerCase().contains(searchTrim))
+            );
+        }
+        if (inquiryType != null && !inquiryType.isBlank()) {
+            String type = inquiryType.trim();
+            stream = stream.filter(inq -> type.equals(inq.getInquiryType()));
+        }
+        if (fromDate != null) {
+            LocalDateTime from = fromDate.atStartOfDay();
+            stream = stream.filter(inq -> inq.getCreatedAt() != null && !inq.getCreatedAt().isBefore(from));
+        }
+        if (toDate != null) {
+            LocalDateTime to = toDate.atTime(LocalTime.MAX);
+            stream = stream.filter(inq -> inq.getCreatedAt() != null && !inq.getCreatedAt().isAfter(to));
+        }
+        return stream.toList();
     }
 
     @Override
@@ -182,5 +211,14 @@ public class InquiryService implements InquiryUseCase {
             throw new IllegalArgumentException("문의를 찾을 수 없습니다.");
         }
         inquiryRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByIds(List<Long> ids) {
+        if (ids == null) return;
+        for (Long id : ids) {
+            inquiryRepository.findById(id).ifPresent(inq -> inquiryRepository.deleteById(id));
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.new_cafe.app.backend.inquiry.application.port.in;
 import com.new_cafe.app.backend.inquiry.model.Inquiry;
 import com.new_cafe.app.backend.inquiry.model.InquiryReply;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,6 +12,9 @@ public interface InquiryUseCase {
     List<Inquiry> findByUserId(Long userId);
 
     List<Inquiry> listAll();
+
+    /** 관리자 목록: 검색·항목·기간 필터 (hasReply 필터는 컨트롤러에서 처리) */
+    List<Inquiry> listForAdmin(String search, String inquiryType, LocalDate fromDate, LocalDate toDate);
 
     Optional<Inquiry> findById(Long id);
 
@@ -34,4 +38,7 @@ public interface InquiryUseCase {
 
     /** 관리자: 문의 삭제 (답변 포함) */
     void deleteById(Long id);
+
+    /** 관리자: 선택 문의 일괄 삭제 */
+    void deleteByIds(List<Long> ids);
 }

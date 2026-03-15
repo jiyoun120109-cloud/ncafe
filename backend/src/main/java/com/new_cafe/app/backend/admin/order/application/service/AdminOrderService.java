@@ -141,6 +141,7 @@ public class AdminOrderService implements AdminOrderUseCase {
         long pendingCount = orderRepositoryPort.countByStatus("PENDING");
         long paidCount = orderRepositoryPort.countByStatus("PAID");
         long cancelledCount = orderRepositoryPort.countByStatus("CANCELLED");
+        long visitorCountToday = visitorLogJpaRepository.countByVisitedAtBetween(from, target.plusDays(1).atStartOfDay());
 
         Map<String, Object> result = new HashMap<>();
         result.put("ordersToday", ordersToday);
@@ -150,6 +151,7 @@ public class AdminOrderService implements AdminOrderUseCase {
         result.put("pendingCount", pendingCount);
         result.put("paidCount", paidCount);
         result.put("cancelledCount", cancelledCount);
+        result.put("visitorCountToday", visitorCountToday);
         return result;
     }
 

@@ -9,4 +9,5 @@ public interface FavoriteJpaRepository extends JpaRepository<FavoriteEntity, Lon
     List<FavoriteEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
     Optional<FavoriteEntity> findByUserIdAndMenuId(Long userId, Long menuId);
     boolean existsByUserIdAndMenuId(Long userId, Long menuId);
+    long countByMenuId(Long menuId);
 }

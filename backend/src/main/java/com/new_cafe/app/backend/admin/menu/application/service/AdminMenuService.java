@@ -18,6 +18,7 @@ import com.new_cafe.app.backend.admin.menu.application.port.out.AdminMenuImageRe
 import com.new_cafe.app.backend.admin.menu.application.port.out.AdminMenuRepositoryPort;
 import com.new_cafe.app.backend.admin.menu.model.AdminMenu;
 import com.new_cafe.app.backend.admin.menu.model.AdminMenuImage;
+import com.new_cafe.app.backend.favorite.adapter.out.jpa.FavoriteJpaRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,11 +32,14 @@ public class AdminMenuService implements AdminMenuUseCase {
 
     private final AdminMenuRepositoryPort adminMenuRepositoryPort;
     private final AdminMenuImageRepositoryPort adminMenuImageRepositoryPort;
+    private final FavoriteJpaRepository favoriteJpaRepository;
 
     public AdminMenuService(AdminMenuRepositoryPort adminMenuRepositoryPort,
-                           AdminMenuImageRepositoryPort adminMenuImageRepositoryPort) {
+                           AdminMenuImageRepositoryPort adminMenuImageRepositoryPort,
+                           FavoriteJpaRepository favoriteJpaRepository) {
         this.adminMenuRepositoryPort = adminMenuRepositoryPort;
         this.adminMenuImageRepositoryPort = adminMenuImageRepositoryPort;
+        this.favoriteJpaRepository = favoriteJpaRepository;
     }
 
     /**
@@ -71,7 +75,9 @@ public class AdminMenuService implements AdminMenuUseCase {
         
         Long categoryId = menu.getCategory() != null ? menu.getCategory().getId() : null;
         String categoryName = menu.getCategory() != null ? menu.getCategory().getName() : "";
-        
+        int likeCountAgg = (int) favoriteJpaRepository.countByMenuId(menu.getId());
+        Integer viewCount = menu.getViewCount() != null ? menu.getViewCount() : 0;
+
         return GetMenuResult.builder()
             .id(menu.getId())
             .korName(menu.getKorName())
@@ -87,8 +93,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .isNew(menu.getIsNew())
             .isRecommended(menu.getIsRecommended())
             .displayPriority(menu.getDisplayPriority())
-            .likeCount(menu.getLikeCount())
-            .viewCount(menu.getViewCount())
+            .likeCount(likeCountAgg)
+            .viewCount(viewCount)
             .createdAt(menu.getCreatedAt())
             .updatedAt(menu.getUpdatedAt())
             .build();
@@ -132,8 +138,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .isNew(command.getIsNew())
             .isRecommended(command.getIsRecommended())
             .displayPriority(command.getDisplayPriority())
-            .likeCount(command.getLikeCount())
-            .viewCount(command.getViewCount())
+            .likeCount(0)
+            .viewCount(0)
             .createdAt(null)
             .updatedAt(null)
             .build();
@@ -171,8 +177,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .isNew(command.getIsNew() != null ? command.getIsNew() : existing.getIsNew())
             .isRecommended(command.getIsRecommended() != null ? command.getIsRecommended() : existing.getIsRecommended())
             .displayPriority(command.getDisplayPriority() != null ? command.getDisplayPriority() : existing.getDisplayPriority())
-            .likeCount(command.getLikeCount() != null ? command.getLikeCount() : existing.getLikeCount())
-            .viewCount(command.getViewCount() != null ? command.getViewCount() : existing.getViewCount())
+            .likeCount(existing.getLikeCount() != null ? existing.getLikeCount() : 0)
+            .viewCount(existing.getViewCount() != null ? existing.getViewCount() : 0)
             .createdAt(existing.getCreatedAt())
             .updatedAt(existing.getUpdatedAt())
             .build();

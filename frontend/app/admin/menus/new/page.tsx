@@ -55,8 +55,6 @@ export default function NewMenuPage() {
                 isNew: Boolean(data.isNew),
                 isRecommended: Boolean(data.isRecommended),
                 displayPriority: num(data.displayPriority) ?? 0,
-                likeCount: num(data.likeCount) ?? 0,
-                viewCount: num(data.viewCount) ?? 0,
             };
             if (data.optionsJson != null && data.optionsJson !== '') body.optionsJson = data.optionsJson;
             else if (Array.isArray(data.options) && data.options.length > 0) {

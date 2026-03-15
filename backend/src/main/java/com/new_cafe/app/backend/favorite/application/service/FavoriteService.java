@@ -8,6 +8,7 @@ import com.new_cafe.app.backend.favorite.application.port.out.FavoriteRepository
 import com.new_cafe.app.backend.favorite.application.result.AddFavoriteResult;
 import com.new_cafe.app.backend.favorite.application.result.GetFavoritesResult;
 import com.new_cafe.app.backend.favorite.model.Favorite;
+import com.new_cafe.app.backend.menu.adapter.out.jpa.MenuJpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,12 @@ import java.util.stream.Collectors;
 public class FavoriteService implements FavoriteUseCase {
 
     private final FavoriteRepositoryPort favoriteRepository;
+    private final MenuJpaRepository menuJpaRepository;
 
-    public FavoriteService(FavoriteRepositoryPort favoriteRepository) {
+    public FavoriteService(FavoriteRepositoryPort favoriteRepository,
+                           MenuJpaRepository menuJpaRepository) {
         this.favoriteRepository = favoriteRepository;
+        this.menuJpaRepository = menuJpaRepository;
     }
 
     @Override
@@ -56,6 +60,7 @@ public class FavoriteService implements FavoriteUseCase {
                 .createdAt(java.time.LocalDateTime.now())
                 .build();
         Favorite saved = favoriteRepository.save(toSave);
+        menuJpaRepository.incrementLikeCount(saved.getMenuId());
         return AddFavoriteResult.builder()
                 .id(saved.getId())
                 .menuId(saved.getMenuId())
@@ -67,7 +72,11 @@ public class FavoriteService implements FavoriteUseCase {
     @Transactional
     public void remove(RemoveFavoriteCommand command) {
         favoriteRepository.findByUserIdAndMenuId(command.getUserId(), command.getMenuId())
-                .ifPresent(favoriteRepository::delete);
+                .ifPresent(f -> {
+                    Long menuId = f.getMenuId();
+                    favoriteRepository.delete(f);
+                    menuJpaRepository.decrementLikeCount(menuId);
+                });
     }
 
     @Override

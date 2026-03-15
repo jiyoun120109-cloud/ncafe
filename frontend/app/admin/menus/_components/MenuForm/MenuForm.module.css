@@ -56,6 +56,19 @@
     color: rgba(0, 0, 0, 0.55);
 }
 
+.readOnlyValue {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1c1917;
+    margin: 0;
+}
+
+.readOnlyHint {
+    font-size: 0.72rem;
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+}
+
 .input,
 .select,
 .textarea {

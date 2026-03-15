@@ -4,10 +4,12 @@ import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import com.new_cafe.app.backend.inquiry.application.port.in.InquiryUseCase;
 import com.new_cafe.app.backend.inquiry.model.Inquiry;
 import com.new_cafe.app.backend.inquiry.model.InquiryReply;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import io.jsonwebtoken.Claims;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,15 +29,39 @@ public class AdminInquiryController {
 
     @GetMapping
     public ResponseEntity<List<Map<String, Object>>> list(
-            @RequestHeader(value = "Authorization", required = false) String authorization
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String inquiryType,
+            @RequestParam(required = false) Boolean hasReply,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
-        List<Inquiry> list = inquiryUseCase.listAll();
-        return ResponseEntity.ok(list.stream().map(inq -> {
+        List<Inquiry> list = inquiryUseCase.listForAdmin(search, inquiryType, fromDate, toDate);
+        List<Map<String, Object>> withHasReply = list.stream().map(inq -> {
             Map<String, Object> m = inquiryToMap(inq);
-            m.put("hasReply", inquiryUseCase.countRepliesByInquiryId(inq.getId()) > 0);
+            boolean replied = inquiryUseCase.countRepliesByInquiryId(inq.getId()) > 0;
+            m.put("hasReply", replied);
             return m;
-        }).collect(Collectors.toList()));
+        }).collect(Collectors.toList());
+        if (hasReply != null) {
+            withHasReply = withHasReply.stream()
+                .filter(m -> hasReply.equals(m.get("hasReply")))
+                .collect(Collectors.toList());
+        }
+        return ResponseEntity.ok(withHasReply);
+    }
+
+    @PostMapping("/bulk-delete")
+    public ResponseEntity<Void> bulkDelete(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody Map<String, List<Long>> body
+    ) {
+        if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
+        List<Long> ids = body != null ? body.get("ids") : null;
+        if (ids == null || ids.isEmpty()) return ResponseEntity.badRequest().build();
+        inquiryUseCase.deleteByIds(ids);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

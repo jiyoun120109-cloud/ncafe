@@ -225,8 +225,6 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
             isNew: Boolean(data.isNew),
             isRecommended: Boolean(data.isRecommended),
             displayPriority: num(data.displayPriority) ?? 0,
-            likeCount: num(data.likeCount) ?? 0,
-            viewCount: num(data.viewCount) ?? 0,
         });
     };
 
@@ -357,20 +355,20 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                         placeholder="0"
                         fullWidth
                     />
-                    <Input
-                        label="좋아요 수"
-                        type="number"
-                        {...register('likeCount', { setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)) })}
-                        placeholder="0"
-                        fullWidth
-                    />
-                    <Input
-                        label="조회수"
-                        type="number"
-                        {...register('viewCount', { setValueAs: (v) => (v === '' || v == null ? 0 : Number(v)) })}
-                        placeholder="0"
-                        fullWidth
-                    />
+                    <div className={styles.field}>
+                        <span className={styles.label}>좋아요 수</span>
+                        <p className={styles.readOnlyValue} aria-live="polite">
+                            {(initialData as any)?.likeCount ?? 0}명
+                        </p>
+                        <p className={styles.readOnlyHint}>찜한 회원 수로 자동 집계됩니다.</p>
+                    </div>
+                    <div className={styles.field}>
+                        <span className={styles.label}>조회수</span>
+                        <p className={styles.readOnlyValue} aria-live="polite">
+                            {(initialData as any)?.viewCount ?? 0}회
+                        </p>
+                        <p className={styles.readOnlyHint}>메뉴 상세 조회 시 자동 집계됩니다.</p>
+                    </div>
                 </div>
             </section>
 

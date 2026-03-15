@@ -156,8 +156,6 @@ export default function EditMenuPage() {
                     isNew: data.isNew ?? false,
                     isRecommended: data.isRecommended ?? false,
                     displayPriority: data.displayPriority ?? 0,
-                    likeCount: data.likeCount ?? 0,
-                    viewCount: data.viewCount ?? 0,
                 }),
             });
             if (!res.ok) {

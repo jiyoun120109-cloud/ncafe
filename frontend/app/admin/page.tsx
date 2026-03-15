@@ -46,6 +46,7 @@ export default function AdminDashboardPage() {
     const [stats, setStats] = useState<AdminOrderStats | null>(null);
     const [periodStats, setPeriodStats] = useState<AdminOrderStatsPeriodPoint[]>([]);
     const [period, setPeriod] = useState<StatsPeriod>('day');
+    const [hasUserSelectedPeriod, setHasUserSelectedPeriod] = useState(false);
     const [statsError, setStatsError] = useState<string | null>(null);
     const [periodError, setPeriodError] = useState<string | null>(null);
 
@@ -59,7 +60,7 @@ export default function AdminDashboardPage() {
     useEffect(() => { setTitle('Dashboard'); }, [setTitle]);
 
     useEffect(() => {
-        fetchAdminOrderStats()
+        fetchAdminOrderStats(todayISO())
             .then(setStats)
             .catch(() => setStatsError('통계를 불러올 수 없습니다.'));
     }, []);
@@ -94,7 +95,7 @@ export default function AdminDashboardPage() {
         setDetailError(null);
         setDetailLoading(true);
         setTodayRevenueBreakdown(null);
-        fetchTodayRevenueBreakdown()
+        fetchTodayRevenueBreakdown(todayISO())
             .then(setTodayRevenueBreakdown)
             .catch(() => setDetailError('오늘 매출 상세를 불러올 수 없습니다.'))
             .finally(() => setDetailLoading(false));
@@ -124,20 +125,24 @@ export default function AdminDashboardPage() {
     const periodTotalOrders = periodStats.reduce((s, p) => s + (p.orderCount ?? 0), 0);
     const periodTotalRevenue = periodStats.reduce((s, p) => s + (p.revenue ?? 0), 0);
     const periodTotalVisitors = periodStats.reduce((s, p) => s + (p.visitorCount ?? 0), 0);
+    const todayVisitors = stats?.visitorCountToday ?? 0;
+    const showTodayVisitors = period === 'day' && !hasUserSelectedPeriod;
+    const visitorCardValue = showTodayVisitors ? todayVisitors : periodTotalVisitors;
+    const visitorCardSub = showTodayVisitors ? '오늘' : `선택 기간 합계 (${PERIODS.find((x) => x.key === period)?.label})`;
 
     const statCards: { label: string; value: string; sub: string; alert?: boolean; detail: DetailType }[] = [
         { label: '오늘 주문', value: String(ordersToday), sub: orderDiffText, detail: null },
         { label: '오늘 매출', value: `₩${revenueToday.toLocaleString()}`, sub: revenueDiffText, detail: 'revenue_today' },
         { label: '결제대기/결제완료', value: `${pendingCount}/${paidCount}`, sub: '주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending_paid' },
-        { label: '방문자 수', value: periodTotalVisitors.toLocaleString(), sub: `선택 기간 합계 (${PERIODS.find((x) => x.key === period)?.label})`, detail: 'visitors' },
+        { label: '방문자 수', value: visitorCardValue.toLocaleString(), sub: visitorCardSub, detail: 'visitors' },
     ];
 
-    const chartData = periodStats.map((p) => ({
+    const chartData = useMemo(() => periodStats.map((p) => ({
         name: p.label,
         주문: p.orderCount ?? 0,
         매출: p.revenue ?? 0,
         방문자: p.visitorCount ?? 0,
-    }));
+    })), [periodStats]);
 
     const detailTitle =
         selectedDetail === 'revenue_today'
@@ -164,11 +169,7 @@ export default function AdminDashboardPage() {
         ),
         [detailOrdersPaid]
     );
-    const sortedPeriodStats = useMemo(() => {
-        const list = [...periodStats];
-        if (period === 'week') return list.reverse();
-        return list;
-    }, [periodStats, period]);
+    const sortedPeriodStats = useMemo(() => [...periodStats].reverse(), [periodStats]);
 
     return (
         <div className={styles.dashboardLayout}>
@@ -208,7 +209,7 @@ export default function AdminDashboardPage() {
                             key={key}
                             type="button"
                             className={`${styles.periodTab} ${period === key ? styles.periodTabActive : ''}`}
-                            onClick={() => { setPeriod(key); setSelectedDetail('period'); }}
+                            onClick={() => { setPeriod(key); setHasUserSelectedPeriod(true); setSelectedDetail('period'); }}
                         >
                             {label}
                         </button>

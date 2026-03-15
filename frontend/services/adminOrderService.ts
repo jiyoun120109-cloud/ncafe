@@ -56,6 +56,7 @@ export interface AdminOrderStats {
   pendingCount: number;
   paidCount: number;
   cancelledCount: number;
+  visitorCountToday?: number;
 }
 
 export type StatsPeriod = 'day' | 'week' | 'month';

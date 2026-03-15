@@ -15,6 +15,7 @@ import {
     Users,
 } from 'lucide-react';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import { useAdminNavBadges } from './useAdminNavBadges';
 import styles from './AdminSidebar.module.css';
 
 interface AdminSidebarProps {
@@ -24,7 +25,7 @@ interface AdminSidebarProps {
 
 type NavItem = { href: string; label: string; icon: typeof LayoutDashboard; badge?: number };
 
-const contentNavItems: NavItem[] = [
+const contentNavItemsBase: NavItem[] = [
     { href: '/admin',            label: '대시보드',     icon: LayoutDashboard },
     { href: '/admin/menus',      label: '메뉴 관리',   icon: ClipboardList },
     { href: '/admin/categories', label: '카테고리 관리', icon: FolderOpen },
@@ -49,6 +50,7 @@ const platformNavItems = [
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     const pathname = usePathname();
     const { siteName } = useSiteSettings();
+    const { menuCount, pendingOrderCount } = useAdminNavBadges();
     const logoMark = siteName?.charAt(0) ?? 'N';
     const logoText = siteName?.slice(1) ?? 'Cafe';
 
@@ -56,6 +58,16 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         if (href === '/admin') return pathname === '/admin';
         return pathname.startsWith(href);
     };
+
+    const contentNavItems: NavItem[] = contentNavItemsBase.map((item) => {
+        if (item.href === '/admin/menus' && menuCount != null && menuCount > 0) {
+            return { ...item, badge: menuCount };
+        }
+        if (item.href === '/admin/orders' && pendingOrderCount != null && pendingOrderCount > 0) {
+            return { ...item, badge: pendingOrderCount };
+        }
+        return item;
+    });
 
     return (
         <>

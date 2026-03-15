@@ -66,17 +66,6 @@ export default function AdminHeader() {
                     </motion.span>
                 </Link>
 
-                <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={styles.logoutButton}
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                >
-                    <LogOut size={16} />
-                    <span>{isLoggingOut ? '처리중...' : '로그아웃'}</span>
-                </motion.button>
-
                 <Link href="/" className={styles.profileLink} aria-label="메인으로 이동">
                     <div className={styles.profile}>
                         <div className={styles.profileAvatar}>
@@ -87,6 +76,17 @@ export default function AdminHeader() {
                         </span>
                     </div>
                 </Link>
+
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={styles.logoutButton}
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                >
+                    <LogOut size={16} />
+                    <span>{isLoggingOut ? '처리중...' : '로그아웃'}</span>
+                </motion.button>
             </div>
         </header>
     );
