@@ -1,9 +1,9 @@
 -- 기존 주문·결제 테이블 삭제 후 엔티티/모델/data.sql과 동일한 스키마로 재생성
--- (배포 환경에서 결제·주문 테이블을 새로 만들 때 사용)
+-- (배포 환경에서 order_item_options 등 의존 테이블이 있으면 CASCADE로 함께 제거)
 
-DROP TABLE IF EXISTS payments;
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS payments CASCADE;
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
 
 CREATE TABLE orders (
     id BIGSERIAL PRIMARY KEY,
