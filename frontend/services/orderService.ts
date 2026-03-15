@@ -116,3 +116,17 @@ export async function applyCouponToOrder(orderId: number, userCouponId: number):
   }
   return res.json();
 }
+
+/** 주문 취소 (결제취소) - 본인 주문만 가능 */
+export async function cancelOrder(orderId: number): Promise<OrderDto> {
+  const res = await fetch(`${getApiBase()}/orders/${orderId}/cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error ?? '주문 취소에 실패했습니다.');
+  }
+  return res.json();
+}

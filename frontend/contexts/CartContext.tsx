@@ -70,15 +70,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }, [refresh]);
 
     const clearAll = useCallback(async () => {
-        for (const item of items) {
-            try {
-                await removeCartItemApi(item.id);
-            } catch {
-                // ignore per-item errors
+        try {
+            const data = await fetchCart();
+            const list = data.items ?? [];
+            for (const item of list) {
+                try {
+                    await removeCartItemApi(item.id);
+                } catch {
+                    /* ignore per-item errors */
+                }
             }
+        } finally {
+            await refresh();
         }
-        await refresh();
-    }, [items, refresh]);
+    }, [refresh]);
 
     const value: CartContextValue = {
         items,

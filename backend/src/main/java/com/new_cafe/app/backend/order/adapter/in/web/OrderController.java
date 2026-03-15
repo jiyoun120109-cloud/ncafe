@@ -1,6 +1,7 @@
 package com.new_cafe.app.backend.order.adapter.in.web;
 
 import com.new_cafe.app.backend.order.application.command.CreateOrderCommand;
+import com.new_cafe.app.backend.order.application.port.in.CancelOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.in.CreateOrderUseCase;
 import com.new_cafe.app.backend.order.application.port.in.GetOrderUseCase;
 import com.new_cafe.app.backend.order.application.result.CreateOrderResult;
@@ -25,15 +26,18 @@ public class OrderController {
 
     private final CreateOrderUseCase createOrderUseCase;
     private final GetOrderUseCase getOrderUseCase;
+    private final CancelOrderUseCase cancelOrderUseCase;
     private final JwtService jwtService;
     private final ProcessPaymentUseCase processPaymentUseCase;
     private final ApplyCouponToOrderService applyCouponToOrderService;
 
     public OrderController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase,
+                          CancelOrderUseCase cancelOrderUseCase,
                           JwtService jwtService, ProcessPaymentUseCase processPaymentUseCase,
                           ApplyCouponToOrderService applyCouponToOrderService) {
         this.createOrderUseCase = createOrderUseCase;
         this.getOrderUseCase = getOrderUseCase;
+        this.cancelOrderUseCase = cancelOrderUseCase;
         this.jwtService = jwtService;
         this.processPaymentUseCase = processPaymentUseCase;
         this.applyCouponToOrderService = applyCouponToOrderService;
@@ -180,5 +184,24 @@ public class OrderController {
         String pgTid = body != null && body.get("pgTid") != null ? body.get("pgTid") : "";
         processPaymentUseCase.complete(orderId, pgTid);
         return ResponseEntity.ok().build();
+    }
+
+    /** 회원 본인 주문 취소 (결제취소) */
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<Map<String, Object>> cancelOrder(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @PathVariable Long orderId
+    ) {
+        Claims claims = authorization != null && authorization.startsWith("Bearer ") ? jwtService.parseToken(authorization) : null;
+        Long userId = jwtService.getUserIdFromClaims(claims);
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        try {
+            Order order = cancelOrderUseCase.cancel(orderId, userId);
+            return ResponseEntity.ok(orderToMap(order));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

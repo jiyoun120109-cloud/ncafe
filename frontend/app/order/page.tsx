@@ -317,18 +317,17 @@ export default function OrderPage() {
                     <span className={styles.totalAmount}>{totalPrice.toLocaleString()}원</span>
                   </div>
                 </div>
+                <form onSubmit={handleSubmit} className={styles.submitForm}>
+                  {error && <p className={styles.error} role="alert">{error}</p>}
+                  <button type="submit" className={styles.submitBtn} disabled={submitting}>
+                    <CreditCard size={20} />
+                    {submitting ? '처리 중...' : `${totalPrice.toLocaleString()}원 결제하기`}
+                  </button>
+                </form>
               </div>
             </div>
           </div>
         </div>
-
-        <form onSubmit={handleSubmit} className={styles.submitForm}>
-          {error && <p className={styles.error} role="alert">{error}</p>}
-          <button type="submit" className={styles.submitBtn} disabled={submitting}>
-            <CreditCard size={20} />
-            {submitting ? '처리 중...' : `${totalPrice.toLocaleString()}원 결제하기`}
-          </button>
-        </form>
       </div>
 
       <CartItemOptionModal

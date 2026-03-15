@@ -3,14 +3,75 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { CreditCard, CheckCircle, Receipt, AlertCircle, Ticket } from 'lucide-react';
-import { getOrder, paymentReady, paymentComplete, applyCouponToOrder, type OrderDto } from '@/services/orderService';
+import { getOrder, paymentReady, paymentComplete, applyCouponToOrder, cancelOrder, type OrderDto } from '@/services/orderService';
 import { useCart } from '@/contexts/CartContext';
 import { useAuthStore } from '@/stores/authStore';
 import { getUserCoupons, type UserCouponDto } from '@/services/userService';
 import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import styles from './page.module.css';
+
+function CompletedView({
+  orderId,
+  completedOrder,
+  onCancelSuccess,
+}: {
+  orderId: number | null;
+  completedOrder: OrderDto | null;
+  onCancelSuccess: () => void;
+}) {
+  const router = useRouter();
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const isCancelled = completedOrder?.status === 'CANCELLED';
+
+  const displayOrderNumber = completedOrder?.orderNumber ?? (orderId ? `ORD-${orderId}` : '-');
+
+  const handleCancel = async () => {
+    if (!orderId || isCancelled) return;
+    if (!confirm('이 주문을 취소하시겠습니까?')) return;
+    setCancelError(null);
+    setCancelling(true);
+    try {
+      await cancelOrder(orderId);
+      onCancelSuccess();
+      router.push('/user?tab=orders');
+    } catch (e) {
+      setCancelError(e instanceof Error ? e.message : '주문 취소에 실패했습니다.');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  return (
+    <div className={styles.completeCard}>
+      <div className={styles.completeIconWrap}>
+        <CheckCircle size={56} className={styles.completeIcon} />
+      </div>
+      <h1 className={styles.completeTitle}>결제가 완료되었어요</h1>
+      <p className={styles.completeDesc}>주문이 정상적으로 접수되었습니다.</p>
+      <p className={styles.orderNumber}>주문 번호 <strong>{displayOrderNumber}</strong></p>
+      {cancelError && <p className={styles.errorMessage} role="alert">{cancelError}</p>}
+      <div className={styles.completeActions}>
+        <Link href="/user?tab=orders" className={styles.primaryBtn}>
+          주문 내역 보기
+        </Link>
+        <Link href="/menus" className={styles.secondaryBtn}>
+          메뉴 더 보기
+        </Link>
+        {orderId && !isCancelled && (
+          <button type="button" className={styles.tertiaryBtn} onClick={handleCancel} disabled={cancelling}>
+            {cancelling ? '취소 처리 중...' : '결제취소'}
+          </button>
+        )}
+        <Link href="/inquiries/new" className={styles.tertiaryBtn}>
+          문의하기
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 const TOSS_SCRIPT = 'https://js.tosspayments.com/v1/payment';
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
@@ -192,35 +253,15 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   }
 
   if (completed) {
-    const displayOrderNumber = completedOrder?.orderNumber ?? (orderId ? `ORD-${orderId}` : '-');
     return (
       <CheckoutLayout currentStep="payment">
-        <div className={styles.completeCard}>
-          <div className={styles.completeIconWrap}>
-            <CheckCircle size={56} className={styles.completeIcon} />
-          </div>
-          <h1 className={styles.completeTitle}>결제가 완료되었어요</h1>
-          <p className={styles.completeDesc}>주문이 정상적으로 접수되었습니다.</p>
-          <p className={styles.orderNumber}>주문 번호 <strong>{displayOrderNumber}</strong></p>
-          <div className={styles.completeActions}>
-            <Link href="/user?tab=orders" className={styles.primaryBtn}>
-              주문 내역 보기
-            </Link>
-            <Link href="/menus" className={styles.secondaryBtn}>
-              메뉴 더 보기
-            </Link>
-            {orderId && (
-              <>
-                <Link href={`/user/orders/${orderId}`} className={styles.tertiaryBtn}>
-                  결제취소
-                </Link>
-                <Link href="/inquiries/new" className={styles.tertiaryBtn}>
-                  문의하기
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+        <CompletedView
+          orderId={orderId}
+          completedOrder={completedOrder}
+          onCancelSuccess={() => {
+            setCompletedOrder((prev) => (prev ? { ...prev, status: 'CANCELLED' } : null));
+          }}
+        />
       </CheckoutLayout>
     );
   }
