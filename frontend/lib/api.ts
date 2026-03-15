@@ -61,6 +61,7 @@ export const authAPI = {
         name?: string;
         birthDate?: string;
         phone?: string;
+        address?: string;
         displayNickname?: string;
         email?: string;
     }) =>
@@ -72,6 +73,7 @@ export const authAPI = {
                 name: body.name || null,
                 birthDate: body.birthDate || null,
                 phone: body.phone || null,
+                address: body.address || null,
                 displayNickname: body.displayNickname || null,
                 email: body.email || null,
             }),

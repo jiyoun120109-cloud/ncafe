@@ -108,6 +108,11 @@
   margin: 0 auto;
 }
 
+/* 주문하기 페이지 등 2열 레이아웃용 */
+.containerWide {
+  max-width: 960px;
+}
+
 @media (max-width: 640px) {
   .root {
     padding-top: 72px;

@@ -71,6 +71,7 @@ public class UserProfileController {
         body.put("email", m.getEmail());
         body.put("birthDate", m.getBirthDate() != null ? m.getBirthDate().toString() : null);
         body.put("phone", m.getPhone());
+        body.put("address", m.getAddress());
         body.put("displayNickname", m.getDisplayNickname());
         body.put("profileImageUrl", m.getProfileImageUrl());
         body.put("role", m.getRole());
@@ -139,6 +140,7 @@ public class UserProfileController {
             }
         }
         if (request.containsKey("phone")) m.setPhone(request.get("phone") != null ? request.get("phone").toString().trim() : null);
+        if (request.containsKey("address")) m.setAddress(request.get("address") != null ? request.get("address").toString().trim() : null);
         if (request.containsKey("displayNickname")) m.setDisplayNickname(request.get("displayNickname") != null ? request.get("displayNickname").toString().trim() : null);
 
         memberRepositoryPort.save(m);
@@ -149,6 +151,7 @@ public class UserProfileController {
         body.put("email", m.getEmail());
         body.put("birthDate", m.getBirthDate() != null ? m.getBirthDate().toString() : null);
         body.put("phone", m.getPhone());
+        body.put("address", m.getAddress());
         body.put("displayNickname", m.getDisplayNickname());
         body.put("profileImageUrl", m.getProfileImageUrl());
         body.put("role", m.getRole());

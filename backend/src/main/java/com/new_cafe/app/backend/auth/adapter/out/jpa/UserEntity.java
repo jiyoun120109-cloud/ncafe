@@ -46,6 +46,9 @@ public class UserEntity {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "address", length = 500)
+    private String address;
+
     /** 서비스에서 보여줄 닉네임 */
     @Column(name = "display_nickname", length = 100)
     private String displayNickname;

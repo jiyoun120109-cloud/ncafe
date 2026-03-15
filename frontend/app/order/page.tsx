@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { CreditCard, Minus, Plus, Trash2, LogIn, User, Receipt } from 'lucide-react';
+import { CreditCard, Minus, Plus, Trash2, LogIn, User, Receipt, ChevronDown, ChevronUp, Ticket } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuthStore } from '@/stores/authStore';
 import { createOrder, type OrderItemInput } from '@/services/orderService';
+import { getUserProfile, getUserCoupons, type UserProfileDto, type UserCouponDto } from '@/services/userService';
 import type { CartItemDto } from '@/services/cartService';
 import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import CartItemOptionModal from '@/app/cart/_components/CartItemOptionModal';
@@ -29,11 +30,40 @@ export default function OrderPage() {
   const router = useRouter();
   const { items, loading: cartLoading, updateQuantity, updateItemOptions, removeItem } = useCart();
   const { user, isAuthenticated } = useAuthStore();
+  const [profile, setProfile] = useState<UserProfileDto | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [coupons, setCoupons] = useState<UserCouponDto[]>([]);
   const [guestEmail, setGuestEmail] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
+  const [orderPhone, setOrderPhone] = useState('');
+  const [orderAddress, setOrderAddress] = useState('');
+  const [orderRequest, setOrderRequest] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<string>('CARD');
+  const [expandedProducts, setExpandedProducts] = useState(false);
+  const [expandedUser, setExpandedUser] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [optionModalItem, setOptionModalItem] = useState<CartItemDto | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setProfileLoading(true);
+    getUserProfile()
+      .then((p) => {
+        setProfile(p);
+        setOrderPhone(p.phone ?? '');
+        setOrderAddress(p.address ?? '');
+      })
+      .catch(() => setProfile(null))
+      .finally(() => setProfileLoading(false));
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    getUserCoupons()
+      .then((list) => setCoupons(list.filter((c) => !c.usedAt)))
+      .catch(() => setCoupons([]));
+  }, [isAuthenticated]);
 
   const totalPrice = items.reduce(
     (sum, it) => sum + (it.menuPrice + (it.optionExtraPrice ?? 0)) * it.quantity,
@@ -57,7 +87,7 @@ export default function OrderPage() {
       const payload = {
         userId: isAuthenticated && user ? parseInt(user.id, 10) : null,
         guestEmail: isAuthenticated ? null : guestEmail.trim(),
-        guestPhone: isAuthenticated ? null : guestPhone.trim(),
+        guestPhone: isAuthenticated ? null : (orderPhone.trim() || guestPhone.trim()),
         items: toOrderItems(items),
       };
       const result = await createOrder(payload);
@@ -93,8 +123,11 @@ export default function OrderPage() {
     );
   }
 
+  const displayName = profile?.displayNickname || profile?.name || user?.name || user?.username || '-';
+  const displayId = profile?.username || user?.username || '-';
+
   return (
-    <CheckoutLayout currentStep="order">
+    <CheckoutLayout currentStep="order" wide>
       {!isAuthenticated && (
         <div className={styles.loginBanner}>
           <LogIn size={18} />
@@ -104,83 +137,203 @@ export default function OrderPage() {
         </div>
       )}
 
-      {/* 주문 상품 — 장바구니처럼 이미지·옵션·수량·삭제·옵션변경 */}
-      <section className={styles.section} aria-labelledby="order-items-heading">
-        <h2 id="order-items-heading" className={styles.sectionTitle}>
-          <Receipt size={20} />
-          주문 상품
-        </h2>
-        <ul className={styles.itemList}>
-          {items.map((item) => {
-            const unitPrice = item.menuPrice + (item.optionExtraPrice ?? 0);
-            const lineTotal = unitPrice * item.quantity;
-            const soldOut = Boolean(item.isSoldOut);
-            const detailHref = `/menus/${item.menuId}`;
-            return (
-              <li key={item.id} className={`${styles.item} ${soldOut ? styles.itemSoldOut : ''}`}>
-                <Link href={detailHref} className={styles.itemThumb} aria-label={`${item.menuKorName} 상세`}>
-                  {/* 이미지 URL: CartItemDto.menuImageUrl (cartService.ts) */}
-                  <Image
-                    src={menuImageUrl(item.menuImageUrl)}
-                    alt={item.menuKorName}
-                    width={72}
-                    height={72}
-                    className={styles.itemImage}
-                  />
-                </Link>
-                <div className={styles.itemBody}>
-                  <div className={styles.itemTop}>
-                    <Link href={detailHref} className={styles.itemName}>{item.menuKorName}</Link>
-                    {!soldOut && (
-                      <button
-                        type="button"
-                        className={styles.removeBtn}
-                        aria-label="삭제"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
+      <div className={styles.grid}>
+        <div className={styles.leftCol}>
+          {/* 상품내역 카드 — 접었다 펼치기 */}
+          <div className={styles.card}>
+            <button
+              type="button"
+              className={styles.cardHeader}
+              onClick={() => setExpandedProducts((v) => !v)}
+              aria-expanded={expandedProducts}
+            >
+              <h2 className={styles.cardTitle}>
+                <Receipt size={20} />
+                상품내역
+              </h2>
+              <span className={styles.cardSummary}>{items.length}개 상품 · {totalPrice.toLocaleString()}원</span>
+              {expandedProducts ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            <div className={`${styles.cardBody} ${expandedProducts ? styles.cardBodyOpen : ''}`}>
+              <ul className={styles.itemList}>
+                {items.map((item) => {
+                  const unitPrice = item.menuPrice + (item.optionExtraPrice ?? 0);
+                  const lineTotal = unitPrice * item.quantity;
+                  const soldOut = Boolean(item.isSoldOut);
+                  const detailHref = `/menus/${item.menuId}`;
+                  return (
+                    <li key={item.id} className={`${styles.item} ${soldOut ? styles.itemSoldOut : ''}`}>
+                      <Link href={detailHref} className={styles.itemThumb} aria-label={`${item.menuKorName} 상세`}>
+                        <Image
+                          src={menuImageUrl(item.menuImageUrl)}
+                          alt={item.menuKorName}
+                          width={72}
+                          height={72}
+                          className={styles.itemImage}
+                        />
+                      </Link>
+                      <div className={styles.itemBody}>
+                        <div className={styles.itemTop}>
+                          <Link href={detailHref} className={styles.itemName}>{item.menuKorName}</Link>
+                          {!soldOut && (
+                            <button type="button" className={styles.removeBtn} aria-label="삭제" onClick={() => removeItem(item.id)}>
+                              <Trash2 size={18} />
+                            </button>
+                          )}
+                        </div>
+                        {item.optionsDisplay && <p className={styles.itemOptions}>{item.optionsDisplay}</p>}
+                        {!soldOut && (
+                          <button type="button" className={styles.optionChangeBtn} onClick={() => setOptionModalItem(item)}>
+                            옵션변경
+                          </button>
+                        )}
+                        <div className={styles.itemPriceRow}>
+                          <span className={styles.unitPrice}>{unitPrice.toLocaleString()}원</span>
+                          <div className={styles.quantity}>
+                            <button type="button" aria-label="수량 줄이기" disabled={soldOut} onClick={() => !soldOut && updateQuantity(item.id, Math.max(1, item.quantity - 1))}>
+                              <Minus size={14} />
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button type="button" aria-label="수량 늘리기" disabled={soldOut} onClick={() => !soldOut && updateQuantity(item.id, item.quantity + 1)}>
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                          <span className={styles.itemSubtotal}>{lineTotal.toLocaleString()}원</span>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
+          {/* 사용자정보 카드 — 접었다 펼치기 */}
+          <div className={styles.card}>
+            <button
+              type="button"
+              className={styles.cardHeader}
+              onClick={() => setExpandedUser((v) => !v)}
+              aria-expanded={expandedUser}
+            >
+              <h2 className={styles.cardTitle}>
+                <User size={20} />
+                사용자 정보
+              </h2>
+              <span className={styles.cardSummary}>
+                {isAuthenticated && profile ? `${displayName} · ${orderPhone || '-'}` : '비회원 주문'}
+              </span>
+              {expandedUser ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            <div className={`${styles.cardBody} ${expandedUser ? styles.cardBodyOpen : ''}`}>
+              {profileLoading ? (
+                <p className={styles.muted}>불러오는 중...</p>
+              ) : isAuthenticated && profile ? (
+                <div className={styles.userFields}>
+                  <div className={styles.fieldRow}>
+                    <span className={styles.fieldLabel}>이름</span>
+                    <span className={styles.fieldValue}>{profile.name || '-'}</span>
                   </div>
-                  {item.optionsDisplay && <p className={styles.itemOptions}>{item.optionsDisplay}</p>}
-                  {!soldOut && (
-                    <button
-                      type="button"
-                      className={styles.optionChangeBtn}
-                      onClick={() => setOptionModalItem(item)}
-                    >
-                      옵션변경
-                    </button>
-                  )}
-                  <div className={styles.itemPriceRow}>
-                    <span className={styles.unitPrice}>{unitPrice.toLocaleString()}원</span>
-                    <div className={styles.quantity}>
-                      <button
-                        type="button"
-                        aria-label="수량 줄이기"
-                        disabled={soldOut}
-                        onClick={() => !soldOut && updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                      >
-                        <Minus size={14} />
-                      </button>
-                      <span>{item.quantity}</span>
-                      <button
-                        type="button"
-                        aria-label="수량 늘리기"
-                        disabled={soldOut}
-                        onClick={() => !soldOut && updateQuantity(item.id, item.quantity + 1)}
-                      >
-                        <Plus size={14} />
-                      </button>
-                    </div>
-                    <span className={styles.itemSubtotal}>{lineTotal.toLocaleString()}원</span>
+                  <div className={styles.fieldRow}>
+                    <span className={styles.fieldLabel}>닉네임</span>
+                    <span className={styles.fieldValue}>{profile.displayNickname || '-'}</span>
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <span className={styles.fieldLabel}>아이디</span>
+                    <span className={styles.fieldValue}>{profile.username}</span>
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel} htmlFor="order-phone">핸드폰 번호</label>
+                    <input
+                      id="order-phone"
+                      type="tel"
+                      className={styles.input}
+                      value={orderPhone}
+                      onChange={(e) => setOrderPhone(e.target.value)}
+                      placeholder="010-0000-0000"
+                    />
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel} htmlFor="order-address">주소</label>
+                    <input
+                      id="order-address"
+                      type="text"
+                      className={styles.input}
+                      value={orderAddress}
+                      onChange={(e) => setOrderAddress(e.target.value)}
+                      placeholder="주소 입력"
+                    />
+                  </div>
+                  <div className={styles.fieldRow}>
+                    <label className={styles.fieldLabel} htmlFor="order-request">요청사항</label>
+                    <input
+                      id="order-request"
+                      type="text"
+                      className={styles.input}
+                      value={orderRequest}
+                      onChange={(e) => setOrderRequest(e.target.value)}
+                      placeholder="배달 시 요청사항 (선택)"
+                    />
                   </div>
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+              ) : (
+                <form id="guest-form" className={styles.guestForm} onSubmit={(e) => e.preventDefault()}>
+                  <label className={styles.field}>
+                    <span className={styles.label}>이메일</span>
+                    <input type="email" value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} placeholder="order@example.com" required className={styles.input} />
+                  </label>
+                  <label className={styles.field}>
+                    <span className={styles.label}>연락처</span>
+                    <input type="tel" value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} placeholder="010-0000-0000" required className={styles.input} />
+                  </label>
+                  <label className={styles.field}>
+                    <span className={styles.label}>요청사항</span>
+                    <input type="text" value={orderRequest} onChange={(e) => setOrderRequest(e.target.value)} placeholder="배달 시 요청사항 (선택)" className={styles.input} />
+                  </label>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.rightCol}>
+          <div className={styles.cardPayment}>
+            <h2 className={styles.cardTitle}>
+              <CreditCard size={20} />
+              결제방법
+            </h2>
+            <div className={styles.paymentBody}>
+              <div className={styles.fieldRow}>
+                <span className={styles.fieldLabel}>결제 수단</span>
+                <select className={styles.select} value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                  <option value="CARD">카드 (토스페이)</option>
+                  <option value="KAKAOPAY">카카오페이</option>
+                </select>
+              </div>
+              {isAuthenticated && (
+                <div className={styles.couponBlock}>
+                  <h3 className={styles.couponTitle}>
+                    <Ticket size={18} />
+                    쿠폰
+                  </h3>
+                  <p className={styles.couponDesc}>사용 가능한 쿠폰: <strong>{coupons.length}개</strong></p>
+                  <p className={styles.couponNote}>결제 단계에서 적용할 쿠폰을 선택할 수 있습니다.</p>
+                </div>
+              )}
+              <div className={styles.summaryBlock}>
+                <div className={styles.summaryRow}>
+                  <span>상품 합계</span>
+                  <span>{totalPrice.toLocaleString()}원</span>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>총 결제 금액</span>
+                  <span className={styles.totalAmount}>{totalPrice.toLocaleString()}원</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <CartItemOptionModal
         open={!!optionModalItem}
@@ -191,64 +344,11 @@ export default function OrderPage() {
         }}
       />
 
-      {/* 주문자 정보 */}
-      <section className={styles.section} aria-labelledby="orderer-heading">
-        <h2 id="orderer-heading" className={styles.sectionTitle}>
-          <User size={20} />
-          주문자 정보
-        </h2>
-        {isAuthenticated && user ? (
-          <div className={styles.memberInfo}>
-            <p><strong>{user.name || user.username}</strong>님으로 주문됩니다.</p>
-          </div>
-        ) : (
-          <form id="guest-form" className={styles.guestForm} onSubmit={(e) => e.preventDefault()}>
-            <label className={styles.field}>
-              <span className={styles.label}>이메일</span>
-              <input
-                type="email"
-                value={guestEmail}
-                onChange={(e) => setGuestEmail(e.target.value)}
-                placeholder="order@example.com"
-                required
-                className={styles.input}
-              />
-            </label>
-            <label className={styles.field}>
-              <span className={styles.label}>연락처</span>
-              <input
-                type="tel"
-                value={guestPhone}
-                onChange={(e) => setGuestPhone(e.target.value)}
-                placeholder="010-0000-0000"
-                required
-                className={styles.input}
-              />
-            </label>
-          </form>
-        )}
-      </section>
-
-      {/* 결제 금액 */}
-      <section className={styles.section} aria-labelledby="payment-summary-heading">
-        <h2 id="payment-summary-heading" className={styles.sectionTitle}>결제 금액</h2>
-        <div className={styles.summaryRows}>
-          <div className={styles.summaryRow}>
-            <span>총 수량</span>
-            <span>{totalQuantity}개</span>
-          </div>
-          <div className={styles.summaryRow}>
-            <span>총 결제 금액</span>
-            <span className={styles.totalAmount}>{totalPrice.toLocaleString()}원</span>
-          </div>
-        </div>
-      </section>
-
       <form onSubmit={handleSubmit} className={styles.submitForm}>
         {error && <p className={styles.error} role="alert">{error}</p>}
         <button type="submit" className={styles.submitBtn} disabled={submitting}>
           <CreditCard size={20} />
-          {submitting ? '처리 중...' : `${totalPrice.toLocaleString()}원 결제하기`}
+          {submitting ? '처리 중...' : `${totalPrice.toLocaleString()}원 주문하기`}
         </button>
       </form>
     </CheckoutLayout>

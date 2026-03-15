@@ -6,6 +6,7 @@ export interface UserProfileDto {
   email: string | null;
   birthDate: string | null;
   phone: string | null;
+  address: string | null;
   displayNickname: string | null;
   profileImageUrl: string | null;
   role: string;
@@ -23,6 +24,7 @@ export interface UpdateProfileParams {
   email?: string;
   birthDate?: string | null;
   phone?: string;
+  address?: string | null;
   displayNickname?: string;
 }
 

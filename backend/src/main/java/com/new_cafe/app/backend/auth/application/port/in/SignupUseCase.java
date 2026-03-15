@@ -16,6 +16,7 @@ public interface SignupUseCase {
         String name,
         java.time.LocalDate birthDate,
         String phone,
+        String address,
         String displayNickname,
         String email
     ) {}

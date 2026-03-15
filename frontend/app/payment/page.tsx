@@ -184,7 +184,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
             <p className={styles.orderNumber}>주문 번호 <strong>{orderId}</strong></p>
           )}
           <div className={styles.completeActions}>
-            <Link href="/user" className={styles.primaryBtn}>
+            <Link href="/user?tab=orders" className={styles.primaryBtn}>
               주문 내역 보기
             </Link>
             <Link href="/menus" className={styles.secondaryBtn}>

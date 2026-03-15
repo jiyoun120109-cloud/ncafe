@@ -38,6 +38,7 @@ export interface SignupParams {
     name?: string;
     birthDate?: string;
     phone?: string;
+    address?: string;
     displayNickname?: string;
     email?: string;
 }

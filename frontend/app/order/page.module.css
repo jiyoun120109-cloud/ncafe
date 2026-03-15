@@ -1,8 +1,7 @@
 /* ================================================================
-   Order Page — NCafe 컨셉 (따뜻한 커피 톤, 세리프 타이틀)
+   Order Page — 3카드 레이아웃 (상품내역 | 사용자정보 | 결제방법)
    ================================================================ */
 
-/* Loading */
 .loadingWrap {
   text-align: center;
   padding: 4rem 1rem;
@@ -28,7 +27,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Empty state */
 .emptyCard {
   background: #fff;
   border-radius: var(--radius-lg, 12px);
@@ -82,7 +80,6 @@
   color: var(--color-primary-600);
 }
 
-/* Login banner */
 .loginBanner {
   display: flex;
   align-items: center;
@@ -106,36 +103,102 @@
   color: var(--color-primary-700);
 }
 
-/* Sections */
-.section {
-  background: #fff;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: var(--shadow-sm);
+/* 2열 그리드 */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
 }
 
-.sectionTitle {
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 카드 공통 */
+.card {
+  background: #fff;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+  overflow: hidden;
+}
+
+.cardHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+
+.cardHeader:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.cardTitle {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-gray-800);
-  margin: 0 0 1rem;
+  margin: 0;
 }
 
-.sectionTitle svg {
+.cardTitle svg {
   color: var(--color-primary-600);
   flex-shrink: 0;
 }
 
-/* Order items list — 장바구니 스타일 (이미지·옵션·수량·삭제) */
+.cardSummary {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  flex: 1;
+  text-align: right;
+}
+
+.cardBody {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out;
+}
+
+.cardBodyOpen {
+  max-height: 1200px;
+  transition: max-height 0.4s ease-in;
+}
+
+.cardBody > * {
+  padding: 0 1.25rem 1.25rem;
+}
+
+/* 상품 리스트 (카드 내부) */
 .itemList {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 1.25rem 1.25rem;
 }
 
 .item {
@@ -154,7 +217,7 @@
   flex-shrink: 0;
   width: 72px;
   height: 72px;
-  border-radius: 50%;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--color-gray-100);
   display: block;
@@ -299,38 +362,34 @@
   background: var(--color-error-light);
 }
 
-/* Member info */
-.memberInfo {
-  font-size: var(--text-sm);
-  color: var(--color-gray-700);
-}
-
-.memberInfo strong {
-  color: var(--color-gray-900);
-}
-
-/* Guest form */
-.guestForm {
+/* 사용자 정보 필드 */
+.userFields {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  padding: 0 1.25rem 1.25rem;
 }
 
-.field {
+.fieldRow {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
 
-.label {
-  font-size: var(--text-sm);
+.fieldLabel {
+  font-size: 0.8rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-gray-600);
+}
+
+.fieldValue {
+  font-size: 0.95rem;
+  color: var(--color-gray-900);
 }
 
 .input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.85rem;
   font-size: var(--text-base);
   border: 1px solid var(--color-gray-200);
   border-radius: var(--radius-md);
@@ -350,11 +409,100 @@
   box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.15);
 }
 
-/* Summary */
-.summaryRows {
+.muted {
+  font-size: 0.9rem;
+  color: var(--color-gray-500);
+  margin: 0;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.guestForm {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  padding: 0 1.25rem 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+/* 결제 카드 (오른쪽) */
+.cardPayment {
+  background: #fff;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+  padding: 1.25rem 1.5rem;
+  position: sticky;
+  top: 6rem;
+}
+
+.cardPayment .cardTitle {
+  margin-bottom: 1rem;
+}
+
+.paymentBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.select {
+  padding: 0.6rem 0.85rem;
+  font-size: var(--text-base);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  background: #fff;
+  color: var(--color-gray-900);
+  cursor: pointer;
+  width: 100%;
+  max-width: 240px;
+}
+
+.couponBlock {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.couponTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin: 0 0 0.5rem;
+}
+
+.couponTitle svg {
+  color: var(--color-primary-600);
+}
+
+.couponDesc {
+  font-size: 0.9rem;
+  color: var(--color-gray-600);
+  margin: 0 0 0.25rem;
+}
+
+.couponNote {
+  font-size: 0.8rem;
+  color: var(--color-gray-500);
+  margin: 0;
+}
+
+.summaryBlock {
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: 0.25rem;
 }
 
 .summaryRow {
@@ -363,6 +511,11 @@
   align-items: center;
   font-size: var(--text-sm);
   color: var(--color-gray-700);
+  margin-bottom: 0.35rem;
+}
+
+.summaryRow:last-child {
+  margin-bottom: 0;
 }
 
 .totalAmount {
@@ -371,9 +524,10 @@
   color: var(--color-gray-900);
 }
 
-/* Submit form */
+/* 주문하기 버튼 */
 .submitForm {
   margin-top: 1.5rem;
+  grid-column: 1 / -1;
 }
 
 .error {
@@ -413,11 +567,13 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 640px) {
-  .section {
-    padding: 1rem 1.25rem;
+@media (max-width: 768px) {
+  .cardPayment {
+    position: static;
   }
+}
 
+@media (max-width: 640px) {
   .submitBtn {
     min-height: 48px;
   }

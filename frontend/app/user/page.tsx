@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { User, Package, Ticket, ChevronRight, Pencil, X, Heart, MessageCircle, Bell, Trash2 } from 'lucide-react';
+import { User, Package, Ticket, ChevronRight, ChevronLeft, Pencil, X, Heart, MessageCircle, Bell, Trash2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { getMyOrders } from '@/services/orderService';
 import {
@@ -35,6 +35,42 @@ function getInitialTab(searchParams: ReturnType<typeof useSearchParams>): Tab | 
   return tabParam && TAB_IDS.includes(tabParam as Tab) ? (tabParam as Tab) : null;
 }
 
+type OrderStatusFilter = 'all' | 'PAID' | 'CANCELLED';
+const ORDER_ITEMS_PER_PAGE = 5;
+
+function getOrderStatusLabel(status: string): string {
+  switch (status) {
+    case 'PENDING': return '대기 중';
+    case 'PAID': return '결제완료';
+    case 'CANCELLED': return '취소됨';
+    default: return status;
+  }
+}
+
+function getOrderStatusClass(status: string, styles: { [k: string]: string }): string {
+  switch (status) {
+    case 'PENDING': return styles.orderTabStatusPending;
+    case 'PAID': return styles.orderTabStatusPaid;
+    case 'CANCELLED': return styles.orderTabStatusCancelled;
+    default: return styles.orderTabStatusDefault;
+  }
+}
+
+function formatOrderDate(createdAt: string): string {
+  try {
+    const d = new Date(createdAt);
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return createdAt?.slice(0, 10) ?? '-';
+  }
+}
+
+function getOrderMonthRange(monthsBack: number): { from: string; to: string } {
+  const to = new Date();
+  const from = new Date(to.getFullYear(), to.getMonth() - monthsBack, 1);
+  return { from: from.toISOString().slice(0, 10), to: to.toISOString().slice(0, 10) };
+}
+
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -48,7 +84,7 @@ function UserPageContent() {
   const [profileError, setProfileError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', birthDate: '', phone: '', displayNickname: '' });
+  const [form, setForm] = useState({ name: '', email: '', birthDate: '', phone: '', address: '', displayNickname: '' });
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<FavoriteDto[]>([]);
@@ -69,6 +105,10 @@ function UserPageContent() {
   const [couponCode, setCouponCode] = useState('');
   const [couponRedeemMessage, setCouponRedeemMessage] = useState<string | null>(null);
   const [couponRedeeming, setCouponRedeeming] = useState(false);
+  const [orderFilter, setOrderFilter] = useState<OrderStatusFilter>('all');
+  const [orderDateRange, setOrderDateRange] = useState(() => getOrderMonthRange(1));
+  const [orderSortRecent, setOrderSortRecent] = useState(true);
+  const [orderPage, setOrderPage] = useState(1);
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -179,6 +219,7 @@ function UserPageContent() {
             email: p.email ?? '',
             birthDate: p.birthDate ?? '',
             phone: p.phone ?? '',
+            address: p.address ?? '',
             displayNickname: p.displayNickname ?? '',
           });
         })
@@ -197,6 +238,7 @@ function UserPageContent() {
         email: form.email.trim() || undefined,
         birthDate: form.birthDate.trim() || null,
         phone: form.phone.trim() || undefined,
+        address: form.address.trim() || null,
         displayNickname: form.displayNickname.trim() || undefined,
       });
       setProfile(updated);
@@ -277,6 +319,39 @@ function UserPageContent() {
     }
   };
 
+  const orderFiltered = useMemo(() => {
+    let list = [...orders];
+    if (orderFilter === 'PAID') list = list.filter((o) => o.status === 'PAID');
+    else if (orderFilter === 'CANCELLED') list = list.filter((o) => o.status === 'CANCELLED');
+    try {
+      const from = new Date(orderDateRange.from).getTime();
+      const to = new Date(orderDateRange.to).getTime() + 86400000;
+      list = list.filter((o) => {
+        const t = new Date(o.createdAt).getTime();
+        return t >= from && t < to;
+      });
+    } catch {
+      /* ignore */
+    }
+    list.sort((a, b) => {
+      const ta = new Date(a.createdAt).getTime();
+      const tb = new Date(b.createdAt).getTime();
+      return orderSortRecent ? tb - ta : ta - tb;
+    });
+    return list;
+  }, [orders, orderFilter, orderDateRange, orderSortRecent]);
+
+  const orderTotalPages = Math.max(1, Math.ceil(orderFiltered.length / ORDER_ITEMS_PER_PAGE));
+  const orderCurrentPage = Math.min(orderPage, orderTotalPages);
+  const orderSlice = useMemo(
+    () => orderFiltered.slice((orderCurrentPage - 1) * ORDER_ITEMS_PER_PAGE, orderCurrentPage * ORDER_ITEMS_PER_PAGE),
+    [orderFiltered, orderCurrentPage]
+  );
+
+  const orderCountAll = orders.length;
+  const orderCountPaid = orders.filter((o) => o.status === 'PAID').length;
+  const orderCountCancelled = orders.filter((o) => o.status === 'CANCELLED').length;
+
   const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
 
   return (
@@ -317,9 +392,8 @@ function UserPageContent() {
         <div className={`${styles.content} ${styles.dashboardPanel}`}>
           {tab === 'profile' && (
             <section className={`${styles.profileSection} ${styles.dashboardSection}`}>
-              <div className={styles.sectionHeader}>
-              <div className={styles.profileHeader}>
-                <h2 className={styles.sectionTitle}>프로필</h2>
+              <div className={styles.profileSectionHeader}>
+                <h2 className={styles.profileSectionTitle}>프로필</h2>
                 {profile && !editing && (
                   <button type="button" className={styles.editBtn} onClick={() => setEditing(true)}>
                     <Pencil size={16} /> 수정
@@ -330,7 +404,6 @@ function UserPageContent() {
                     <X size={16} /> 취소
                   </button>
                 )}
-              </div>
               </div>
               {profileError && <p className={styles.profileError}>{profileError}</p>}
               {profileLoading ? (
@@ -361,10 +434,10 @@ function UserPageContent() {
                         </label>
                       )}
                     </div>
-                    <p className={styles.profileName}>
+                    <p className={styles.profileNickname}>
                       {profile.displayNickname || profile.name || profile.username}
                     </p>
-                    <p className={styles.profileUsername}>@{profile.username}</p>
+                    <p className={styles.profileUsername}>{profile.username}</p>
                   </div>
                   {editing ? (
                     <form
@@ -428,6 +501,16 @@ function UserPageContent() {
                         />
                       </div>
                       <div className={styles.formRow}>
+                        <label htmlFor="profile-address">주소</label>
+                        <input
+                          id="profile-address"
+                          type="text"
+                          value={form.address}
+                          onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                          placeholder="주소 입력"
+                        />
+                      </div>
+                      <div className={styles.formRow}>
                         <label>권한</label>
                         <span className={styles.readOnly}>{profile.role}</span>
                       </div>
@@ -442,8 +525,9 @@ function UserPageContent() {
                       <li><span>닉네임</span><span>{profile.displayNickname || '-'}</span></li>
                       <li><span>이메일</span><span>{profile.email || '-'}</span></li>
                       <li><span>생년월일</span><span>{profile.birthDate || '-'}</span></li>
-                      <li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
-                      <li><span>권한</span><span>{profile.role}</span></li>
+<li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
+                    <li><span>주소</span><span>{profile.address || '-'}</span></li>
+                    <li><span>권한</span><span>{profile.role}</span></li>
                     </ul>
                   )}
                 </>
@@ -457,27 +541,121 @@ function UserPageContent() {
                 <h2 className={styles.sectionTitle}>주문 내역</h2>
                 <span className={styles.sectionCount}>총 {orders.length}건</span>
               </div>
+              <div className={styles.orderTabToolbar}>
+                <div className={styles.orderTabFilters}>
+                  <button
+                    type="button"
+                    className={orderFilter === 'all' ? styles.orderTabFilterActive : styles.orderTabFilterBtn}
+                    onClick={() => { setOrderFilter('all'); setOrderPage(1); }}
+                  >
+                    전체 ({orderCountAll})
+                  </button>
+                  <button
+                    type="button"
+                    className={orderFilter === 'PAID' ? styles.orderTabFilterActive : styles.orderTabFilterBtn}
+                    onClick={() => { setOrderFilter('PAID'); setOrderPage(1); }}
+                  >
+                    결제완료 ({orderCountPaid})
+                  </button>
+                  <button
+                    type="button"
+                    className={orderFilter === 'CANCELLED' ? styles.orderTabFilterActive : styles.orderTabFilterBtn}
+                    onClick={() => { setOrderFilter('CANCELLED'); setOrderPage(1); }}
+                  >
+                    취소된 주문 ({orderCountCancelled})
+                  </button>
+                </div>
+                <div className={styles.orderTabControls}>
+                  <div className={styles.orderTabDateRangeWrap}>
+                    <input
+                      type="date"
+                      className={styles.orderTabDateInput}
+                      value={orderDateRange.from}
+                      onChange={(e) => { setOrderDateRange((r) => ({ ...r, from: e.target.value })); setOrderPage(1); }}
+                      aria-label="시작일"
+                    />
+                    <span className={styles.orderTabDateRangeSep}>~</span>
+                    <input
+                      type="date"
+                      className={styles.orderTabDateInput}
+                      value={orderDateRange.to}
+                      onChange={(e) => { setOrderDateRange((r) => ({ ...r, to: e.target.value })); setOrderPage(1); }}
+                      aria-label="종료일"
+                    />
+                  </div>
+                  <select
+                    className={styles.orderTabSortSelect}
+                    value={orderSortRecent ? 'recent' : 'old'}
+                    onChange={(e) => { setOrderSortRecent(e.target.value === 'recent'); setOrderPage(1); }}
+                  >
+                    <option value="recent">최근 주문 순</option>
+                    <option value="old">과거 주문 순</option>
+                  </select>
+                </div>
+              </div>
               <div className={styles.sectionListBlock}>
-              {orders.length === 0 ? (
-                <p className={styles.empty}>주문 내역이 없습니다.</p>
-              ) : (
-                <>
-                  <ul className={styles.orderList}>
-                    {orders.slice(0, 3).map((o) => (
-                      <li key={o.id}>
-                        <Link href={`/user/orders/${o.id}`} className={styles.orderItem}>
-                          <span>주문 #{o.id} · {o.totalAmount.toLocaleString()}원</span>
-                          <span className={styles.orderStatus}>{o.status}</span>
+                {orderSlice.length === 0 ? (
+                  <p className={styles.empty}>주문 내역이 없습니다.</p>
+                ) : (
+                  <>
+                    <ul className={styles.orderTabCardList}>
+                      {orderSlice.map((o) => (
+                        <li key={o.id} className={styles.orderTabCard}>
+                          <div className={styles.orderTabCardRow}>
+                            <span className={styles.orderTabOrderNumber}>
+                              주문번호: {o.orderNumber ?? `ORD-${o.id}`}
+                            </span>
+                            <span className={`${styles.orderTabStatusTag} ${getOrderStatusClass(o.status, styles)}`}>
+                              {getOrderStatusLabel(o.status)}
+                            </span>
+                          </div>
+                          <p className={styles.orderTabOrderDate}>주문일자: {formatOrderDate(o.createdAt)}</p>
+                          <div className={styles.orderTabCardFooter}>
+                            <span className={styles.orderTabTotalAmount}>
+                              총 금액: ₩{(o.totalPrice ?? o.totalAmount)?.toLocaleString() ?? '0'}
+                            </span>
+                            <Link href={`/user/orders/${o.id}`} className={styles.orderTabDetailBtn}>
+                              주문 상세보기
+                            </Link>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    {orderTotalPages > 1 && (
+                      <nav className={styles.orderTabPagination} aria-label="주문 목록 페이지">
+                        <button
+                          type="button"
+                          className={styles.orderTabPageBtn}
+                          disabled={orderCurrentPage <= 1}
+                          onClick={() => setOrderPage((p) => Math.max(1, p - 1))}
+                        >
+                          <ChevronLeft size={18} />
+                        </button>
+                        {Array.from({ length: orderTotalPages }, (_, i) => i + 1).map((n) => (
+                          <button
+                            key={n}
+                            type="button"
+                            className={n === orderCurrentPage ? styles.orderTabPageBtnActive : styles.orderTabPageBtn}
+                            onClick={() => setOrderPage(n)}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          className={styles.orderTabPageBtn}
+                          disabled={orderCurrentPage >= orderTotalPages}
+                          onClick={() => setOrderPage((p) => Math.min(orderTotalPages, p + 1))}
+                        >
                           <ChevronRight size={18} />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className={styles.orderListMore}>
-                    <Link href="/user/orders" className={styles.orderListLink}>전체 주문 내역 보기 ({orders.length}건)</Link>
-                  </p>
-                </>
-              )}
+                        </button>
+                      </nav>
+                    )}
+                    <p className={styles.orderListMore}>
+                      <Link href="/user?tab=orders" className={styles.orderListLink}>전체 주문 내역 보기 ({orders.length}건)</Link>
+                    </p>
+                  </>
+                )}
               </div>
             </section>
           )}

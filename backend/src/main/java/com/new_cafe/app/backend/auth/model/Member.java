@@ -25,6 +25,7 @@ public class Member {
     private String email;
     private LocalDate birthDate;  // 생년월일
     private String phone;         // 핸드폰 번호
+    private String address;        // 주소
     private String displayNickname; // 서비스 표시 닉네임
     private String profileImageUrl; // 프로필 이미지 경로 (예: avatars/17.jpg)
     private String role;          // ADMIN, USER, SUPER_ADMIN, CONTENT_ADMIN, SUPPORT_ADMIN 등

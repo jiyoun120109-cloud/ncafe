@@ -84,6 +84,7 @@ public class AuthController {
                 request.getName(),
                 request.getBirthDate(),
                 request.getPhone(),
+                request.getAddress(),
                 request.getDisplayNickname(),
                 request.getEmail()
             )

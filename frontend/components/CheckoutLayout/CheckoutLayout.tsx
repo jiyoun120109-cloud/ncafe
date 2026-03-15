@@ -15,9 +15,11 @@ const STEPS: { key: CheckoutStep; label: string; href: string; icon: React.React
 interface CheckoutLayoutProps {
   currentStep: CheckoutStep;
   children: React.ReactNode;
+  /** 주문하기 페이지 등 넓은 2열 레이아웃 시 true */
+  wide?: boolean;
 }
 
-export default function CheckoutLayout({ currentStep, children }: CheckoutLayoutProps) {
+export default function CheckoutLayout({ currentStep, children, wide }: CheckoutLayoutProps) {
   return (
     <div className={styles.root}>
       <div className={styles.hero}>
@@ -65,7 +67,7 @@ export default function CheckoutLayout({ currentStep, children }: CheckoutLayout
         </div>
       </div>
       <main className={styles.main}>
-        <div className={styles.container}>{children}</div>
+        <div className={wide ? styles.containerWide : styles.container}>{children}</div>
       </main>
     </div>
   );

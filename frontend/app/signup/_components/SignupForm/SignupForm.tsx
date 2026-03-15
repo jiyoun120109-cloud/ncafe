@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar, X } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar, MapPin, X } from 'lucide-react';
 import { signupApi, checkUsernameApi } from '@/services/authService';
 import styles from './SignupForm.module.css';
 
@@ -67,6 +67,7 @@ interface SignupFormValues {
     name: string;
     birthDate: string;
     phone: string;
+    address: string;
     displayNickname: string;
     email: string;
 }
@@ -159,6 +160,7 @@ export default function SignupForm({ onError }: SignupFormProps) {
                 name: data.name.trim() || undefined,
                 birthDate: birthDateVal.length === 8 ? `${birthDateVal.slice(0, 4)}-${birthDateVal.slice(4, 6)}-${birthDateVal.slice(6, 8)}` : undefined,
                 phone: phoneVal || undefined,
+                address: (data.address || '').trim() || undefined,
                 displayNickname: (data.displayNickname || '').trim() || undefined,
                 email: data.email?.trim() || undefined,
             });
@@ -396,6 +398,26 @@ export default function SignupForm({ onError }: SignupFormProps) {
                     </div>
                     {errors.phone && (
                         <span className={styles.fieldError}>{errors.phone.message}</span>
+                    )}
+                </div>
+
+                <div className={styles.fieldGroup}>
+                    <label htmlFor="address" className={styles.label}>
+                        주소 <span className={styles.optional}>(선택)</span>
+                    </label>
+                    <div className={styles.inputWrapper}>
+                        <MapPin className={styles.inputIcon} />
+                        <input
+                            id="address"
+                            type="text"
+                            className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
+                            placeholder="예: 서울시 강남구 테헤란로 123"
+                            autoComplete="street-address"
+                            {...register('address')}
+                        />
+                    </div>
+                    {errors.address && (
+                        <span className={styles.fieldError}>{errors.address.message}</span>
                     )}
                 </div>
 

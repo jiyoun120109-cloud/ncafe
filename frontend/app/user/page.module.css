@@ -345,9 +345,32 @@
 }
 
 .profileSection {
-  max-width: 100%;
+  max-width: 480px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.profileSectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.profileSectionTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.profileSectionHeader .editBtn,
+.profileSectionHeader .cancelBtn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .profileSection .profileHeader {
@@ -429,18 +452,17 @@
   transform: scale(1.02);
 }
 
-.profileName {
-  font-size: 1.2rem;
+.profileNickname {
+  font-size: 1.25rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 0.2rem;
-  letter-spacing: -0.02em;
+  margin: 0.25rem 0 0 0;
 }
 
 .profileUsername {
-  font-size: 0.9rem;
-  color: rgba(0, 0, 0, 0.45);
-  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0.15rem 0 0 0;
 }
 
 /* 섹션 제목 + 목록 구분 */
@@ -657,6 +679,225 @@
 
 .orderListLink:hover {
   text-decoration: underline;
+}
+
+/* 주문 내역 탭: 툴바 · 카드 · 페이지네이션 */
+.orderTabToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.orderTabFilters {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.orderTabFilterBtn,
+.orderTabFilterActive {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 90, 43, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.65);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.orderTabFilterBtn:hover {
+  background: rgba(139, 90, 43, 0.06);
+  color: #1a1a1a;
+}
+
+.orderTabFilterActive {
+  background: rgba(139, 90, 43, 0.12);
+  color: #5c3d1a;
+  border-color: rgba(139, 90, 43, 0.25);
+  font-weight: 600;
+}
+
+.orderTabControls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.orderTabDateLabel {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.orderTabDateRangeWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.orderTabDateInput {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(139, 90, 43, 0.2);
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.orderTabDateRangeSep {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.orderTabSortSelect {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(139, 90, 43, 0.2);
+  border-radius: 8px;
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.orderTabCardList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.orderTabCard {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(139, 90, 43, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.orderTabCardRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.orderTabOrderNumber {
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.orderTabOrderDate {
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 0 0 1rem 0;
+}
+
+.orderTabCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.orderTabTotalAmount {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.orderTabDetailBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.orderTabDetailBtn:hover {
+  background: rgba(139, 90, 43, 0.08);
+  border-color: rgba(139, 90, 43, 0.2);
+}
+
+.orderTabStatusTag {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+.orderTabStatusPending {
+  background: rgba(180, 140, 60, 0.18);
+  color: #6b5a2d;
+}
+
+.orderTabStatusPaid {
+  background: rgba(70, 120, 80, 0.15);
+  color: #2d4a32;
+}
+
+.orderTabStatusCancelled {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.orderTabStatusDefault {
+  background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a;
+}
+
+.orderTabPagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(139, 90, 43, 0.08);
+}
+
+.orderTabPageBtn,
+.orderTabPageBtnActive {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: #fff;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.orderTabPageBtn:hover:not(:disabled) {
+  background: rgba(139, 90, 43, 0.06);
+  border-color: rgba(139, 90, 43, 0.2);
+}
+
+.orderTabPageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.orderTabPageBtnActive {
+  background: rgba(139, 90, 43, 0.15);
+  color: #5c3d1a;
+  border-color: rgba(139, 90, 43, 0.3);
+  font-weight: 600;
 }
 
 .stampCard {

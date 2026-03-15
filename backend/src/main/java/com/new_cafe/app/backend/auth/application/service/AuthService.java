@@ -122,12 +122,14 @@ public class AuthService implements LoginUseCase, SignupUseCase {
             displayNickname = username;
         }
         String email = command.email() != null ? command.email().trim() : null;
+        String address = command.address() != null ? command.address().trim() : null;
         Member member = Member.builder()
             .username(username)
             .password(encodedPassword)
             .name(name != null && !name.isEmpty() ? name : username)
             .birthDate(command.birthDate())
             .phone(command.phone() != null ? command.phone().trim() : null)
+            .address(address != null && !address.isEmpty() ? address : null)
             .displayNickname(displayNickname)
             .email(email != null && !email.isEmpty() ? email : null)
             .role("USER")
