@@ -21,6 +21,8 @@ public class Order {
     private Integer totalAmount = 0;
     /** 결제 시 적용한 보유 쿠폰 ID (user_coupons.id) */
     private Long appliedUserCouponId;
+    /** 결제 준비 시 생성된 payments.id (배포 DB에 orders.payment_id NOT NULL이면 필수) */
+    private Long paymentId;
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
     private LocalDateTime createdAt;

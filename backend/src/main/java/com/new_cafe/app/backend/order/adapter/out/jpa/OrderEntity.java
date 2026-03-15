@@ -50,6 +50,10 @@ public class OrderEntity {
     @Column(name = "applied_user_coupon_id")
     private Long appliedUserCouponId;
 
+    /** 배포 DB에 payment_id 컬럼이 있는 경우. 주문 생성 시 null, 결제 준비(ready) 시 payments.id로 갱신 */
+    @Column(name = "payment_id")
+    private Long paymentId;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItemEntity> items = new ArrayList<>();

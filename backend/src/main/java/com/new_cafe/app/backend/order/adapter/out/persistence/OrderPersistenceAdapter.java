@@ -68,6 +68,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
             entity.setTotalAmount(amount);
             entity.setTotalPrice(amount);
             entity.setAppliedUserCouponId(order.getAppliedUserCouponId());
+            if (order.getPaymentId() != null) entity.setPaymentId(order.getPaymentId());
             entity.setUpdatedAt(now);
             orderJpaRepository.save(entity);
             order.setUpdatedAt(now);
@@ -167,6 +168,7 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
             .status(e.getStatus())
             .totalAmount(e.getTotalAmount())
             .appliedUserCouponId(e.getAppliedUserCouponId())
+            .paymentId(e.getPaymentId())
             .items(items)
             .createdAt(e.getCreatedAt())
             .updatedAt(e.getUpdatedAt())

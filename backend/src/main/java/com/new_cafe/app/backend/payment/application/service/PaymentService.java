@@ -71,6 +71,8 @@ public class PaymentService implements ProcessPaymentUseCase {
                 .amount(amount)
                 .createdAt(LocalDateTime.now())
                 .build());
+        order.setPaymentId(payment.getId());
+        orderRepositoryPort.save(order);
         Map<String, Object> result = new HashMap<>();
         result.put("paymentId", payment.getId());
         result.put("orderId", orderId);
