@@ -55,7 +55,7 @@ public class TossPaymentsClient {
             throw new IllegalArgumentException("주문을 찾을 수 없습니다.");
         }
         Order order = orderOpt.get();
-        long expectedAmount = order.getTotalAmount();
+        long expectedAmount = order.getTotalAmount() != null ? order.getTotalAmount().longValue() : 0L;
         String orderIdForToss = toTossOrderId(orderId);
 
         HttpHeaders headers = new HttpHeaders();

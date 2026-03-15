@@ -5,6 +5,23 @@ import { getBackendCsrfToken, isStateChangingMethod } from '@/lib/backendCsrf';
 const API_BASE = process.env.API_BASE_URL || process.env.BACKEND_URL || 'http://localhost:8011';
 const AGENT_SERVER_BASE = process.env.AGENT_SERVER_URL || 'http://localhost:8000';
 
+/** DNS/네트워크 일시 오류(EAI_AGAIN 등) 시 재시도 */
+async function fetchWithRetry(url: string, options: RequestInit, maxAttempts = 3): Promise<Response> {
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            return await fetch(url, options);
+        } catch (e) {
+            lastErr = e;
+            const cause = e instanceof Error && 'cause' in e ? (e as { cause?: { code?: string } }).cause : null;
+            const isRetryable = cause?.code === 'EAI_AGAIN' || (e instanceof Error && e.message?.includes('fetch failed'));
+            if (!isRetryable || attempt === maxAttempts) throw e;
+            await new Promise((r) => setTimeout(r, 500 * attempt));
+        }
+    }
+    throw lastErr;
+}
+
 /**
  * Catch-all API 프록시
  * - /api/rag/* → agent-server (Python, 임베딩·pgvector)
@@ -52,7 +69,7 @@ async function proxyRequest(req: NextRequest) {
         }
     }
 
-    const proxyRes = await fetch(targetUrl, {
+    const proxyRes = await fetchWithRetry(targetUrl, {
         method: req.method,
         headers,
         body,

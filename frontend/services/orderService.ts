@@ -91,7 +91,16 @@ export async function paymentComplete(orderId: number, pgTid?: string): Promise<
     credentials: 'include',
     body: JSON.stringify({ pgTid: pgTid ?? '' }),
   });
-  if (!res.ok) throw new Error('결제 완료 처리에 실패했습니다.');
+  if (!res.ok) {
+    let message = '결제 완료 처리에 실패했습니다.';
+    try {
+      const data = await res.json();
+      if (data?.message && typeof data.message === 'string') message = data.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
 }
 
 export async function applyCouponToOrder(orderId: number, userCouponId: number): Promise<OrderDto> {

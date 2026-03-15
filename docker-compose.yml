@@ -42,6 +42,12 @@ services:
       - TOSS_SECRET_KEY=${TOSS_SECRET_KEY}
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "--timeout=2", "http://localhost:8011/api/menus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       db:
         condition: service_healthy
@@ -69,7 +75,7 @@ services:
       - NEXT_PUBLIC_TOSS_CLIENT_KEY=${NEXT_PUBLIC_TOSS_CLIENT_KEY}
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
       agent-server:
         condition: service_started
     restart: unless-stopped
