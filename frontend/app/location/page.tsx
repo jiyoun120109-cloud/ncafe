@@ -62,6 +62,8 @@ export default function LocationPage() {
         markerInstanceRef.current = marker;
       }
 
+      if (!marker || !map) return;
+
       const addressToSearch = (address || '').trim();
       const geocoder = k.maps.services?.Geocoder ? new k.maps.services.Geocoder() : null;
 
@@ -71,8 +73,8 @@ export default function LocationPage() {
             const lat = Number(result[0].y);
             const lng = Number(result[0].x);
             const coords = new k.maps.LatLng(lat, lng);
-            marker.setPosition(coords);
-            map.setCenter(coords);
+            marker!.setPosition(coords);
+            map!.setCenter(coords);
           }
         });
       } else {
