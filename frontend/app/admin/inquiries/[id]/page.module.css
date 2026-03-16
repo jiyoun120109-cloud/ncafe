@@ -138,6 +138,8 @@
   font-size: 0.875rem;
   line-height: 1.5;
   color: #1c1917;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .formRow {

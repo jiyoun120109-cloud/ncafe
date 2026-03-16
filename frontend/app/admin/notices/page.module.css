@@ -146,6 +146,65 @@
   flex-shrink: 0;
 }
 
+.filterForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filterSelect,
+.filterDate {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.filterSelect {
+  min-width: 100px;
+}
+
+.filterDate {
+  min-width: 140px;
+}
+
+.filterDateSep {
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.filterApplyBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary-600, #3E2723);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filterApplyBtn:hover {
+  background: var(--color-primary-700, #2d1c19);
+}
+
+.filterResetBtn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.filterResetBtn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1c1917;
+}
+
 /* 공지 상세/수정 페이지 2/3 너비 가운데 정렬용 */
 .narrowPageWrap {
   width: 66.666%;

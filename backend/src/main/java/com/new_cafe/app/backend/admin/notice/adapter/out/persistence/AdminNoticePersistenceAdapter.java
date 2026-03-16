@@ -8,8 +8,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import jakarta.persistence.criteria.Predicate;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +42,42 @@ public class AdminNoticePersistenceAdapter implements AdminNoticeRepositoryPort 
     @Override
     public Page<Notice> searchOrderByPinnedAndCreatedAt(String search, Pageable pageable) {
         Page<NoticeEntity> page = noticeJpaRepository.searchOrderByPinnedAndCreatedAt(search, pageable);
+        return new PageImpl<>(
+                page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
+                page.getPageable(),
+                page.getTotalElements()
+        );
+    }
+
+    @Override
+    public Page<Notice> findWithFilters(String search, String noticeType, LocalDate fromDate, LocalDate toDate, Pageable pageable) {
+        Specification<NoticeEntity> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (search != null && !search.isBlank()) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("content")), pattern)
+                ));
+            }
+            if (noticeType != null && !noticeType.isBlank()) {
+                predicates.add(cb.equal(root.get("noticeType"), noticeType.trim()));
+            }
+            if (fromDate != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), fromDate.atStartOfDay()));
+            }
+            if (toDate != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), LocalDateTime.of(toDate, LocalTime.MAX)));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Pageable withSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Order.desc("isPinned"),
+                        org.springframework.data.domain.Sort.Order.desc("pinnedAt"),
+                        org.springframework.data.domain.Sort.Order.desc("createdAt")
+                ));
+        Page<NoticeEntity> page = noticeJpaRepository.findAll(spec, withSort);
         return new PageImpl<>(
                 page.getContent().stream().map(this::toModel).collect(Collectors.toList()),
                 page.getPageable(),

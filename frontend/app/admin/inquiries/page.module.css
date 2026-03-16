@@ -59,7 +59,7 @@
 
 .searchForm {
   min-width: 0;
-  max-width: 320px;
+  max-width: 480px;
 }
 
 .searchInput {
@@ -210,6 +210,16 @@
   width: 4rem;
   color: rgba(0, 0, 0, 0.45);
   font-variant-numeric: tabular-nums;
+}
+
+/* 유형 뱃지 — 사용자 1:1 문의 페이지와 동일 스타일 */
+.typeBadge {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(62, 39, 35, 0.1);
+  color: var(--color-primary-700, #2d1c19);
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 .replyDone {

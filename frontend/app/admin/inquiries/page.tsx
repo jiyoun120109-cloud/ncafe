@@ -33,6 +33,7 @@ function getInquiryTypeLabel(value: string | null | undefined): string {
 interface Inquiry {
   id: number;
   userId: number;
+  authorName?: string | null;
   inquiryType?: string | null;
   title: string;
   content: string;
@@ -200,7 +201,7 @@ export default function AdminInquiriesPage() {
               value={inquiryType}
               onChange={(e) => setInquiryType(e.target.value)}
               className={styles.filterSelect}
-              aria-label="문의 항목"
+              aria-label="유형"
             >
               {INQUIRY_TYPE_OPTIONS.map((o) => (
                 <option key={o.value || 'all'} value={o.value}>
@@ -272,9 +273,10 @@ export default function AdminInquiriesPage() {
                     />
                   </th>
                   <th className={styles.th}>ID</th>
-                  <th className={styles.th}>문의항목속성</th>
+                  <th className={styles.th}>유형</th>
                   <th className={`${styles.th} ${styles.thLeft}`}>제목</th>
                   <th className={styles.th}>답변</th>
+                  <th className={styles.th}>작성자</th>
                   <th className={`${styles.th} ${styles.thLeft}`}>내용 미리보기</th>
                   <th className={styles.th}>작성일시</th>
                   <th className={`${styles.th} ${styles.thActions}`}>관리</th>
@@ -293,7 +295,9 @@ export default function AdminInquiriesPage() {
                       />
                     </td>
                     <td className={`${styles.td} ${styles.idCell}`}>{i.id}</td>
-                    <td className={styles.td}>{getInquiryTypeLabel(i.inquiryType)}</td>
+                    <td className={styles.td}>
+                      <span className={styles.typeBadge}>{getInquiryTypeLabel(i.inquiryType)}</span>
+                    </td>
                     <td className={`${styles.td} ${styles.tdLeft}`}>
                       {i.isPrivate ? '[비밀] ' : ''}{i.title}
                     </td>
@@ -304,6 +308,7 @@ export default function AdminInquiriesPage() {
                         <span className={styles.replyPending}>—</span>
                       )}
                     </td>
+                    <td className={styles.td}>{i.authorName ?? '—'}</td>
                     <td className={`${styles.td} ${styles.tdLeft}`}>
                       <span className={styles.contentPreview}>
                         {i.content || '—'}

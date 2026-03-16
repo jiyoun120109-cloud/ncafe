@@ -10,9 +10,12 @@ import com.new_cafe.app.backend.admin.notice.adapter.in.web.dto.res.NoticeDetail
 import com.new_cafe.app.backend.admin.notice.adapter.in.web.dto.res.NoticeListResponseDto;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import io.jsonwebtoken.Claims;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,13 +36,19 @@ public class AdminNoticeController {
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String noticeType,
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE) LocalDate toDate
     ) {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
         NoticeListCommand command = NoticeListCommand.builder()
                 .page(page)
                 .size(size)
                 .search(search)
+                .noticeType(noticeType)
+                .fromDate(fromDate)
+                .toDate(toDate)
                 .build();
         NoticeListResult result = adminNoticeUseCase.getNoticeList(command);
         return ResponseEntity.ok(NoticeListResponseDto.from(result));

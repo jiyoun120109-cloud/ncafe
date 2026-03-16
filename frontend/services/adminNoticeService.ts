@@ -24,10 +24,16 @@ export interface AdminNoticeListResponse {
 export async function fetchAdminNotices(
   page: number = 0,
   size: number = 10,
-  search?: string
+  search?: string,
+  noticeType?: string,
+  fromDate?: string,
+  toDate?: string
 ): Promise<AdminNoticeListResponse> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (search != null && search.trim() !== '') params.set('search', search.trim());
+  if (noticeType != null && noticeType.trim() !== '') params.set('noticeType', noticeType.trim());
+  if (fromDate != null && fromDate.trim() !== '') params.set('fromDate', fromDate.trim());
+  if (toDate != null && toDate.trim() !== '') params.set('toDate', toDate.trim());
   const res = await fetch(`${getApiBase()}/admin/notices?${params}`, { credentials: 'include' });
   if (!res.ok) throw new Error('공지 목록을 불러올 수 없습니다.');
   return res.json();

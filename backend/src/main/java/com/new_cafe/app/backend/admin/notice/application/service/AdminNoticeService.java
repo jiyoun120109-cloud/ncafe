@@ -37,7 +37,7 @@ public class AdminNoticeService implements AdminNoticeUseCase {
     @Transactional(readOnly = true)
     public NoticeListResult getNoticeList(NoticeListCommand command) {
         PageRequest pageable = PageRequest.of(command.getPage(), command.getSize());
-        Page<Notice> paged = findPaged(pageable, command.getSearch());
+        Page<Notice> paged = findPaged(pageable, command);
         List<NoticeListResult.NoticeItem> items = paged.getContent().stream()
                 .map(this::toNoticeItem)
                 .collect(Collectors.toList());
@@ -162,9 +162,17 @@ public class AdminNoticeService implements AdminNoticeUseCase {
         }
     }
 
-    private Page<Notice> findPaged(PageRequest pageable, String search) {
-        if (search != null && !search.isBlank()) {
-            return adminNoticeRepository.searchOrderByPinnedAndCreatedAt(search.trim(), pageable);
+    private Page<Notice> findPaged(PageRequest pageable, NoticeListCommand command) {
+        String search = command.getSearch();
+        String noticeType = command.getNoticeType();
+        java.time.LocalDate fromDate = command.getFromDate();
+        java.time.LocalDate toDate = command.getToDate();
+        boolean hasFilter = (search != null && !search.isBlank())
+                || (noticeType != null && !noticeType.isBlank())
+                || fromDate != null
+                || toDate != null;
+        if (hasFilter) {
+            return adminNoticeRepository.findWithFilters(search, noticeType, fromDate, toDate, pageable);
         }
         return adminNoticeRepository.findAllOrderByPinnedAndCreatedAt(pageable);
     }

@@ -19,6 +19,9 @@ export default function AdminNoticesListPage() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [noticeType, setNoticeType] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [deleting, setDeleting] = useState(false);
@@ -35,7 +38,14 @@ export default function AdminNoticesListPage() {
   const load = useCallback(() => {
     let cancelled = false;
     setLoading(true);
-    fetchAdminNotices(page, size, search || undefined)
+    fetchAdminNotices(
+      page,
+      size,
+      search || undefined,
+      noticeType || undefined,
+      fromDate || undefined,
+      toDate || undefined
+    )
       .then((res) => {
         if (!cancelled) setData(res);
       })
@@ -46,7 +56,7 @@ export default function AdminNoticesListPage() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [page, search]);
+  }, [page, search, noticeType, fromDate, toDate]);
 
   useEffect(() => {
     load();
@@ -58,6 +68,21 @@ export default function AdminNoticesListPage() {
     setPage(0);
   };
 
+  const handleFilterApply = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(0);
+  };
+
+  const hasFilter = noticeType !== '' || fromDate !== '' || toDate !== '' || search !== '';
+  const handleFilterReset = () => {
+    setNoticeType('');
+    setFromDate('');
+    setToDate('');
+    setSearch('');
+    setSearchInput('');
+    setPage(0);
+  };
+
   useEffect(() => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -66,7 +91,7 @@ export default function AdminNoticesListPage() {
       });
       return next;
     });
-  }, [page, search, data?.content]);
+  }, [page, search, noticeType, fromDate, toDate, data?.content]);
 
   const toggleSelectAll = () => {
     if (!data) return;
@@ -146,6 +171,48 @@ export default function AdminNoticesListPage() {
             />
           </form>
           <div className={styles.listToolbar}>
+            <form onSubmit={handleFilterApply} className={styles.filterForm}>
+              <select
+                value={noticeType}
+                onChange={(e) => setNoticeType(e.target.value)}
+                className={styles.filterSelect}
+                aria-label="구분"
+              >
+                <option value="">전체 구분</option>
+                {Object.entries(NOTICE_TYPES).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className={styles.filterDate}
+                aria-label="시작일"
+              />
+              <span className={styles.filterDateSep}>~</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className={styles.filterDate}
+                aria-label="종료일"
+              />
+              <button type="submit" className={styles.filterApplyBtn}>
+                적용
+              </button>
+              {hasFilter && (
+                <button
+                  type="button"
+                  onClick={handleFilterReset}
+                  className={styles.filterResetBtn}
+                >
+                  초기화
+                </button>
+              )}
+            </form>
             {someSelected && (
               <button
                 type="button"
@@ -165,7 +232,7 @@ export default function AdminNoticesListPage() {
           <div className={styles.loading}>불러오는 중…</div>
         ) : !data || data.content.length === 0 ? (
           <div className={styles.empty}>
-            {search ? '검색 결과가 없습니다.' : '등록된 공지가 없습니다.'}
+            {hasFilter ? '검색·필터 결과가 없습니다.' : '등록된 공지가 없습니다.'}
           </div>
         ) : (
           <>

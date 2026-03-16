@@ -1,6 +1,8 @@
 package com.new_cafe.app.backend.admin.inquiry.adapter.in.web;
 
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
+import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
+import com.new_cafe.app.backend.auth.model.Member;
 import com.new_cafe.app.backend.inquiry.application.port.in.InquiryUseCase;
 import com.new_cafe.app.backend.inquiry.model.Inquiry;
 import com.new_cafe.app.backend.inquiry.model.InquiryReply;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,10 +24,13 @@ public class AdminInquiryController {
 
     private final InquiryUseCase inquiryUseCase;
     private final JwtService jwtService;
+    private final MemberRepositoryPort memberRepositoryPort;
 
-    public AdminInquiryController(InquiryUseCase inquiryUseCase, JwtService jwtService) {
+    public AdminInquiryController(InquiryUseCase inquiryUseCase, JwtService jwtService,
+                                  MemberRepositoryPort memberRepositoryPort) {
         this.inquiryUseCase = inquiryUseCase;
         this.jwtService = jwtService;
+        this.memberRepositoryPort = memberRepositoryPort;
     }
 
     @GetMapping
@@ -42,6 +48,8 @@ public class AdminInquiryController {
             Map<String, Object> m = inquiryToMap(inq);
             boolean replied = inquiryUseCase.countRepliesByInquiryId(inq.getId()) > 0;
             m.put("hasReply", replied);
+            String authorName = resolveAuthorName(inq.getUserId());
+            m.put("authorName", authorName);
             return m;
         }).collect(Collectors.toList());
         if (hasReply != null) {
@@ -108,6 +116,17 @@ public class AdminInquiryController {
         if (authorization == null || !authorization.startsWith("Bearer ")) return false;
         Claims claims = jwtService.parseToken(authorization);
         return claims != null && "ADMIN".equals(claims.get("role"));
+    }
+
+    private String resolveAuthorName(Long userId) {
+        if (userId == null) return "—";
+        Optional<Member> opt = memberRepositoryPort.findById(userId);
+        if (opt.isEmpty()) return "—";
+        Member m = opt.get();
+        if (m.getDisplayNickname() != null && !m.getDisplayNickname().isBlank()) return m.getDisplayNickname();
+        if (m.getName() != null && !m.getName().isBlank()) return m.getName();
+        if (m.getUsername() != null && !m.getUsername().isBlank()) return m.getUsername();
+        return "—";
     }
 
     private Map<String, Object> inquiryToMap(Inquiry i) {
