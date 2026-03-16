@@ -2,13 +2,14 @@
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
-    padding: 1rem;
-    flex-shrink: 0;
-    min-width: 280px;
+    padding: 0.85rem;
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+    min-width: 260px;
 }
 
 .title {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #1c1917;
     margin: 0 0 0.75rem 0;
@@ -21,19 +22,19 @@
 .table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .table th,
 .table td {
-    padding: 0.5rem 0.6rem;
+    padding: 0.45rem 0.5rem;
     text-align: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .table th {
     font-weight: 600;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     letter-spacing: 0.04em;
     color: rgba(0, 0, 0, 0.5);
     background: rgba(0, 0, 0, 0.03);

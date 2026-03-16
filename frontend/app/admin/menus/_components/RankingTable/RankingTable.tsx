@@ -29,7 +29,6 @@ export default function RankingTable({ menus }: RankingTableProps) {
                             <th>메뉴아이디</th>
                             <th>한글이름</th>
                             <th>영어이름</th>
-                            <th>카테고리아이디</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,7 +54,6 @@ export default function RankingTable({ menus }: RankingTableProps) {
                                         '-'
                                     )}
                                 </td>
-                                <td>{menu.categoryId ?? '-'}</td>
                             </tr>
                         ))}
                     </tbody>

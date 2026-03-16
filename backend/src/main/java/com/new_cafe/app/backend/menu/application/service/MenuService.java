@@ -14,6 +14,7 @@ import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
 import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.menu.model.MenuImage;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class MenuService implements UserMenuUseCase {
      * 단일 메뉴 상세 조회
      */
     @Override
+    @Transactional
     public GetMenuResult getMenu(GetMenuCommand command) {
         Menu menu = menuRepositoryPort.findById(command.getId());
 
