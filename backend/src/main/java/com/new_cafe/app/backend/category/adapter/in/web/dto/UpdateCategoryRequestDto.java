@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class UpdateCategoryRequestDto {
     private String name;
     private String icon;
-    private String description;
 }

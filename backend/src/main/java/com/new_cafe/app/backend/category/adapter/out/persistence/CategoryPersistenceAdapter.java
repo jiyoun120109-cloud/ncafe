@@ -46,7 +46,6 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
             CategoryEntity entity = CategoryEntity.builder()
                 .name(category.getName())
                 .icon(category.getIcon())
-                .description(category.getDescription())
                 .displayOrder(nextOrder)
                 .createdAt(now)
                 .updatedAt(now)
@@ -58,7 +57,6 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
             .orElseThrow(() -> new IllegalArgumentException("Category not found: " + category.getId()));
         existing.setName(category.getName());
         existing.setIcon(category.getIcon());
-        existing.setDescription(category.getDescription());
         if (category.getDisplayOrder() != null) {
             existing.setDisplayOrder(category.getDisplayOrder());
         }
@@ -91,7 +89,6 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
             .id(e.getId())
             .name(e.getName())
             .icon(e.getIcon())
-            .description(e.getDescription())
             .displayOrder(e.getDisplayOrder())
             .build();
     }

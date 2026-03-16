@@ -55,7 +55,6 @@ public class AdminCategoryController {
                 .id(result.getId())
                 .name(result.getName())
                 .icon(result.getIcon())
-                .description(result.getDescription())
                 .build();
     }
 
@@ -69,13 +68,11 @@ public class AdminCategoryController {
                 CreateCategoryCommand.builder()
                         .name(request.getName())
                         .icon(request.getIcon())
-                        .description(request.getDescription())
                         .build());
         return CategoryResponseDto.builder()
                 .id(result.getId())
                 .name(result.getName())
                 .icon(result.getIcon())
-                .description(result.getDescription())
                 .build();
     }
 
@@ -90,13 +87,11 @@ public class AdminCategoryController {
                         .id(id)
                         .name(request.getName())
                         .icon(request.getIcon())
-                        .description(request.getDescription())
                         .build());
         return CategoryResponseDto.builder()
                 .id(result.getId())
                 .name(result.getName())
                 .icon(result.getIcon())
-                .description(result.getDescription())
                 .build();
     }
 
@@ -126,7 +121,6 @@ public class AdminCategoryController {
                 .id(categoryInfo.getId())
                 .name(categoryInfo.getName())
                 .icon(categoryInfo.getIcon())
-                .description(categoryInfo.getDescription())
                 .build();
     }
 }

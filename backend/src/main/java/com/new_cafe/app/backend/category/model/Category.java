@@ -13,6 +13,5 @@ public class Category {
     private Long id;
     private String name;
     private String icon;
-    private String description;
     private Integer displayOrder;
 }

@@ -36,7 +36,6 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
                         .id(c.getId())
                         .name(c.getName())
                         .icon(c.getIcon())
-                        .description(c.getDescription())
                         .build())
                 .collect(Collectors.toList());
 
@@ -57,7 +56,6 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
                 .id(category.getId())
                 .name(category.getName())
                 .icon(category.getIcon())
-                .description(category.getDescription())
                 .build();
     }
 
@@ -69,14 +67,12 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
         Category toSave = Category.builder()
                 .name(command.getName().trim())
                 .icon(command.getIcon() != null && !command.getIcon().isBlank() ? command.getIcon().trim() : null)
-                .description(command.getDescription() != null && !command.getDescription().isBlank() ? command.getDescription().trim() : null)
                 .build();
         Category saved = categoryRepository.save(toSave);
         return GetCategoryResult.builder()
                 .id(saved.getId())
                 .name(saved.getName())
                 .icon(saved.getIcon())
-                .description(saved.getDescription())
                 .build();
     }
 
@@ -89,20 +85,18 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
         if (command.getName() == null || command.getName().isBlank()) {
             throw new IllegalArgumentException("카테고리 이름을 입력해 주세요.");
         }
-        String icon = command.getIcon() != null && !command.getIcon().isBlank() ? command.getIcon().trim() : existing.getIcon();
-        String description = command.getDescription() != null && !command.getDescription().isBlank() ? command.getDescription().trim() : existing.getDescription();
+        // 빈 문자열/공백이 오면 이모티콘 삭제( null ), 값이 있으면 trim 반영
+        String icon = (command.getIcon() != null && !command.getIcon().isBlank()) ? command.getIcon().trim() : null;
         Category toSave = Category.builder()
                 .id(command.getId())
                 .name(command.getName().trim())
                 .icon(icon)
-                .description(description)
                 .build();
         Category saved = categoryRepository.save(toSave);
         return GetCategoryResult.builder()
                 .id(saved.getId())
                 .name(saved.getName())
                 .icon(saved.getIcon())
-                .description(saved.getDescription())
                 .build();
     }
 

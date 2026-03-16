@@ -89,7 +89,7 @@ export default function CategoryManage({
         setSubmitting(true);
         setError(null);
         try {
-            await onCreate(trimmed, addIcon.trim() || null);
+            await onCreate(trimmed, addIcon.trim() || '');
             closeAddModal();
         } catch (err) {
             setError(err instanceof Error ? err.message : '저장에 실패했습니다.');
@@ -108,7 +108,7 @@ export default function CategoryManage({
         setSubmitting(true);
         setError(null);
         try {
-            await onUpdate(editingId, trimmed, editIcon.trim() || null);
+            await onUpdate(editingId, trimmed, editIcon.trim() || '');
             closeEditModal();
         } catch (err) {
             setError(err instanceof Error ? err.message : '저장에 실패했습니다.');

@@ -17,8 +17,8 @@ import styles from './CategoryTabs.module.css';
 const EMOJI_QUICK = ['☕', '🍵', '🥤', '🍰', '🥐', '🍩', '🥪', '🍪'];
 
 export interface CategoryActions {
-    createCategory: (name: string, icon?: string | null, description?: string | null) => Promise<AdminCategoryDto | null>;
-    updateCategory: (id: number, name: string, icon?: string | null, description?: string | null) => Promise<void>;
+    createCategory: (name: string, icon?: string | null) => Promise<AdminCategoryDto | null>;
+    updateCategory: (id: number, name: string, icon?: string | null) => Promise<void>;
     deleteCategory: (id: number) => Promise<void>;
     uploadCategoryIcon?: (file: File) => Promise<{ url: string; filename: string }>;
     reorderCategories: (categoryIds: number[]) => Promise<void>;
@@ -118,7 +118,7 @@ export default function CategoryTabs({
             setSubmitting(true);
             setError(null);
             try {
-                await categoryActions.createCategory(trimmed, addIcon.trim() || null);
+                await categoryActions.createCategory(trimmed, addIcon.trim() || '');
                 closeAddModal();
             } catch (err) {
                 setError(err instanceof Error ? err.message : '저장에 실패했습니다.');
@@ -140,7 +140,7 @@ export default function CategoryTabs({
             setSubmitting(true);
             setError(null);
             try {
-                await categoryActions.updateCategory(editingCategory.id, trimmed, editIcon.trim() || null);
+                await categoryActions.updateCategory(editingCategory.id, trimmed, editIcon.trim() || '');
                 closeEditModal();
             } catch (err) {
                 setError(err instanceof Error ? err.message : '저장에 실패했습니다.');

@@ -30,9 +30,6 @@ public class CategoryEntity {
     @Column(name = "icon", length = 100)
     private String icon;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
-
     @Column(name = "display_order")
     private Integer displayOrder;
 
