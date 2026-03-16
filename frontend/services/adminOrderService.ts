@@ -43,6 +43,7 @@ export interface AdminOrderDetailDto {
   totalAmount: number;
   totalPrice?: number | null;
   appliedUserCouponId: number | null;
+  appliedCouponName?: string | null;
   createdAt: string;
   updatedAt: string | null;
   items: AdminOrderItemDto[];

@@ -6,8 +6,12 @@ import com.new_cafe.app.backend.auth.application.port.out.LoginLogRepositoryPort
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import com.new_cafe.app.backend.auth.model.LoginLogRecord;
 import com.new_cafe.app.backend.auth.model.Member;
+import com.new_cafe.app.backend.favorite.application.port.out.FavoriteRepositoryPort;
+import com.new_cafe.app.backend.favorite.model.Favorite;
 import com.new_cafe.app.backend.inquiry.application.port.out.InquiryRepositoryPort;
 import com.new_cafe.app.backend.inquiry.model.Inquiry;
+import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
+import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
 import com.new_cafe.app.backend.order.model.Order;
 import org.springframework.data.domain.Page;
@@ -33,16 +37,22 @@ public class AdminMemberService implements AdminMemberUseCase {
     private final OrderRepositoryPort orderRepositoryPort;
     private final InquiryRepositoryPort inquiryRepositoryPort;
     private final LoginLogRepositoryPort loginLogRepositoryPort;
+    private final FavoriteRepositoryPort favoriteRepositoryPort;
+    private final MenuRepositoryPort menuRepositoryPort;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AdminMemberService(MemberRepositoryPort memberRepositoryPort,
                               OrderRepositoryPort orderRepositoryPort,
                               InquiryRepositoryPort inquiryRepositoryPort,
-                              LoginLogRepositoryPort loginLogRepositoryPort) {
+                              LoginLogRepositoryPort loginLogRepositoryPort,
+                              FavoriteRepositoryPort favoriteRepositoryPort,
+                              MenuRepositoryPort menuRepositoryPort) {
         this.memberRepositoryPort = memberRepositoryPort;
         this.orderRepositoryPort = orderRepositoryPort;
         this.inquiryRepositoryPort = inquiryRepositoryPort;
         this.loginLogRepositoryPort = loginLogRepositoryPort;
+        this.favoriteRepositoryPort = favoriteRepositoryPort;
+        this.menuRepositoryPort = menuRepositoryPort;
     }
 
     @Override
@@ -108,11 +118,24 @@ public class AdminMemberService implements AdminMemberUseCase {
                 .createdAt(l.getCreatedAt())
                 .build())
             .collect(Collectors.toList());
+        List<Favorite> favorites = favoriteRepositoryPort.findByUserIdOrderByCreatedAtDesc(id);
+        List<FavoriteSummaryDto> favoriteDtos = favorites.stream()
+            .limit(RECENT_ACTIVITY_LIMIT)
+            .map(f -> {
+                Menu menu = f.getMenuId() != null ? menuRepositoryPort.findById(f.getMenuId()) : null;
+                return FavoriteSummaryDto.builder()
+                    .menuId(f.getMenuId())
+                    .menuName(menu != null ? menu.getKorName() : null)
+                    .createdAt(f.getCreatedAt())
+                    .build();
+            })
+            .collect(Collectors.toList());
         MemberDetailWithActivityResponseDto dto = MemberDetailWithActivityResponseDto.builder()
             .member(MemberDetailResponseDto.from(member))
             .recentOrders(orderDtos)
             .recentInquiries(inquiryDtos)
             .recentLoginLogs(logDtos)
+            .recentFavorites(favoriteDtos)
             .build();
         return Optional.of(dto);
     }

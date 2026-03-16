@@ -335,7 +335,7 @@
 .miniTable th,
 .miniTable td {
   padding: 0.4rem 0.6rem;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 

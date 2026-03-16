@@ -47,11 +47,18 @@ export interface LoginLogEntryDto {
   createdAt: string;
 }
 
+export interface FavoriteSummaryDto {
+  menuId: number;
+  menuName: string | null;
+  createdAt: string;
+}
+
 export interface AdminMemberDetailWithActivityDto {
   member: AdminMemberDetailDto;
   recentOrders: OrderSummaryDto[];
   recentInquiries: InquirySummaryDto[];
   recentLoginLogs: LoginLogEntryDto[];
+  recentFavorites?: FavoriteSummaryDto[];
 }
 
 export interface AdminMemberListResponse {

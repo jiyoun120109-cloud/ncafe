@@ -30,6 +30,23 @@ const STATUS_OPTIONS = [
   { value: 'WITHDRAWN', label: '탈퇴' },
 ];
 
+const DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
+function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('ko-KR', DATE_TIME_OPTIONS);
+  } catch {
+    return '—';
+  }
+}
+
 export default function AdminMemberDetailPage() {
   const params = useParams();
   const { setTitle } = useUIStore();
@@ -238,24 +255,16 @@ export default function AdminMemberDetailPage() {
             </div>
             <div className={styles.infoRow}>
               <dt>가입일</dt>
-              <dd>
-                {new Date(member.createdAt).toLocaleString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </dd>
+              <dd>{formatDateTime(member.createdAt)}</dd>
             </div>
             <div className={styles.infoRow}>
               <dt>최근 로그인</dt>
-              <dd>{member.lastLoginAt ? new Date(member.lastLoginAt).toLocaleString('ko-KR') : '—'}</dd>
+              <dd>{formatDateTime(member.lastLoginAt)}</dd>
             </div>
             {isLocked && (
               <div className={styles.infoRow}>
                 <dt>잠금 해제 시각</dt>
-                <dd>{new Date(member.lockedUntil!).toLocaleString('ko-KR')}</dd>
+                <dd>{formatDateTime(member.lockedUntil ?? undefined)}</dd>
               </div>
             )}
             {member.loginFailCount != null && member.loginFailCount > 0 && (
@@ -426,7 +435,7 @@ export default function AdminMemberDetailPage() {
         </section>
       </div>
 
-      {(data.recentOrders?.length > 0 || data.recentInquiries?.length > 0 || data.recentLoginLogs?.length > 0) && (
+      {(data.recentOrders?.length > 0 || data.recentInquiries?.length > 0 || data.recentLoginLogs?.length > 0 || (data.recentFavorites?.length ?? 0) > 0) && (
         <section className={styles.card}>
           <h3 className={styles.cardTitle}>최근 활동</h3>
           <div className={styles.activityGrid}>
@@ -482,32 +491,57 @@ export default function AdminMemberDetailPage() {
                 </div>
               </div>
             )}
-          </div>
-          {data.recentInquiries && data.recentInquiries.length > 0 && (
-            <div className={styles.activityBlock}>
-              <h4 className={styles.activityTitle}>최근 문의</h4>
-              <div className={styles.tableWrap}>
-                <table className={styles.miniTable}>
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>제목</th>
-                      <th>일시</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.recentInquiries.map((i) => (
-                      <tr key={i.id}>
-                        <td>{i.id}</td>
-                        <td>{i.title}</td>
-                        <td>{i.createdAt ? new Date(i.createdAt).toLocaleString('ko-KR') : '—'}</td>
+            {data.recentInquiries && data.recentInquiries.length > 0 && (
+              <div className={styles.activityBlock}>
+                <h4 className={styles.activityTitle}>최근 문의</h4>
+                <div className={styles.tableWrap}>
+                  <table className={styles.miniTable}>
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>제목</th>
+                        <th>일시</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {data.recentInquiries.map((i) => (
+                        <tr key={i.id}>
+                          <td>{i.id}</td>
+                          <td>{i.title}</td>
+                          <td>{i.createdAt ? new Date(i.createdAt).toLocaleString('ko-KR') : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+            {data.recentFavorites && data.recentFavorites.length > 0 && (
+              <div className={styles.activityBlock}>
+                <h4 className={styles.activityTitle}>좋아요 선택 제품</h4>
+                <div className={styles.tableWrap}>
+                  <table className={styles.miniTable}>
+                    <thead>
+                      <tr>
+                        <th>메뉴 ID</th>
+                        <th>메뉴명</th>
+                        <th>선택일시</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.recentFavorites.map((f, idx) => (
+                        <tr key={f.menuId != null ? `${f.menuId}-${idx}` : idx}>
+                          <td>{f.menuId ?? '—'}</td>
+                          <td>{f.menuName ?? '—'}</td>
+                          <td>{f.createdAt ? new Date(f.createdAt).toLocaleString('ko-KR') : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
         </section>
       )}
 

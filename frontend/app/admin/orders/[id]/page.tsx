@@ -119,8 +119,9 @@ export default function AdminOrderDetailPage() {
 
   const isCancelled = order.status === 'CANCELLED';
   const hasCoupon = order.appliedUserCouponId != null;
-  const totalPrice = order.totalPrice ?? order.totalAmount;
-  const discountAmount = totalPrice - order.totalAmount;
+  const subtotal = order.totalPrice ?? order.totalAmount;
+  const discountAmount = Math.max(0, subtotal - order.totalAmount);
+  const showDiscount = discountAmount > 0;
 
   return (
     <div className={styles.page}>
@@ -233,6 +234,18 @@ export default function AdminOrderDetailPage() {
                   </tr>
                 );
               })}
+              {showDiscount && (
+                <tr className={styles.totalRow}>
+                  <td colSpan={4}>소계</td>
+                  <td>{subtotal.toLocaleString()}원</td>
+                </tr>
+              )}
+              {showDiscount && (
+                <tr className={styles.totalRow}>
+                  <td colSpan={4}>할인가격</td>
+                  <td>-{discountAmount.toLocaleString()}원</td>
+                </tr>
+              )}
               <tr className={styles.totalRow}>
                 <td colSpan={4}>합계</td>
                 <td>{order.totalAmount.toLocaleString()}원</td>
@@ -254,13 +267,7 @@ export default function AdminOrderDetailPage() {
             <div className={styles.metaRow}>
               <span className={styles.metaLabel}>쿠폰 사용</span>
               <span className={styles.metaValue}>
-                {hasCoupon ? '사용함' : '미사용'}
-              </span>
-            </div>
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>할인가격</span>
-              <span className={styles.metaValue}>
-                {discountAmount > 0 ? `-${discountAmount.toLocaleString()}원` : '0원'}
+                {hasCoupon ? (order.appliedCouponName ?? '사용함') : '미사용'}
               </span>
             </div>
           </div>
@@ -270,12 +277,12 @@ export default function AdminOrderDetailPage() {
               <h4 className={styles.editSubTitle}>상태 변경</h4>
               <form onSubmit={handleStatusSubmit}>
                 <div className={styles.formRow}>
-                  <label className={styles.label}>상태</label>
                   <select
                     className={styles.select}
                     value={statusInput}
                     onChange={(e) => setStatusInput(e.target.value)}
                     disabled={saving}
+                    aria-label="주문 상태 선택"
                   >
                     {STATUS_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>

@@ -3,6 +3,8 @@ package com.new_cafe.app.backend.admin.order.adapter.in.web;
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
 import com.new_cafe.app.backend.auth.adapter.out.jwt.JwtService;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.CouponJpaRepository;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
 import com.new_cafe.app.backend.order.model.Order;
 import com.new_cafe.app.backend.order.model.OrderItem;
 import io.jsonwebtoken.Claims;
@@ -25,12 +27,18 @@ public class AdminOrderController {
     private final AdminOrderUseCase adminOrderUseCase;
     private final JwtService jwtService;
     private final MemberRepositoryPort memberRepositoryPort;
+    private final UserCouponJpaRepository userCouponJpaRepository;
+    private final CouponJpaRepository couponJpaRepository;
 
     public AdminOrderController(AdminOrderUseCase adminOrderUseCase, JwtService jwtService,
-                                MemberRepositoryPort memberRepositoryPort) {
+                                MemberRepositoryPort memberRepositoryPort,
+                                UserCouponJpaRepository userCouponJpaRepository,
+                                CouponJpaRepository couponJpaRepository) {
         this.adminOrderUseCase = adminOrderUseCase;
         this.jwtService = jwtService;
         this.memberRepositoryPort = memberRepositoryPort;
+        this.userCouponJpaRepository = userCouponJpaRepository;
+        this.couponJpaRepository = couponJpaRepository;
     }
 
     @GetMapping
@@ -202,6 +210,11 @@ public class AdminOrderController {
                         m.put("userEmail", member.getEmail());
                         m.put("userPhone", member.getPhone());
                     });
+        }
+        if (order.getAppliedUserCouponId() != null) {
+            userCouponJpaRepository.findById(order.getAppliedUserCouponId())
+                    .flatMap(uc -> couponJpaRepository.findById(uc.getCouponId()))
+                    .ifPresent(coupon -> m.put("appliedCouponName", coupon.getName()));
         }
         return m;
     }

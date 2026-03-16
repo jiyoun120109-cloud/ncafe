@@ -16,4 +16,5 @@ public class MemberDetailWithActivityResponseDto {
     private List<OrderSummaryDto> recentOrders;
     private List<InquirySummaryDto> recentInquiries;
     private List<LoginLogEntryDto> recentLoginLogs;
+    private List<FavoriteSummaryDto> recentFavorites;
 }
