@@ -2,7 +2,9 @@
    Admin Layout
    ================================================================ */
 
+/* 전역 zoom 1.5 보정 + 살짝 축소(약 92%) */
 .layout {
+    zoom: calc(0.92 / 1.5);
     min-height: 100vh;
     display: flex;
     background: #faf9f7;
