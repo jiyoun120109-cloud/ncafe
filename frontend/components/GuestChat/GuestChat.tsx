@@ -444,11 +444,11 @@ export default function GuestChat() {
       {(!isMobileView || !open) && (
         <button
           type="button"
-          className={styles.fab}
+          className={`${styles.fab} ${open ? styles.fabPanelOpen : ''}`}
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? '채팅 닫기' : '댕댕이 챗봇 열기'}
         >
-          {open ? <X size={24} className={styles.fabCloseIcon} /> : (
+          {open ? <X size={20} className={styles.fabCloseIcon} /> : (
             <Image src={CHATBOT_IMAGE.main} alt="" width={32} height={32} className={styles.fabImg} aria-hidden />
           )}
         </button>
