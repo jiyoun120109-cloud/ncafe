@@ -336,14 +336,14 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const message = typeof body.message === 'string' ? body.message : '';
     type Msg = { role?: string; content?: string; attachments?: ChatAttachment[] };
-    const rawMessages = Array.isArray(body.messages) && body.messages.length > 0
+    const rawMessages: Msg[] = Array.isArray(body.messages) && body.messages.length > 0
       ? (body.messages as Msg[])
       : message.trim()
-        ? [{ role: 'user' as const, content: message }]
+        ? [{ role: 'user', content: message }]
         : [];
 
     const messages: ChatMessageForAgent[] = rawMessages
-      .map((m) => ({
+      .map((m: Msg) => ({
         role: (m.role === 'model' ? 'model' : 'user') as 'user' | 'model',
         content: typeof m.content === 'string' ? m.content : '',
         attachments: Array.isArray(m.attachments) ? m.attachments : undefined,
