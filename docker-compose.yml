@@ -43,11 +43,11 @@ services:
       - APP_UPLOAD_PATH=file:/app/upload/
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "--timeout=2", "http://localhost:8011/api/menus"]
+      test: ["CMD", "wget", "-q", "--spider", "--timeout=2", "http://localhost:8011/api/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 40s
     depends_on:
       db:
         condition: service_healthy
