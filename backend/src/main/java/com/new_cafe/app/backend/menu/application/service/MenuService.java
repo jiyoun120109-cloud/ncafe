@@ -65,6 +65,8 @@ public class MenuService implements UserMenuUseCase {
             throw new IllegalArgumentException("Menu not found with id: " + command.getId());
         }
 
+        menuRepositoryPort.incrementViewCount(menu.getId());
+
         String categoryName = menu.getCategory() != null ? menu.getCategory().getName() : "";
 
         return GetMenuResult.builder()

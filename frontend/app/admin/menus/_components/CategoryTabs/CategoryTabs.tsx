@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     DndContext,
     DragEndEvent,
@@ -98,6 +98,14 @@ export default function CategoryTabs({
         setEditIcon('');
         setError(null);
     }, []);
+
+    // 모달이 열릴 때만 초기값 동기화 (입력 중 리셋 방지)
+    useEffect(() => {
+        if (editModalOpen && editingCategory) {
+            setEditName(editingCategory.name);
+            setEditIcon(editingCategory.icon ?? '');
+        }
+    }, [editModalOpen, editingCategory?.id]);
 
     const handleAddSubmit = useCallback(
         async (e: React.FormEvent) => {
@@ -360,7 +368,7 @@ export default function CategoryTabs({
                 <div className={styles.overlay} onClick={closeEditModal} role="presentation">
                     <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog">
                         <h4 className={styles.modalTitle}>카테고리 수정</h4>
-                        <form onSubmit={handleEditSubmit}>
+                        <form key={`edit-${editingCategory.id}`} onSubmit={handleEditSubmit}>
                             <div className={styles.formRow}>
                                 <label className={styles.label}>카테고리 이름</label>
                                 <input

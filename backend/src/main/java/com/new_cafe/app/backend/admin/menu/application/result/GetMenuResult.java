@@ -34,4 +34,8 @@ public class GetMenuResult {
     private Integer displayPriority;
     private Integer likeCount;
     private Integer viewCount;
+    /** 주간(최근 7일) 판매 수량 합계 */
+    private Long weeklySalesCount;
+    /** 재주문율 (이 메뉴를 포함한 주문 중, 동일 회원이 이 메뉴를 이전에도 주문한 비율, 0~100) */
+    private Double reorderRate;
 }

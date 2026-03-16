@@ -19,6 +19,7 @@ public class MenuResponseDto {
     private String engName;
     private String description;
     private Integer price;
+    private Long categoryId;
     private String categoryName;
     private String imageSrc;
     private Boolean isAvailable;
@@ -26,4 +27,5 @@ public class MenuResponseDto {
     private Integer sortOrder;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private java.util.List<String> badgeTypes;
 }

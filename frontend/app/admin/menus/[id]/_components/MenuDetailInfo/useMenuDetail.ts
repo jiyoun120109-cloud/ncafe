@@ -15,6 +15,8 @@ interface MenuDetail {
     description: string;
     optionsJson: string | null;
     productInfoJson: string | null;
+    weeklySalesCount?: number | null;
+    reorderRate?: number | null;
 }
 
 export function useMenuDetail(id: number) {

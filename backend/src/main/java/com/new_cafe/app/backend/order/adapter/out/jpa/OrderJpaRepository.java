@@ -40,4 +40,7 @@ public interface OrderJpaRepository extends JpaRepository<OrderEntity, Long>, Jp
 
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM OrderEntity o WHERE o.status = :status AND o.createdAt >= :from AND o.createdAt < :to")
     long sumTotalAmountByStatusAndCreatedAtBetween(@Param("status") String status, LocalDateTime from, LocalDateTime to);
+
+    @Query("SELECT DISTINCT o FROM OrderEntity o JOIN o.items oi WHERE oi.menuId = :menuId ORDER BY o.createdAt")
+    List<OrderEntity> findOrdersContainingMenuIdOrderByCreatedAt(@Param("menuId") Long menuId);
 }

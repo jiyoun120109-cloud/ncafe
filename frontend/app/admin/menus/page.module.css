@@ -41,6 +41,24 @@
     background: rgba(0, 0, 0, 0.07);
 }
 
+.mainWithRanking {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    min-width: 0;
+}
+
+.mainWithRanking > section:first-child {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .mainWithRanking {
+        flex-direction: column;
+    }
+}
+
 /* skeletonGrid / overlayItem — 기존 호환 유지 */
 .skeletonGrid {
     display: grid;

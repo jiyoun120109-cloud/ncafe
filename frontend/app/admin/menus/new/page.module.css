@@ -48,6 +48,8 @@
 .backBtn:hover { color: #1c1917; }
 
 .formCard {
+    width: 66.666%;
+    max-width: 66.666%;
     background: #fff;
     padding: 2rem;
     border-radius: 8px;
@@ -57,10 +59,11 @@
 @media (max-width: 768px) {
     .container { padding: 0 0.75rem; }
     .pageTitle { font-size: 1.5rem; }
+    .formCard { width: 100%; max-width: none; }
 }
 
 @media (max-width: 640px) {
     .container { padding: 0 1rem; gap: 1.25rem; }
     .pageTitle { font-size: 1.35rem; }
-    .formCard { padding: 1.25rem; }
+    .formCard { width: 100%; max-width: none; padding: 1.25rem; }
 }

@@ -73,6 +73,13 @@ public class MenuPersistenceAdapter implements MenuRepositoryPort {
             .orElse(null);
     }
 
+    @Override
+    public void incrementViewCount(Long menuId) {
+        if (menuId != null) {
+            menuJpaRepository.incrementViewCount(menuId);
+        }
+    }
+
     private Menu toDomain(MenuEntity e) {
         Category category = e.getCategory() != null ? categoryEntityToDomain(e.getCategory()) : null;
         Integer sortOrder = e.getSortOrder();

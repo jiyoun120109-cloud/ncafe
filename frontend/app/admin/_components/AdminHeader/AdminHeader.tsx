@@ -4,11 +4,12 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Menu, Bell, LogOut } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { logoutApi } from '@/services/authService';
 import { clearCartSessionId } from '@/services/cartService';
+import { getApiBase } from '@/services/api';
 import styles from './AdminHeader.module.css';
 
 /** 사이드바 navSectionTitle과 동일한 구분만 표시 (헤더에는 navItem 제목 미표시) */
@@ -24,7 +25,7 @@ export default function AdminHeader() {
     const pathname = usePathname();
     const { toggleSidebar } = useUIStore();
     const displayTitle = useMemo(() => getSectionTitleForPath(pathname ?? ''), [pathname]);
-    const { user, clearUser } = useAuthStore();
+    const { user, profileImageUrl, clearUser } = useAuthStore();
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -59,20 +60,22 @@ export default function AdminHeader() {
             </div>
 
             <div className={styles.right}>
-                <Link href="/user?tab=notifications" className={styles.iconButtonLink} aria-label="알림">
-                    <motion.span whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.iconButton}>
-                        <Bell size={20} />
-                        <span className={styles.notificationBadge} />
-                    </motion.span>
-                </Link>
-
                 <Link href="/" className={styles.profileLink} aria-label="메인으로 이동">
                     <div className={styles.profile}>
                         <div className={styles.profileAvatar}>
-                            {user?.username?.[0]?.toUpperCase() ?? '?'}
+                            {profileImageUrl ? (
+                                <img
+                                    src={`${getApiBase()}/static/${profileImageUrl}`}
+                                    alt=""
+                                    className={styles.profileAvatarImg}
+                                />
+                            ) : (
+                                <span>{user?.username?.[0]?.toUpperCase() ?? '?'}</span>
+                            )}
                         </div>
                         <span className={styles.profileName}>
                             {user?.name ?? user?.username ?? '관리자'}
+                            {user?.role === 'ADMIN' && <span className={styles.adminBadge}>관리자</span>}
                         </span>
                     </div>
                 </Link>

@@ -50,6 +50,13 @@
     grid-column: span 2;
 }
 
+.likeViewRow {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    grid-column: span 2;
+}
+
 .label {
     font-size: 0.78rem;
     font-weight: 500;

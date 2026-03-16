@@ -6,8 +6,10 @@ import { useUIStore } from '@/stores/uiStore';
 import MenuList from './_components/MenuList';
 import MenuToolbar from './_components/MenuToolbar';
 import CategoryTabs from './_components/CategoryTabs';
+import MenuFilterTabs from './_components/MenuFilterTabs/MenuFilterTabs';
+import RankingTable from './_components/RankingTable/RankingTable';
 import { useAdminCategories } from '../_components/useAdminCategories';
-import { useMenus } from './_components/MenuList/useMenus';
+import { useMenus, type MenuSortBy } from './_components/MenuList/useMenus';
 import styles from './page.module.css';
 
 const PAGE_SIZE = 12;
@@ -16,6 +18,8 @@ export default function AdminMenusPage() {
     const { setTitle } = useUIStore();
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState<MenuSortBy | null>(null);
+    const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
     const [page, setPage] = useState(1);
 
     const {
@@ -27,7 +31,17 @@ export default function AdminMenusPage() {
         reorderCategories,
     } = useAdminCategories();
 
-    const { menus: allMenus } = useMenus({ categoryId: null, searchQuery: '' });
+    const { menus: allMenus } = useMenus({
+        categoryId: null,
+        searchQuery: '',
+    });
+
+    const { menus, setMenus, refetch } = useMenus({
+        categoryId: selectedCategory,
+        searchQuery,
+        sortBy,
+        isAvailable,
+    });
 
     const { totalCount, menuCountByCategoryName } = useMemo(() => {
         const byName: Record<string, number> = {};
@@ -41,7 +55,7 @@ export default function AdminMenusPage() {
     }, [allMenus]);
 
     useEffect(() => { setTitle('메뉴 관리'); }, [setTitle]);
-    useEffect(() => { setPage(1); }, [selectedCategory, searchQuery]);
+    useEffect(() => { setPage(1); }, [selectedCategory, searchQuery, sortBy, isAvailable]);
 
     return (
         <div className={styles.page}>
@@ -72,13 +86,24 @@ export default function AdminMenusPage() {
                 }}
             />
 
-            <MenuList
-                selectedCategory={selectedCategory}
-                searchQuery={searchQuery}
-                page={page}
-                onPageChange={setPage}
-                pageSize={PAGE_SIZE}
+            <MenuFilterTabs
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                isAvailable={isAvailable}
+                setIsAvailable={setIsAvailable}
             />
+
+            <div className={styles.mainWithRanking}>
+                <MenuList
+                    menus={menus}
+                    setMenus={setMenus}
+                    refetch={refetch}
+                    page={page}
+                    onPageChange={setPage}
+                    pageSize={PAGE_SIZE}
+                />
+                <RankingTable menus={menus} />
+            </div>
         </div>
     );
 }

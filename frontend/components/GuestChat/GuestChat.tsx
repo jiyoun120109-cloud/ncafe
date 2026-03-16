@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CircleUser, X, Send, GripHorizontal, Paperclip, Smile, ExternalLink, ShoppingCart, Search } from 'lucide-react';
+import { CircleUser, X, Send, GripHorizontal, Smile, ExternalLink, ShoppingCart, Search } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import type { ChatTool } from '@/app/api/chat/route';
 import styles from './GuestChat.module.css';
@@ -13,7 +13,7 @@ const PANEL_MAX_WIDTH = 600;
 const PANEL_MIN_HEIGHT = 300;
 const PANEL_MAX_HEIGHT = 700;
 const DEFAULT_WIDTH = 360;
-const DEFAULT_HEIGHT = 420;
+const DEFAULT_HEIGHT = 500;
 
 type Role = 'user' | 'bot';
 
@@ -126,10 +126,6 @@ export default function GuestChat() {
   >({});
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [attachedFiles, setAttachedFiles] = useState<{ id: string; file: File }[]>([]);
-  const MAX_ATTACHMENTS = 3;
-  const ACCEPT_ATTACH = 'image/*,.pdf';
 
   const handleAddToCart = useCallback(
     async (
@@ -243,53 +239,26 @@ export default function GuestChat() {
 
   const sendMessage = async () => {
     const raw = (input || '').replace(/\r?\n/g, '').trim();
-    const hasAttachments = attachedFiles.length > 0;
-    if ((!raw && !hasAttachments) || sending) return;
+    if (!raw || sending) return;
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: 'user',
-      text: raw || (hasAttachments ? '(사진 첨부)' : ''),
+      text: raw,
       at: new Date(),
     };
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput('');
-    const filesToSend = [...attachedFiles];
-    setAttachedFiles([]);
     setSending(true);
-    setLoadingMessage(getLoadingMessage(raw || '첨부'));
+    setLoadingMessage(getLoadingMessage(raw));
 
-    let apiMessages: { role: 'user' | 'model'; content: string; attachments?: { mimeType: string; data: string }[] }[] =
-      newMessages.map((m) => ({
-        role: m.role === 'bot' ? ('model' as const) : ('user' as const),
-        content: m.text,
-      }));
+    const apiMessages = newMessages.map((m) => ({
+      role: m.role === 'bot' ? ('model' as const) : ('user' as const),
+      content: m.text,
+    }));
 
-    if (filesToSend.length > 0) {
-      try {
-        const attachments = await Promise.all(filesToSend.map((a) => fileToBase64(a.file)));
-        if (apiMessages.length > 0) {
-          const last = apiMessages[apiMessages.length - 1];
-          if (last.role === 'user') {
-            apiMessages = [
-              ...apiMessages.slice(0, -1),
-              { ...last, content: last.content || '(첨부)', attachments },
-            ];
-          }
-        }
-      } catch {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === userMsg.id ? { ...m, text: '첨부 파일을 읽는 중 오류가 났어요.' } : m
-          )
-        );
-        setSending(false);
-        return;
-      }
-    }
-
-    const useStream = shouldUseStream(raw || '첨부');
+    const useStream = shouldUseStream(raw);
 
     try {
       if (useStream) {
@@ -447,43 +416,6 @@ export default function GuestChat() {
   const handleEmojiClick = (emoji: string) => {
     setInput((prev) => prev + emoji);
     inputRef.current?.focus();
-  };
-
-  const handleAttachClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files?.length) return;
-    const toAdd: { id: string; file: File }[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      if (attachedFiles.length + toAdd.length >= MAX_ATTACHMENTS) break;
-      const ok = file.type.startsWith('image/') || file.type === 'application/pdf';
-      if (!ok) continue;
-      if (file.size > 10 * 1024 * 1024) continue;
-      toAdd.push({ id: `f-${Date.now()}-${i}`, file });
-    }
-    setAttachedFiles((prev) => [...prev, ...toAdd]);
-    e.target.value = '';
-  };
-
-  const removeAttached = (id: string) => {
-    setAttachedFiles((prev) => prev.filter((a) => a.id !== id));
-  };
-
-  const fileToBase64 = (file: File): Promise<{ mimeType: string; data: string }> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        const base64 = result.includes(',') ? result.split(',')[1] : result;
-        resolve({ mimeType: file.type || 'image/jpeg', data: base64 });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleQuickPhrase = (phrase: string) => {
@@ -743,44 +675,8 @@ export default function GuestChat() {
                 ))}
               </div>
             )}
-            {attachedFiles.length > 0 && (
-              <div className={styles.attachChips}>
-                {attachedFiles.map((a) => (
-                  <span key={a.id} className={styles.attachChip}>
-                    <span className={styles.attachChipName}>{a.file.name}</span>
-                    <button
-                      type="button"
-                      className={styles.attachChipRemove}
-                      onClick={() => removeAttached(a.id)}
-                      aria-label={`${a.file.name} 제거`}
-                    >
-                      <X size={14} />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
             <div className={styles.formRow}>
               <div className={styles.inputRow}>
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  onClick={handleAttachClick}
-                  disabled={sending || attachedFiles.length >= MAX_ATTACHMENTS}
-                  aria-label="첨부하기"
-                  title={`이미지·PDF 첨부 (최대 ${MAX_ATTACHMENTS}개)`}
-                >
-                  <Paperclip size={20} />
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className={styles.fileInput}
-                  onChange={handleFileChange}
-                  accept={ACCEPT_ATTACH}
-                  multiple
-                  aria-hidden
-                />
                 <button
                   type="button"
                   className={styles.iconBtn}
@@ -812,7 +708,7 @@ export default function GuestChat() {
               <button
                 type="submit"
                 className={styles.sendBtn}
-                disabled={sending || (!input.trim() && attachedFiles.length === 0)}
+                disabled={sending || !input.trim()}
               >
                 <Send size={18} />
               </button>

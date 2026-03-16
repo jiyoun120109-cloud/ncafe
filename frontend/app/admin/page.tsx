@@ -74,6 +74,11 @@ export default function AdminDashboardPage() {
 
     useEffect(() => {
         loadPeriodStats(period);
+        if (period === 'day') {
+            fetchAdminOrderStats(todayISO())
+                .then(setStats)
+                .catch(() => setStatsError('통계를 불러올 수 없습니다.'));
+        }
     }, [period, loadPeriodStats]);
 
     const loadPendingAndPaid = useCallback(() => {
@@ -127,7 +132,7 @@ export default function AdminDashboardPage() {
     const periodTotalRevenue = periodStats.reduce((s, p) => s + (p.revenue ?? 0), 0);
     const periodTotalVisitors = periodStats.reduce((s, p) => s + (p.visitorCount ?? 0), 0);
     const todayVisitors = stats?.visitorCountToday ?? 0;
-    const showTodayVisitors = period === 'day' && !hasUserSelectedPeriod;
+    const showTodayVisitors = period === 'day';
     const visitorCardValue = showTodayVisitors ? todayVisitors : periodTotalVisitors;
     const visitorCardSub = showTodayVisitors ? '오늘' : `선택 기간 합계 (${PERIODS.find((x) => x.key === period)?.label})`;
 

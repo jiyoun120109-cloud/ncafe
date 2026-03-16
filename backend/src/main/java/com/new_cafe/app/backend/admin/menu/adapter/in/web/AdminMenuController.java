@@ -59,6 +59,8 @@ public class AdminMenuController {
         MenuListCommand command = MenuListCommand.builder()
                 .categoryId(request.getCategoryId())
                 .searchQuery(request.getSearchQuery())
+                .sortBy(request.getSortBy())
+                .isAvailable(request.getIsAvailable())
                 .build();
 
         MenuListResult result = adminMenuUseCase.getMenus(command);
@@ -156,6 +158,8 @@ public class AdminMenuController {
             .displayPriority(result.getDisplayPriority())
             .likeCount(result.getLikeCount())
             .viewCount(result.getViewCount())
+            .weeklySalesCount(result.getWeeklySalesCount())
+            .reorderRate(result.getReorderRate())
             .createdAt(result.getCreatedAt())
             .updatedAt(result.getUpdatedAt())
             .build();
@@ -219,11 +223,13 @@ public class AdminMenuController {
                                 .engName(menu.getEngName())
                                 .description(menu.getDescription())
                                 .price(menu.getPrice())
+                                .categoryId(menu.getCategoryId())
                                 .categoryName(menu.getCategoryName())
                                 .imageSrc(menu.getImageSrc())
                                 .isAvailable(menu.getIsAvailable())
                                 .createdAt(menu.getCreatedAt())
                                 .updatedAt(menu.getUpdatedAt())
+                                .badgeTypes(menu.getBadgeTypes())
                                 .build())
                         .collect(java.util.stream.Collectors.toList()))
                 .total(result.getTotal())

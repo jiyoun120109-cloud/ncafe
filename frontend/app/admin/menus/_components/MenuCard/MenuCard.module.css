@@ -118,6 +118,30 @@
     border-radius: 3px;
 }
 
+/* 배지 (인기 / NEW / 추천) — 사용자 메뉴 카드와 동일 */
+.badgeWrap {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    z-index: 5;
+}
+
+.badgePopular,
+.badgeNew,
+.badgeRecommended {
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #5a4535;
+}
+
 /* ── 컨텐츠 ── */
 .content {
     padding: 1.1rem 1.1rem 1rem;

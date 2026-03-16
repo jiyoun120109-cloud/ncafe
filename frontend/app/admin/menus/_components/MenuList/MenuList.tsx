@@ -13,7 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import { Coffee, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useMenus, MenuResponse } from './useMenus';
+import type { MenuResponse } from './useMenus';
 import { getApiBase } from '@/services/api';
 import MenuCard from '../MenuCard';
 import SortableMenuCard from './SortableMenuCard';
@@ -22,21 +22,22 @@ import styles from './MenuList.module.css';
 const DEFAULT_PAGE_SIZE = 12;
 
 interface MenuListProps {
-    selectedCategory: number | null;
-    searchQuery: string;
+    menus: MenuResponse[];
+    setMenus: (menus: MenuResponse[] | ((prev: MenuResponse[]) => MenuResponse[])) => void;
+    refetch: () => void;
     page?: number;
     onPageChange?: (page: number) => void;
     pageSize?: number;
 }
 
 export default function MenuList({
-    selectedCategory,
-    searchQuery,
+    menus,
+    setMenus,
+    refetch,
     page = 1,
     onPageChange,
     pageSize = DEFAULT_PAGE_SIZE,
 }: MenuListProps) {
-    const { menus, setMenus, refetch } = useMenus({ categoryId: selectedCategory, searchQuery });
     const [activeMenu, setActiveMenu] = useState<MenuResponse | null>(null);
 
     const total = menus.length;

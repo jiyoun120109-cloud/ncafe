@@ -165,18 +165,19 @@
   max-width: 85%;
 }
 .msgBubble {
+  display: inline-block;
+  width: fit-content;
   max-width: 85%;
   padding: 0.6rem 1rem;
   border-radius: 1rem;
   font-size: var(--text-sm);
   line-height: 1.5;
-  white-space: pre-line; /* 봇 응답의 \n을 줄바꿈으로 표시 */
+  white-space: pre-line;
 }
 .msgUser .msgBubble {
-  background: var(--color-primary-600);
-  color: #fff;
+  background: #e2d4c4;
+  color: #3d3630;
   border-bottom-right-radius: 4px;
-  min-width: 10rem; /* 짧은 문장이 공백에서 두 줄로 나뉘지 않도록 */
 }
 .msgBot .msgBubble {
   background: var(--bg-primary);
@@ -266,15 +267,15 @@
   padding: 0.28rem 0.5rem;
   font-size: 0.72rem;
   font-weight: 500;
-  color: #fff;
-  background: var(--color-primary-600);
+  color: #5c4033;
+  background: #d4b896;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
 }
 .toolButton:hover:not(:disabled) {
-  background: var(--color-primary-700);
+  background: #c4a574;
 }
 .toolButton:disabled {
   opacity: 0.7;
@@ -376,8 +377,8 @@
   padding: 0.4rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #fff;
-  background: var(--color-primary-600);
+  color: #5c4033;
+  background: #d4b896;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -385,7 +386,7 @@
   align-self: flex-start;
 }
 .cartSubmitBtn:hover:not(:disabled) {
-  background: var(--color-primary-700);
+  background: #c4a574;
 }
 .cartSubmitBtn:disabled {
   opacity: 0.7;
@@ -466,42 +467,6 @@
   background: var(--bg-primary);
   position: relative;
   flex-shrink: 0;
-}
-.attachChips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0 0.5rem 0.35rem 0;
-}
-.attachChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  color: var(--color-gray-700);
-  background: var(--color-gray-100);
-  border-radius: var(--radius-md);
-  max-width: 140px;
-}
-.attachChipName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.attachChipRemove {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--color-gray-500);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.attachChipRemove:hover {
-  color: var(--color-error);
 }
 .formRow {
   display: flex;

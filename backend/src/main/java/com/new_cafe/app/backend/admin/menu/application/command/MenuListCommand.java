@@ -15,4 +15,6 @@ import lombok.NoArgsConstructor;
 public class MenuListCommand {
     private Integer categoryId;
     private String searchQuery;
+    private String sortBy;
+    private Boolean isAvailable;
 }

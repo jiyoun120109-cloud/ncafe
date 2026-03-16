@@ -58,11 +58,15 @@ export default function MenuDetailInfo({ id }: { id: number }) {
                     <div className={styles.statsGrid}>
                         <div className={styles.statItem}>
                             <div className={styles.statLabel}>주간 판매량</div>
-                            <div className={styles.statValue}>-</div>
+                            <div className={styles.statValue}>
+                                {menu.weeklySalesCount != null ? menu.weeklySalesCount.toLocaleString() : '-'}
+                            </div>
                         </div>
                         <div className={styles.statItem}>
                             <div className={styles.statLabel}>재주문율</div>
-                            <div className={styles.statValue}>-</div>
+                            <div className={styles.statValue}>
+                                {menu.reorderRate != null ? `${menu.reorderRate}%` : '-'}
+                            </div>
                         </div>
                     </div>
                 </div>

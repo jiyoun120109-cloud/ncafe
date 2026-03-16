@@ -19,8 +19,15 @@ import com.new_cafe.app.backend.admin.menu.application.port.out.AdminMenuReposit
 import com.new_cafe.app.backend.admin.menu.model.AdminMenu;
 import com.new_cafe.app.backend.admin.menu.model.AdminMenuImage;
 import com.new_cafe.app.backend.favorite.adapter.out.jpa.FavoriteJpaRepository;
+import com.new_cafe.app.backend.order.adapter.out.jpa.OrderItemJpaRepository;
+import com.new_cafe.app.backend.order.adapter.out.jpa.OrderJpaRepository;
+import com.new_cafe.app.backend.order.adapter.out.jpa.OrderEntity;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,13 +40,19 @@ public class AdminMenuService implements AdminMenuUseCase {
     private final AdminMenuRepositoryPort adminMenuRepositoryPort;
     private final AdminMenuImageRepositoryPort adminMenuImageRepositoryPort;
     private final FavoriteJpaRepository favoriteJpaRepository;
+    private final OrderItemJpaRepository orderItemJpaRepository;
+    private final OrderJpaRepository orderJpaRepository;
 
     public AdminMenuService(AdminMenuRepositoryPort adminMenuRepositoryPort,
                            AdminMenuImageRepositoryPort adminMenuImageRepositoryPort,
-                           FavoriteJpaRepository favoriteJpaRepository) {
+                           FavoriteJpaRepository favoriteJpaRepository,
+                           OrderItemJpaRepository orderItemJpaRepository,
+                           OrderJpaRepository orderJpaRepository) {
         this.adminMenuRepositoryPort = adminMenuRepositoryPort;
         this.adminMenuImageRepositoryPort = adminMenuImageRepositoryPort;
         this.favoriteJpaRepository = favoriteJpaRepository;
+        this.orderItemJpaRepository = orderItemJpaRepository;
+        this.orderJpaRepository = orderJpaRepository;
     }
 
     /**
@@ -52,6 +65,20 @@ public class AdminMenuService implements AdminMenuUseCase {
             command.getSearchQuery()
         );
 
+        if (command.getIsAvailable() != null) {
+            menus = menus.stream()
+                .filter(m -> Boolean.TRUE.equals(m.getIsAvailable()) == command.getIsAvailable())
+                .collect(Collectors.toList());
+        }
+
+        String sortBy = command.getSortBy() != null ? command.getSortBy().trim() : null;
+        if (sortBy != null && !sortBy.isEmpty()) {
+            Comparator<AdminMenu> comp = sortComparator(sortBy);
+            if (comp != null) {
+                menus = menus.stream().sorted(comp).collect(Collectors.toList());
+            }
+        }
+
         List<MenuListResult.MenuInfo> menuInfos = menus.stream()
             .map(this::convertToMenuInfo)
             .collect(Collectors.toList());
@@ -60,6 +87,25 @@ public class AdminMenuService implements AdminMenuUseCase {
             .menus(menuInfos)
             .total(menuInfos.size())
             .build();
+    }
+
+    private Comparator<AdminMenu> sortComparator(String sortBy) {
+        switch (sortBy.toLowerCase()) {
+            case "views_desc":
+                return Comparator.comparing(AdminMenu::getViewCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed();
+            case "likes_desc":
+                return Comparator.comparing(AdminMenu::getLikeCount, Comparator.nullsFirst(Comparator.naturalOrder())).reversed();
+            case "price_desc":
+                return Comparator.comparing(AdminMenu::getPrice, Comparator.nullsFirst(Comparator.naturalOrder())).reversed();
+            case "price_asc":
+                return Comparator.comparing(AdminMenu::getPrice, Comparator.nullsFirst(Comparator.naturalOrder()));
+            case "name_asc":
+                return Comparator.comparing(AdminMenu::getKorName, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "name_eng_asc":
+                return Comparator.comparing(AdminMenu::getEngName, Comparator.nullsLast(Comparator.naturalOrder()));
+            default:
+                return null;
+        }
     }
 
     /**
@@ -78,6 +124,25 @@ public class AdminMenuService implements AdminMenuUseCase {
         int likeCountAgg = (int) favoriteJpaRepository.countByMenuId(menu.getId());
         Integer viewCount = menu.getViewCount() != null ? menu.getViewCount() : 0;
 
+        LocalDateTime weekAgo = LocalDateTime.now().minusDays(7);
+        long weeklySalesCount = orderItemJpaRepository.sumQuantityByMenuIdAndOrderCreatedAtAfter(menu.getId(), weekAgo);
+
+        List<OrderEntity> ordersWithMenu = orderJpaRepository.findOrdersContainingMenuIdOrderByCreatedAt(menu.getId());
+        int reorderCount = 0;
+        int ordersWithUser = 0;
+        Set<Long> seenUserIds = new HashSet<>();
+        for (OrderEntity order : ordersWithMenu) {
+            Long userId = order.getUserId() != null ? order.getUserId() : order.getCustomerId();
+            if (userId == null) continue;
+            ordersWithUser++;
+            if (seenUserIds.contains(userId)) {
+                reorderCount++;
+            } else {
+                seenUserIds.add(userId);
+            }
+        }
+        Double reorderRate = ordersWithUser > 0 ? Math.round((100.0 * reorderCount / ordersWithUser) * 10) / 10.0 : null;
+
         return GetMenuResult.builder()
             .id(menu.getId())
             .korName(menu.getKorName())
@@ -95,6 +160,8 @@ public class AdminMenuService implements AdminMenuUseCase {
             .displayPriority(menu.getDisplayPriority())
             .likeCount(likeCountAgg)
             .viewCount(viewCount)
+            .weeklySalesCount(weeklySalesCount)
+            .reorderRate(reorderRate)
             .createdAt(menu.getCreatedAt())
             .updatedAt(menu.getUpdatedAt())
             .build();
@@ -277,18 +344,25 @@ public class AdminMenuService implements AdminMenuUseCase {
         List<GetMenuImageListResult.MenuImageInfo> images = getMenuImages(menu.getId());
         String mainImageSrc = images.isEmpty() ? null : images.get(0).getImageUrl();
         String categoryName = menu.getCategory() != null ? menu.getCategory().getName() : "";
-        
+        List<String> badgeTypes = new java.util.ArrayList<>();
+        if (Boolean.TRUE.equals(menu.getIsPopular())) badgeTypes.add("popular");
+        if (Boolean.TRUE.equals(menu.getIsNew())) badgeTypes.add("new");
+        if (Boolean.TRUE.equals(menu.getIsRecommended())) badgeTypes.add("recommended");
+
+        Long categoryId = menu.getCategory() != null ? menu.getCategory().getId() : menu.getCategoryId();
         return MenuListResult.MenuInfo.builder()
             .id(menu.getId())
             .korName(menu.getKorName())
             .engName(menu.getEngName())
             .description(menu.getDescription())
             .price(menu.getPrice())
+            .categoryId(categoryId)
             .categoryName(categoryName)
             .imageSrc(mainImageSrc)
             .isAvailable(menu.getIsAvailable())
             .createdAt(menu.getCreatedAt())
             .updatedAt(menu.getUpdatedAt())
+            .badgeTypes(badgeTypes)
             .build();
     }
 

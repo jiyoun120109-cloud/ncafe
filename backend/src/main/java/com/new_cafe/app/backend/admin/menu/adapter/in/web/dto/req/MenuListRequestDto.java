@@ -15,4 +15,8 @@ import lombok.NoArgsConstructor;
 public class MenuListRequestDto {
     private Integer categoryId;
     private String searchQuery;
+    /** 정렬: views_desc, likes_desc, price_desc, price_asc, name_asc, name_eng_asc */
+    private String sortBy;
+    /** 판매 상태 필터: true=판매중, false=품절, null=전체 */
+    private Boolean isAvailable;
 }

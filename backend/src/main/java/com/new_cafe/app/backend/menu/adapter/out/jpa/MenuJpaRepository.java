@@ -14,4 +14,8 @@ public interface MenuJpaRepository extends JpaRepository<MenuEntity, Long> {
     @Modifying
     @Query("UPDATE Menu m SET m.likeCount = CASE WHEN COALESCE(m.likeCount, 0) <= 1 THEN 0 ELSE m.likeCount - 1 END WHERE m.id = :menuId")
     void decrementLikeCount(@Param("menuId") Long menuId);
+
+    @Modifying
+    @Query("UPDATE Menu m SET m.viewCount = COALESCE(m.viewCount, 0) + 1 WHERE m.id = :menuId")
+    void incrementViewCount(@Param("menuId") Long menuId);
 }

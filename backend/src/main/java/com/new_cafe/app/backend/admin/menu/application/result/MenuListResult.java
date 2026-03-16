@@ -28,10 +28,12 @@ public class MenuListResult {
         private String engName;
         private String description;
         private Integer price;
+        private Long categoryId;
         private String categoryName;
         private String imageSrc;
         private Boolean isAvailable;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        private java.util.List<String> badgeTypes;
     }
 }

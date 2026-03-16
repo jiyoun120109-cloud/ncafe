@@ -34,4 +34,6 @@ public class MenuDetailResponseDto {
     private Integer displayPriority;
     private Integer likeCount;
     private Integer viewCount;
+    private Long weeklySalesCount;
+    private Double reorderRate;
 }

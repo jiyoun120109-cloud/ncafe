@@ -355,19 +355,21 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                         placeholder="0"
                         fullWidth
                     />
-                    <div className={styles.field}>
-                        <span className={styles.label}>좋아요 수</span>
-                        <p className={styles.readOnlyValue} aria-live="polite">
-                            {(initialData as any)?.likeCount ?? 0}명
-                        </p>
-                        <p className={styles.readOnlyHint}>찜한 회원 수로 자동 집계됩니다.</p>
-                    </div>
-                    <div className={styles.field}>
-                        <span className={styles.label}>조회수</span>
-                        <p className={styles.readOnlyValue} aria-live="polite">
-                            {(initialData as any)?.viewCount ?? 0}회
-                        </p>
-                        <p className={styles.readOnlyHint}>메뉴 상세 조회 시 자동 집계됩니다.</p>
+                    <div className={styles.likeViewRow}>
+                        <div className={styles.field}>
+                            <span className={styles.label}>좋아요</span>
+                            <p className={styles.readOnlyValue} aria-live="polite">
+                                {(initialData as any)?.likeCount ?? 0}명
+                            </p>
+                            <p className={styles.readOnlyHint}>찜한 회원 수</p>
+                        </div>
+                        <div className={styles.field}>
+                            <span className={styles.label}>조회수</span>
+                            <p className={styles.readOnlyValue} aria-live="polite">
+                                {(initialData as any)?.viewCount ?? 0}회
+                            </p>
+                            <p className={styles.readOnlyHint}>상세 조회 시 집계 (방문자 수 이하)</p>
+                        </div>
                     </div>
                 </div>
             </section>
