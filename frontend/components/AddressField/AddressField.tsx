@@ -1,6 +1,8 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { useDaumPostcode } from '@/hooks/useDaumPostcode';
+import { validateAddress, validateAddressDetail } from '@/lib/addressValidation';
 import styles from './AddressField.module.css';
 
 export interface AddressFieldProps {
@@ -10,9 +12,9 @@ export interface AddressFieldProps {
   addressDetail?: string;
   onAddressChange: (value: string) => void;
   onAddressDetailChange?: (value: string) => void;
-  /** 주소 필드 에러 메시지 */
+  /** 부모가 직접 전달하는 에러 (폼 제출 시 등) — 내부 검사보다 우선 */
   error?: string | null;
-  /** 상세주소 에러 메시지 */
+  /** 부모가 직접 전달하는 상세주소 에러 */
   addressDetailError?: string | null;
   /** 상세주소 입력란 표시 여부 */
   showDetail?: boolean;
@@ -44,11 +46,37 @@ export default function AddressField({
   className = '',
 }: AddressFieldProps) {
   const { openAddressSearch } = useDaumPostcode();
+  const [localAddrError, setLocalAddrError] = useState<string | null>(null);
+  const [localDetailError, setLocalDetailError] = useState<string | null>(null);
+
+  const addrError = error || localAddrError;
+  const detailError = addressDetailError || localDetailError;
 
   const handleSearch = () => {
     if (disabled) return;
-    openAddressSearch((fullAddress) => onAddressChange(fullAddress));
+    openAddressSearch((fullAddress) => {
+      onAddressChange(fullAddress);
+      setLocalAddrError(null);
+    });
   };
+
+  const handleAddrChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onAddressChange(e.target.value);
+    if (localAddrError) setLocalAddrError(null);
+  }, [onAddressChange, localAddrError]);
+
+  const handleAddrBlur = useCallback(() => {
+    setLocalAddrError(validateAddress(address, { required }));
+  }, [address, required]);
+
+  const handleDetailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onAddressDetailChange?.(e.target.value);
+    if (localDetailError) setLocalDetailError(null);
+  }, [onAddressDetailChange, localDetailError]);
+
+  const handleDetailBlur = useCallback(() => {
+    setLocalDetailError(validateAddressDetail(addressDetail));
+  }, [addressDetail]);
 
   return (
     <div className={`${styles.wrap} ${className}`}>
@@ -56,15 +84,16 @@ export default function AddressField({
         <input
           id={id}
           type="text"
-          className={`${styles.input} ${error ? styles.inputError : ''}`}
+          className={`${styles.input} ${addrError ? styles.inputError : ''}`}
           value={address}
-          onChange={(e) => onAddressChange(e.target.value)}
+          onChange={handleAddrChange}
+          onBlur={handleAddrBlur}
           placeholder={addressPlaceholder}
           disabled={disabled}
           required={required}
           autoComplete="street-address"
-          aria-invalid={!!error}
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-invalid={!!addrError}
+          aria-describedby={addrError ? `${id}-error` : undefined}
         />
         <button
           type="button"
@@ -76,9 +105,9 @@ export default function AddressField({
           {searchButtonLabel}
         </button>
       </div>
-      {error && (
+      {addrError && (
         <span id={`${id}-error`} className={styles.error} role="alert">
-          {error}
+          {addrError}
         </span>
       )}
       {showDetail && (
@@ -86,17 +115,18 @@ export default function AddressField({
           <input
             id={detailId}
             type="text"
-            className={`${styles.input} ${styles.detailInput} ${addressDetailError ? styles.inputError : ''}`}
+            className={`${styles.input} ${styles.detailInput} ${detailError ? styles.inputError : ''}`}
             value={addressDetail}
-            onChange={(e) => onAddressDetailChange?.(e.target.value)}
+            onChange={handleDetailChange}
+            onBlur={handleDetailBlur}
             placeholder={detailPlaceholder}
             disabled={disabled}
             autoComplete="address-line2"
-            aria-invalid={!!addressDetailError}
+            aria-invalid={!!detailError}
           />
-          {addressDetailError && (
+          {detailError && (
             <span className={styles.error} role="alert">
-              {addressDetailError}
+              {detailError}
             </span>
           )}
         </>

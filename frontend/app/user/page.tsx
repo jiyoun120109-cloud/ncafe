@@ -637,19 +637,6 @@ function UserPageContent() {
                         </button>
                       </div>
                     </form>
-                  ) : (
-                    <ul className={styles.profileList}>
-                      <li><span>아이디</span><span>{profile.username}</span></li>
-                      <li><span>이름</span><span>{profile.name || '-'}</span></li>
-                      <li><span>닉네임</span><span>{profile.displayNickname || '-'}</span></li>
-                      <li><span>이메일</span><span>{profile.email || '-'}</span></li>
-                      <li><span>생년월일</span><span>{profile.birthDate || '-'}</span></li>
-                    <li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
-                    <li><span>주소</span><span>{profile.address || '-'}</span></li>
-                    <li><span>권한</span><span>{profile.role}</span></li>
-                    </ul>
-                  )}
-                  {profile && (
                     <div className={styles.passwordChangeWrap}>
                       <h3 className={styles.passwordChangeTitle}>비밀번호 변경</h3>
                       <form onSubmit={handleChangePassword} className={styles.passwordChangeForm}>
@@ -698,6 +685,17 @@ function UserPageContent() {
                         </div>
                       </form>
                     </div>
+                  ) : (
+                    <ul className={styles.profileList}>
+                      <li><span>아이디</span><span>{profile.username}</span></li>
+                      <li><span>이름</span><span>{profile.name || '-'}</span></li>
+                      <li><span>닉네임</span><span>{profile.displayNickname || '-'}</span></li>
+                      <li><span>이메일</span><span>{profile.email || '-'}</span></li>
+                      <li><span>생년월일</span><span>{profile.birthDate || '-'}</span></li>
+                    <li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
+                    <li><span>주소</span><span>{profile.address || '-'}</span></li>
+                    <li><span>권한</span><span>{profile.role}</span></li>
+                    </ul>
                   )}
                 </>
               ) : null}

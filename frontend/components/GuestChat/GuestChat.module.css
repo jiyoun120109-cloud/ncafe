@@ -4,8 +4,8 @@
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 999;
-  width: 56px;
-  height: 56px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   padding: 0;
   border: 2px solid rgba(255, 255, 255, 0.9);
@@ -24,12 +24,12 @@
   box-shadow: 0 6px 18px rgba(139, 90, 60, 0.35);
 }
 .fabEmoji {
-  font-size: 1.75rem;
+  font-size: 3.5rem;
   line-height: 1;
 }
 .fabImg {
-  width: 32px;
-  height: 32px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   object-fit: cover;
 }
