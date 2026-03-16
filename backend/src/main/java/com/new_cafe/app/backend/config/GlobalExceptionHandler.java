@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 
@@ -56,6 +57,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(isValidation ? HttpStatus.BAD_REQUEST : HttpStatus.NOT_FOUND)
                 .body(Map.of("error", isValidation ? "Bad Request" : "Not Found", "message", msg));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String paramName = ex.getName();
+        Object value = ex.getValue();
+        String message = String.format("잘못된 파라미터입니다: '%s' = '%s'", paramName, value);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", "Bad Request", "message", message));
     }
 
     @ExceptionHandler(NumberFormatException.class)

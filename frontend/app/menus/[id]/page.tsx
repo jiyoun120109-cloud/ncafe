@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { redirect, notFound } from 'next/navigation';
 import MenuDetailHeader from './_components/MenuDetailHeader/MenuDetailHeader';
 import MenuDetailImages from './_components/MenuDetailImages/MenuDetailImages';
 import MenuDetailInfo from './_components/MenuDetailInfo/MenuDetailInfo';
@@ -10,9 +11,17 @@ interface PageProps {
 
 export default async function UserMenuDetailPage({ params }: PageProps) {
     const { id: rawId } = await params;
-    // URL 세그먼트에 "4:1" 같은 값이 들어와도 항상 숫자 ID만 사용
     const numericId = Number.parseInt(rawId, 10);
-    const id = Number.isNaN(numericId) ? rawId : String(numericId);
+
+    if (Number.isNaN(numericId) || numericId <= 0) {
+        notFound();
+    }
+
+    const id = String(numericId);
+
+    if (rawId !== id) {
+        redirect(`/menus/${id}`);
+    }
 
     return (
         <main className={styles.container}>
