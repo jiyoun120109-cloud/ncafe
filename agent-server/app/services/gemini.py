@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from collections.abc import Generator
 from typing import Any
 
@@ -101,13 +102,27 @@ def _client_get() -> genai.Client:
 def _to_contents(
     messages: list[dict],
 ) -> list[types.Content]:
-    return [
-        types.Content(
-            role=m["role"],
-            parts=[types.Part.from_text(text=m["parts"][0]["text"])],
-        )
-        for m in messages
-    ]
+    result = []
+    for m in messages:
+        role = m.get("role") or "user"
+        parts = m.get("parts") or []
+        gemini_parts = []
+        for p in parts:
+            if "text" in p and p["text"]:
+                gemini_parts.append(types.Part.from_text(text=p["text"]))
+            if "inline_data" in p:
+                inline = p["inline_data"]
+                mime = inline.get("mime_type") or "image/jpeg"
+                data_b64 = inline.get("data") or ""
+                try:
+                    data_bytes = base64.b64decode(data_b64)
+                except Exception:
+                    continue
+                gemini_parts.append(types.Part.from_bytes(data=data_bytes, mime_type=mime))
+        if not gemini_parts:
+            gemini_parts.append(types.Part.from_text(text=""))
+        result.append(types.Content(role=role, parts=gemini_parts))
+    return result
 
 
 def _config(rag_context: str | None = None, with_tools: bool = False) -> types.GenerateContentConfig:

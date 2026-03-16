@@ -328,29 +328,50 @@ async function runTools(
  * AGENT_SERVER_URL이 있으면 POST /chat 호출, 없으면 더미 응답.
  * 응답에 도구(navigate, add_to_cart, search_menu) 의도가 있으면 감지해 함께 반환.
  */
+type ChatAttachment = { mimeType?: string; data: string };
+type ChatMessageForAgent = { role: 'user' | 'model'; content: string; attachments?: ChatAttachment[] };
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const message = typeof body.message === 'string' ? body.message : '';
-    type Msg = { role?: string; content?: string };
-    const messages: { role: 'user' | 'model'; content: string }[] =
-      Array.isArray(body.messages) && body.messages.length > 0
-        ? (body.messages as Msg[]).map((m) => ({
-            role: (m.role === 'model' ? 'model' : 'user') as 'user' | 'model',
-            content: typeof m.content === 'string' ? m.content : '',
-          })).filter((m: { content: string }) => m.content !== '')
-        : message.trim()
-          ? [{ role: 'user' as const, content: message }]
-          : [];
+    type Msg = { role?: string; content?: string; attachments?: ChatAttachment[] };
+    const rawMessages = Array.isArray(body.messages) && body.messages.length > 0
+      ? (body.messages as Msg[])
+      : message.trim()
+        ? [{ role: 'user' as const, content: message }]
+        : [];
+
+    const messages: ChatMessageForAgent[] = rawMessages
+      .map((m) => ({
+        role: (m.role === 'model' ? 'model' : 'user') as 'user' | 'model',
+        content: typeof m.content === 'string' ? m.content : '',
+        attachments: Array.isArray(m.attachments) ? m.attachments : undefined,
+      }))
+      .filter((m) => m.content !== '' || (m.attachments && m.attachments.length > 0));
 
     const lastUserContent =
       messages.length > 0 && messages[messages.length - 1].role === 'user'
         ? messages[messages.length - 1].content
         : message || '';
 
+    const toAgentMessages = (msgs: ChatMessageForAgent[]) =>
+      msgs.map((m) => ({
+        role: m.role,
+        content: m.content,
+        ...(m.attachments?.length
+          ? {
+              attachments: m.attachments.map((a) => ({
+                mime_type: a.mimeType || 'image/jpeg',
+                data: a.data,
+              })),
+            }
+          : {}),
+      }));
+
     // 스트리밍: Agent에 http 모듈로 요청해 SSE 스트림 그대로 전달 (undici 버퍼링 방지)
     if (body.stream && AGENT_SERVER_URL && messages.length > 0) {
-      const payload = JSON.stringify({ messages, stream: true });
+      const payload = JSON.stringify({ messages: toAgentMessages(messages), stream: true });
       const stream = await requestStreamFromAgent(payload);
       return new NextResponse(stream, {
         headers: {
@@ -372,7 +393,7 @@ export async function POST(req: NextRequest) {
       const res = await fetch(`${base}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, stream: false }),
+        body: JSON.stringify({ messages: toAgentMessages(messages), stream: false }),
       });
       if (res.ok) {
         const data = await res.json().catch(() => ({}));

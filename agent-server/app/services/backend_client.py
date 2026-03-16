@@ -24,18 +24,35 @@ def fetch_menus(search_query: str | None = None) -> list[dict]:
         return []
 
 
+def _match_menu_by_name(menu: dict, name: str, name_lower: str) -> bool:
+    """단일 메뉴가 name과 매칭되는지 (korName / engName 기준)."""
+    kor = (menu.get("korName") or "").strip()
+    eng = (menu.get("engName") or menu.get("name") or "").strip().lower()
+    if name in kor or name_lower in eng:
+        return True
+    if len(name) >= 2 and (name_lower in kor.lower() or name_lower in eng):
+        return True
+    return False
+
+
 def find_menu_by_name(menu_name: str) -> dict | None:
     """메뉴 이름(한글/영문)으로 검색해 첫 번째 매칭 메뉴 반환. 없으면 None."""
     if not (menu_name and str(menu_name).strip()):
         return None
     name = str(menu_name).strip()
-    menus = fetch_menus(name)
     name_lower = name.lower()
+
+    # 1) searchQuery로 검색한 결과에서 korName/engName 매칭
+    menus = fetch_menus(name)
     for m in menus:
-        kor = (m.get("korName") or "").strip()
-        eng = (m.get("engName") or m.get("name") or "").strip().lower()
-        if name in kor or name_lower in eng or (len(name) >= 2 and (name_lower in kor.lower() or name_lower in eng)):
+        if _match_menu_by_name(m, name, name_lower):
             return m
     if menus:
         return menus[0]
+
+    # 2) 검색 결과가 없거나 매칭 실패 시: 전체 목록에서 korName/engName으로 재탐색
+    all_menus = fetch_menus(None)
+    for m in all_menus:
+        if _match_menu_by_name(m, name, name_lower):
+            return m
     return None

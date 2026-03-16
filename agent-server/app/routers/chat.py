@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import json
 import threading
 
@@ -12,10 +13,19 @@ from app.services import backend_client
 
 
 def to_gemini_messages(messages: list[Message]) -> list[dict]:
-    return [
-        {"role": m.role, "parts": [{"text": m.content}]}
-        for m in messages
-    ]
+    out = []
+    for m in messages:
+        parts = [{"text": m.content or ""}]
+        if m.attachments:
+            for a in m.attachments:
+                parts.append({
+                    "inline_data": {
+                        "mime_type": a.mime_type or "image/jpeg",
+                        "data": a.data,
+                    }
+                })
+        out.append({"role": m.role, "parts": parts})
+    return out
 
 
 def get_rag_context(last_user_text: str, top_k: int = 5) -> str | None:
