@@ -529,6 +529,7 @@ function UserPageContent() {
                     <p className={styles.profileUsername}>{profile.username}</p>
                   </div>
                   {editing ? (
+                    <>
                     <form
                       className={styles.profileForm}
                       onSubmit={(e) => {
@@ -685,6 +686,7 @@ function UserPageContent() {
                         </div>
                       </form>
                     </div>
+                    </>
                   ) : (
                     <ul className={styles.profileList}>
                       <li><span>아이디</span><span>{profile.username}</span></li>
