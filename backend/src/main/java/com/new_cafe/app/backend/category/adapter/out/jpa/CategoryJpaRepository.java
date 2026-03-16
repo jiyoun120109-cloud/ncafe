@@ -10,6 +10,6 @@ public interface CategoryJpaRepository extends JpaRepository<CategoryEntity, Lon
     @Query("SELECT MAX(c.displayOrder) FROM Category c")
     Optional<Integer> findMaxDisplayOrder();
 
-    /** 목록 노출 순서: ID 오름차순(ID = 순서) */
-    java.util.List<CategoryEntity> findAllByOrderByIdAsc();
+    /** 목록 노출 순서: displayOrder 오름차순, 동일 시 ID 오름차순 */
+    java.util.List<CategoryEntity> findAllByOrderByDisplayOrderAscIdAsc();
 }

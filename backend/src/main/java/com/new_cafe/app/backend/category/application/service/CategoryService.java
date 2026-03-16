@@ -114,4 +114,10 @@ public class CategoryService implements UserCategoryUseCase, AdminCategoryUseCas
         }
         categoryRepository.deleteById(id);
     }
+
+    @Override
+    public void reorderCategories(List<Long> categoryIdsInOrder) {
+        if (categoryIdsInOrder == null || categoryIdsInOrder.isEmpty()) return;
+        categoryRepository.updateDisplayOrder(categoryIdsInOrder);
+    }
 }

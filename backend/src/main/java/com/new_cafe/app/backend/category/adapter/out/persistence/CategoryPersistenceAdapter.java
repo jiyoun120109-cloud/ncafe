@@ -22,7 +22,7 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
 
     @Override
     public List<Category> findAll() {
-        List<CategoryEntity> entities = categoryJpaRepository.findAllByOrderByIdAsc();
+        List<CategoryEntity> entities = categoryJpaRepository.findAllByOrderByDisplayOrderAscIdAsc();
         return entities.stream()
             .map(this::toDomain)
             .collect(Collectors.toList());
@@ -40,7 +40,9 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
     public Category save(Category category) {
         LocalDateTime now = LocalDateTime.now();
         if (category.getId() == null) {
-            Integer nextOrder = categoryJpaRepository.findMaxDisplayOrder().orElse(0) + 1;
+            Integer nextOrder = category.getDisplayOrder() != null
+                ? category.getDisplayOrder()
+                : categoryJpaRepository.findMaxDisplayOrder().orElse(0) + 1;
             CategoryEntity entity = CategoryEntity.builder()
                 .name(category.getName())
                 .icon(category.getIcon())
@@ -57,6 +59,9 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
         existing.setName(category.getName());
         existing.setIcon(category.getIcon());
         existing.setDescription(category.getDescription());
+        if (category.getDisplayOrder() != null) {
+            existing.setDisplayOrder(category.getDisplayOrder());
+        }
         existing.setUpdatedAt(now);
         CategoryEntity saved = categoryJpaRepository.save(existing);
         return toDomain(saved);
@@ -67,12 +72,26 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
         categoryJpaRepository.deleteById(id);
     }
 
+    @Override
+    public void updateDisplayOrder(List<Long> categoryIdsInOrder) {
+        if (categoryIdsInOrder == null || categoryIdsInOrder.isEmpty()) return;
+        for (int i = 0; i < categoryIdsInOrder.size(); i++) {
+            Long id = categoryIdsInOrder.get(i);
+            categoryJpaRepository.findById(id).ifPresent(e -> {
+                e.setDisplayOrder(i);
+                e.setUpdatedAt(LocalDateTime.now());
+                categoryJpaRepository.save(e);
+            });
+        }
+    }
+
     private Category toDomain(CategoryEntity e) {
         return Category.builder()
             .id(e.getId())
             .name(e.getName())
             .icon(e.getIcon())
             .description(e.getDescription())
+            .displayOrder(e.getDisplayOrder())
             .build();
     }
 }

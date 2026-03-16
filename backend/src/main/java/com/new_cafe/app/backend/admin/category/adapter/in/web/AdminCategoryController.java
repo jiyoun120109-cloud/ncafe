@@ -109,6 +109,18 @@ public class AdminCategoryController {
         adminCategoryUseCase.deleteCategory(id);
     }
 
+    /**
+     * 카테고리 순서 변경 (DnD)
+     * HTTP PATCH /api/admin/categories/reorder
+     * Body: { "categoryIds": [1, 2, 3] } - 원하는 순서대로 ID 배열
+     */
+    @PatchMapping("/reorder")
+    public void reorderCategories(@RequestBody java.util.Map<String, java.util.List<Long>> body) {
+        java.util.List<Long> ids = body != null ? body.get("categoryIds") : null;
+        if (ids == null) throw new IllegalArgumentException("categoryIds is required");
+        adminCategoryUseCase.reorderCategories(ids);
+    }
+
     private CategoryResponseDto convertToDto(CategoryInfo categoryInfo) {
         return CategoryResponseDto.builder()
                 .id(categoryInfo.getId())

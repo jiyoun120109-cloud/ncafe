@@ -127,6 +127,21 @@ export function useAdminCategories() {
         return res.json();
     }, []);
 
+    /** 카테고리 순서 변경 (DnD). categoryIds: 원하는 순서대로 ID 배열 */
+    const reorderCategories = useCallback(async (categoryIds: number[]): Promise<void> => {
+        const res = await fetch(`${getApiBase()}/admin/categories/reorder`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ categoryIds }),
+        });
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(parseErrorMessage(text, res.statusText));
+        }
+        await fetchCategories();
+    }, [fetchCategories]);
+
     return {
         categories,
         loading,
@@ -136,5 +151,6 @@ export function useAdminCategories() {
         updateCategory,
         deleteCategory,
         uploadCategoryIcon,
+        reorderCategories,
     };
 }

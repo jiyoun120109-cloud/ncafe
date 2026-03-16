@@ -18,7 +18,14 @@ export default function AdminMenusPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [page, setPage] = useState(1);
 
-    const { categories: adminCategories } = useAdminCategories();
+    const {
+        categories: adminCategories,
+        createCategory,
+        updateCategory,
+        deleteCategory,
+        uploadCategoryIcon,
+        reorderCategories,
+    } = useAdminCategories();
 
     const { menus: allMenus } = useMenus({ categoryId: null, searchQuery: '' });
 
@@ -56,6 +63,13 @@ export default function AdminMenusPage() {
                 adminCategories={adminCategories}
                 totalCount={totalCount}
                 menuCountByCategoryName={menuCountByCategoryName}
+                categoryActions={{
+                    createCategory,
+                    updateCategory,
+                    deleteCategory,
+                    uploadCategoryIcon,
+                    reorderCategories,
+                }}
             />
 
             <MenuList

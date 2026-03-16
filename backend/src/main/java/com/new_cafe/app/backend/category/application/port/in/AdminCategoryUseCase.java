@@ -20,4 +20,6 @@ public interface AdminCategoryUseCase {
     GetCategoryResult updateCategory(UpdateCategoryCommand command);
 
     void deleteCategory(Long id);
+
+    void reorderCategories(java.util.List<Long> categoryIdsInOrder);
 }

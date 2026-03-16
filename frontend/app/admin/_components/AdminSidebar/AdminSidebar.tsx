@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     ClipboardList,
-    FolderOpen,
     Package,
     Settings,
     ShoppingCart,
@@ -26,11 +25,10 @@ interface AdminSidebarProps {
 type NavItem = { href: string; label: string; icon: typeof LayoutDashboard; badge?: number };
 
 const contentNavItemsBase: NavItem[] = [
-    { href: '/admin',            label: '대시보드',     icon: LayoutDashboard },
-    { href: '/admin/menus',      label: '메뉴 관리',   icon: ClipboardList },
-    { href: '/admin/categories', label: '카테고리 관리', icon: FolderOpen },
-    { href: '/admin/members',    label: '회원 관리',   icon: Users },
-    { href: '/admin/orders',     label: '주문 관리',   icon: Package },
+    { href: '/admin',         label: '대시보드',   icon: LayoutDashboard },
+    { href: '/admin/menus',   label: '메뉴 관리',   icon: ClipboardList },
+    { href: '/admin/members', label: '회원 관리',   icon: Users },
+    { href: '/admin/orders',  label: '주문 관리',   icon: Package },
 ];
 const supportNavItems: NavItem[] = [
     { href: '/admin/notices',   label: '공지사항', icon: Megaphone },
