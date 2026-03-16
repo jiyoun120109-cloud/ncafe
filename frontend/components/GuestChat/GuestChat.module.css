@@ -166,13 +166,14 @@
 }
 .msgBubble {
   display: inline-block;
-  width: fit-content;
+  width: auto;
   max-width: 85%;
   padding: 0.6rem 1rem;
   border-radius: 1rem;
   font-size: var(--text-sm);
   line-height: 1.5;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .msgUser .msgBubble {
   background: #e2d4c4;
