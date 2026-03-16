@@ -143,11 +143,15 @@ public class OrderPersistenceAdapter implements OrderRepositoryPort {
         Specification<OrderEntity> spec = (root, query, cb) -> {
             var predicates = new java.util.ArrayList<Predicate>();
             if (search != null && !search.isBlank()) {
-                String pattern = "%" + search.trim().toLowerCase() + "%";
+                String trimmed = search.trim();
+                String pattern = "%" + trimmed.toLowerCase() + "%";
+                // 검색: 주문번호 / 비회원 이메일 / 비회원 연락처 / 주문 ID / 회원 ID
                 predicates.add(cb.or(
                     cb.like(cb.lower(cb.coalesce(root.get("orderNumber"), "")), pattern),
                     cb.like(cb.lower(cb.coalesce(root.get("guestEmail"), "")), pattern),
-                    cb.like(cb.lower(cb.coalesce(root.get("guestPhone"), "")), pattern)
+                    cb.like(cb.lower(cb.coalesce(root.get("guestPhone"), "")), pattern),
+                    cb.like(cb.lower(cb.coalesce(cb.toString(root.get("id")), "")), pattern),
+                    cb.like(cb.lower(cb.coalesce(cb.toString(root.get("userId")), "")), pattern)
                 ));
             }
             if (status != null && !status.isBlank()) {

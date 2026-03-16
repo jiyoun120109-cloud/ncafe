@@ -146,6 +146,26 @@
   color: #1c1917;
 }
 
+.bulkDeleteBtn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: #b91c1c;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bulkDeleteBtn:hover:not(:disabled) {
+  background: #991b1b;
+}
+
+.bulkDeleteBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .summaryCard {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -211,6 +231,24 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.thCheckbox {
+  width: 2.5rem;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.tdCheckbox {
+  width: 2.5rem;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
 .td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
@@ -232,6 +270,16 @@
 .orderNumCell {
   font-size: 0.8125rem;
   white-space: nowrap;
+}
+
+.orderNumLink {
+  color: var(--color-primary-600, #3E2723);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.orderNumLink:hover {
+  text-decoration: underline;
 }
 
 .dateCell {

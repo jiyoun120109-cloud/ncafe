@@ -1,5 +1,6 @@
-'use client';
+`use client`;
 
+import Link from 'next/link';
 import type { MenuResponse } from '../MenuList/useMenus';
 import styles from './RankingTable.module.css';
 
@@ -36,8 +37,24 @@ export default function RankingTable({ menus }: RankingTableProps) {
                             <tr key={menu.id}>
                                 <td>{index + 1}</td>
                                 <td>{menu.id}</td>
-                                <td>{menu.korName ?? '-'}</td>
-                                <td>{menu.engName ?? '-'}</td>
+                                <td>
+                                    {menu.korName ? (
+                                        <Link href={`/admin/menus/${menu.id}`} className={styles.nameLink}>
+                                            {menu.korName}
+                                        </Link>
+                                    ) : (
+                                        '-'
+                                    )}
+                                </td>
+                                <td>
+                                    {menu.engName ? (
+                                        <Link href={`/admin/menus/${menu.id}`} className={styles.nameLink}>
+                                            {menu.engName}
+                                        </Link>
+                                    ) : (
+                                        '-'
+                                    )}
+                                </td>
                                 <td>{menu.categoryId ?? '-'}</td>
                             </tr>
                         ))}

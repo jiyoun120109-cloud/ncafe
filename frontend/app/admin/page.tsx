@@ -130,6 +130,8 @@ export default function AdminDashboardPage() {
 
     const periodTotalOrders = periodStats.reduce((s, p) => s + (p.orderCount ?? 0), 0);
     const periodTotalRevenue = periodStats.reduce((s, p) => s + (p.revenue ?? 0), 0);
+    const summaryOrders = period === 'day' ? ordersToday : periodTotalOrders;
+    const summaryRevenue = period === 'day' ? revenueToday : periodTotalRevenue;
     const periodTotalVisitors = periodStats.reduce((s, p) => s + (p.visitorCount ?? 0), 0);
     const todayVisitors = stats?.visitorCountToday ?? 0;
     const showTodayVisitors = period === 'day';
@@ -227,8 +229,8 @@ export default function AdminDashboardPage() {
                     className={styles.periodSummary}
                     onClick={() => setSelectedDetail('period')}
                 >
-                    <span>선택 기간 주문 <strong>{periodTotalOrders}</strong>건</span>
-                    <span>매출 <strong>₩{periodTotalRevenue.toLocaleString()}</strong></span>
+                    <span>선택 기간 주문 <strong>{summaryOrders}</strong>건</span>
+                    <span>매출 <strong>₩{summaryRevenue.toLocaleString()}</strong></span>
                 </button>
             </div>
 

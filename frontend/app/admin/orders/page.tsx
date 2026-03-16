@@ -54,6 +54,8 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const size = 10;
 
@@ -124,6 +126,7 @@ export default function AdminOrdersPage() {
     setToDate('');
     setPage(0);
     setSummary(null);
+    setSelectedIds([]);
   };
 
   const handleDelete = async (orderId: number, orderNumber: string | null) => {
@@ -137,6 +140,43 @@ export default function AdminOrdersPage() {
       alert(e instanceof Error ? e.message : '삭제에 실패했습니다.');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (!data?.content?.length) return;
+    const currentIds = data.content.map((o) => o.id);
+    const allSelected = currentIds.every((id) => selectedIds.includes(id));
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !currentIds.includes(id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...currentIds])));
+    }
+  };
+
+  const toggleSelectOne = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (!data?.content?.length || selectedIds.length === 0) return;
+    if (!confirm(`선택한 ${selectedIds.length}건의 주문을 삭제하시겠습니까?`)) return;
+    setBulkDeleting(true);
+    try {
+      for (const id of selectedIds) {
+        try {
+          await deleteAdminOrder(id);
+        } catch (e) {
+          console.error('주문 삭제 실패', id, e);
+        }
+      }
+      setSelectedIds([]);
+      load();
+      if (hasFilter) loadSummary();
+    } finally {
+      setBulkDeleting(false);
     }
   };
 
@@ -163,7 +203,7 @@ export default function AdminOrdersPage() {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="주문번호 / 이메일 / 연락처 검색"
+              placeholder="주문번호 / 주문 ID / 회원 ID / 이메일 / 연락처 검색"
               className={styles.searchInput}
             />
           </div>
@@ -212,6 +252,14 @@ export default function AdminOrdersPage() {
             <button type="button" className={styles.resetBtn} onClick={handleReset}>
               초기화
             </button>
+            <button
+              type="button"
+              className={styles.bulkDeleteBtn}
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting || selectedIds.length === 0}
+            >
+              {bulkDeleting ? '삭제 중…' : `선택 삭제 (${selectedIds.length})`}
+            </button>
           </div>
         </form>
       </section>
@@ -246,6 +294,17 @@ export default function AdminOrdersPage() {
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    <th className={styles.thCheckbox}>
+                      <input
+                        type="checkbox"
+                        checked={
+                          !!data.content.length &&
+                          data.content.every((o) => selectedIds.includes(o.id))
+                        }
+                        onChange={toggleSelectAll}
+                        aria-label="전체 선택"
+                      />
+                    </th>
                     <th className={styles.th}>ID</th>
                     <th className={styles.th}>주문번호</th>
                     <th className={styles.th}>주문건수</th>
@@ -259,9 +318,19 @@ export default function AdminOrdersPage() {
                 <tbody>
                   {data.content.map((o) => (
                     <tr key={o.id} className={styles.tr}>
+                      <td className={styles.tdCheckbox}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(o.id)}
+                          onChange={() => toggleSelectOne(o.id)}
+                          aria-label={`주문 ${o.orderNumber ?? `#${o.id}`} 선택`}
+                        />
+                      </td>
                       <td className={`${styles.td} ${styles.idCell}`}>{o.id}</td>
                       <td className={`${styles.td} ${styles.orderNumCell}`}>
-                        {o.orderNumber ?? `#${o.id}`}
+                        <Link href={`/admin/orders/${o.id}`} className={styles.orderNumLink}>
+                          {o.orderNumber ?? `#${o.id}`}
+                        </Link>
                       </td>
                       <td className={styles.td}>{o.itemCount ?? 0}건</td>
                       <td className={styles.td}>
