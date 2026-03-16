@@ -31,7 +31,7 @@
 .fileRemove:hover { background: #fef2f2; }
 .fileLabelText { display: block; }
 .fileHint { font-size: 0.8rem; color: rgba(0,0,0,0.45); margin: 0.25rem 0 0.35rem 0; }
-.fileSuccess { font-size: 0.8rem; color: var(--color-primary-700, #e5a23b); margin: 0.35rem 0 0 0; }
+.fileSuccess { font-size: 0.8rem; color: var(--color-primary-700, #2d1c19); margin: 0.35rem 0 0 0; }
 .checkbox { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
 .error { color: #b91c1c; font-size: 0.9rem; margin-bottom: 0.5rem; }
 .submitWrap {
@@ -44,14 +44,14 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: #fff;
-  background: var(--color-primary-600, #FFB342);
+  background: var(--color-primary-600, #3E2723);
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
 }
 .submit:hover:not(:disabled) {
-  background: var(--color-primary-700, #e5a23b);
+  background: var(--color-primary-700, #2d1c19);
 }
 .submit:disabled {
   opacity: 0.7;

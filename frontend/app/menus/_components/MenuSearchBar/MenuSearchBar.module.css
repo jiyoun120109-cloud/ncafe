@@ -19,7 +19,7 @@
 }
 
 .wrapper:focus-within .icon {
-    color: var(--color-primary-600, #FFB342);
+    color: var(--color-primary-600, #3E2723);
 }
 
 .input {
@@ -40,7 +40,7 @@
 }
 
 .input:focus {
-    border-color: var(--color-primary-600, #FFB342);
+    border-color: var(--color-primary-600, #3E2723);
     box-shadow: 0 0 0 2px rgba(139, 90, 43, 0.15);
 }
 

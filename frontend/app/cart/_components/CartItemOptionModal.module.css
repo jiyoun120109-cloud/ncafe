@@ -61,8 +61,8 @@
 }
 
 .tempActive {
-    background: var(--color-primary-600, #FFB342);
-    border-color: var(--color-primary-600, #FFB342);
+    background: var(--color-primary-600, #3E2723);
+    border-color: var(--color-primary-600, #3E2723);
     color: #fff;
 }
 
@@ -84,7 +84,7 @@
 }
 
 .checkbox {
-    accent-color: var(--color-primary-600, #FFB342);
+    accent-color: var(--color-primary-600, #3E2723);
 }
 
 .actions {
@@ -112,7 +112,7 @@
     font-weight: 500;
     border: none;
     border-radius: 6px;
-    background: var(--color-primary-600, #FFB342);
+    background: var(--color-primary-600, #3E2723);
     color: #fff;
     cursor: pointer;
 }

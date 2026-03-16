@@ -75,7 +75,7 @@
 }
 
 .stepPast.stepLink {
-  color: var(--color-primary-600, #FFB342);
+  color: var(--color-primary-600, #3E2723);
 }
 
 .stepPast.stepLink:hover {

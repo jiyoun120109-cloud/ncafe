@@ -61,7 +61,7 @@
   font-size: 0.75rem;
   padding: 0.25rem 0.6rem;
   background: rgba(139, 90, 43, 0.1);
-  color: var(--color-primary-700, #e5a23b);
+  color: var(--color-primary-700, #2d1c19);
   border-radius: 4px;
   font-weight: 500;
 }
@@ -129,7 +129,7 @@
 }
 
 .attachmentLink {
-  color: var(--color-primary-700, #e5a23b);
+  color: var(--color-primary-700, #2d1c19);
   text-decoration: none;
 }
 
@@ -321,7 +321,7 @@
   padding: 0.4rem 0.9rem;
   font-size: 0.85rem;
   font-weight: 500;
-  background: var(--color-primary-600, #FFB342);
+  background: var(--color-primary-600, #3E2723);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -329,7 +329,7 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background: var(--color-primary-700, #e5a23b);
+  background: var(--color-primary-700, #2d1c19);
 }
 
 .btnPrimary:disabled {

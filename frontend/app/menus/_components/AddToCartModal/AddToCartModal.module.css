@@ -52,7 +52,7 @@
     margin: 0 auto 1.25rem;
     border-radius: 50%;
     background: rgba(139, 90, 43, 0.12);
-    color: var(--color-primary-600, #FFB342);
+    color: var(--color-primary-600, #3E2723);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -78,7 +78,7 @@
 }
 
 .quantity strong {
-    color: var(--color-primary-700, #e5a23b);
+    color: var(--color-primary-700, #2d1c19);
 }
 
 .actions {
@@ -114,12 +114,12 @@
     font-weight: var(--font-medium, 500);
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease;
-    background: var(--color-primary-600, #FFB342);
-    border: 1px solid var(--color-primary-600, #FFB342);
+    background: var(--color-primary-600, #3E2723);
+    border: 1px solid var(--color-primary-600, #3E2723);
     color: #fff;
 }
 
 .btnPrimary:hover {
-    background: var(--color-primary-700, #e5a23b);
-    border-color: var(--color-primary-700, #e5a23b);
+    background: var(--color-primary-700, #2d1c19);
+    border-color: var(--color-primary-700, #2d1c19);
 }

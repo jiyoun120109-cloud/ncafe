@@ -133,8 +133,8 @@
 }
 
 .tempBtnActive {
-    background: var(--color-primary-600, #FFB342);
-    border-color: var(--color-primary-600, #FFB342);
+    background: var(--color-primary-600, #3E2723);
+    border-color: var(--color-primary-600, #3E2723);
     color: #fff;
 }
 
@@ -172,7 +172,7 @@
 .decafCheckbox {
     width: 1rem;
     height: 1rem;
-    accent-color: var(--color-primary-600, #FFB342);
+    accent-color: var(--color-primary-600, #3E2723);
 }
 
 .description {
@@ -343,7 +343,7 @@
     font-weight: 500;
     letter-spacing: 0.04em;
     color: #fff;
-    background: var(--color-primary-600, #FFB342);
+    background: var(--color-primary-600, #3E2723);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -351,7 +351,7 @@
 }
 
 .cartButton:hover:not(:disabled) {
-    background: var(--color-primary-700, #e5a23b);
+    background: var(--color-primary-700, #2d1c19);
 }
 
 .cartButton:disabled {

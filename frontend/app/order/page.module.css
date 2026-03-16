@@ -18,7 +18,7 @@
   height: 40px;
   margin: 0 auto;
   border: 3px solid var(--color-primary-200, #eaddd7);
-  border-top-color: var(--color-primary-600, #FFB342);
+  border-top-color: var(--color-primary-600, #3E2723);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -58,7 +58,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   color: #fff;
-  background: var(--color-primary-600, #FFB342);
+  background: var(--color-primary-600, #3E2723);
   border-radius: var(--radius-md, 8px);
   text-decoration: none;
   transition: background 0.2s ease;
@@ -66,7 +66,7 @@
 }
 
 .emptyCta:hover {
-  background: var(--color-primary-700, #e5a23b);
+  background: var(--color-primary-700, #2d1c19);
 }
 
 .emptyLink {
