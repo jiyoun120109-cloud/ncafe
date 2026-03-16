@@ -146,11 +146,12 @@ public class AdminOrderService implements AdminOrderUseCase {
         }
         if (stampsToRefund > 0) {
             Optional<UserStampEntity> stampOpt = userStampJpaRepository.findByUserId(userId);
-            stampOpt.ifPresent(stamp -> {
+            if (stampOpt.isPresent()) {
+                UserStampEntity stamp = stampOpt.get();
                 int current = stamp.getStampCount() != null ? stamp.getStampCount() : 0;
                 stamp.setStampCount(Math.max(0, current - stampsToRefund));
                 userStampJpaRepository.save(stamp);
-            });
+            }
         }
 
         if (order.getAppliedUserCouponId() != null) {
