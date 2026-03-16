@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 /**
  * 사용자 페이지: 프로필, 주문내역, 쿠폰/스탬프.
  * 주문내역은 /api/orders/my 사용.
@@ -40,6 +42,7 @@ public class UserProfileController {
     private final UserStampJpaRepository userStampJpaRepository;
     private final UserCouponJpaRepository userCouponJpaRepository;
     private final CouponJpaRepository couponJpaRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Value("${app.upload.dir:./upload}")
     private String uploadDir;
@@ -157,6 +160,41 @@ public class UserProfileController {
         body.put("profileImageUrl", m.getProfileImageUrl());
         body.put("role", m.getRole());
         return ResponseEntity.ok(body);
+    }
+
+    /** 비밀번호 변경: 현재 비밀번호 확인 후 새 비밀번호로 변경 */
+    @PostMapping("/password/change")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestBody Map<String, String> body
+    ) {
+        Long userId = getUserId(authorization);
+        if (userId == null) return ResponseEntity.status(401).build();
+        String currentPassword = body != null ? body.get("currentPassword") : null;
+        String newPassword = body != null ? body.get("newPassword") : null;
+        if (currentPassword == null || currentPassword.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "현재 비밀번호를 입력해주세요."));
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            return ResponseEntity.badRequest().body(Map.of("message", "새 비밀번호는 6자 이상이어야 합니다."));
+        }
+        if (!newPassword.matches(".*[0-9].*") || !newPassword.matches(".*[a-zA-Z].*")) {
+            return ResponseEntity.badRequest().body(Map.of("message", "새 비밀번호는 영문과 숫자를 모두 포함해야 합니다."));
+        }
+        Optional<Member> opt = memberRepositoryPort.findById(userId);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Member m = opt.get();
+        String stored = m.getPassword();
+        boolean match = stored != null && stored.startsWith("$2")
+                ? passwordEncoder.matches(currentPassword, stored)
+                : currentPassword.equals(stored);
+        if (!match) {
+            return ResponseEntity.badRequest().body(Map.of("message", "현재 비밀번호가 일치하지 않습니다."));
+        }
+        m.setPassword(passwordEncoder.encode(newPassword));
+        m.setPasswordChangedAt(LocalDateTime.now());
+        memberRepositoryPort.save(m);
+        return ResponseEntity.ok(Map.of("message", "비밀번호가 변경되었습니다."));
     }
 
     @GetMapping("/stamps")

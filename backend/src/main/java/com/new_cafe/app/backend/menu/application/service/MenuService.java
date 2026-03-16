@@ -44,6 +44,13 @@ public class MenuService implements UserMenuUseCase {
                 command.getSearchQuery(),
                 command.getSortBy());
 
+        if (menus == null || menus.isEmpty()) {
+            return MenuListResult.builder()
+                    .menus(new ArrayList<>())
+                    .total(0)
+                    .build();
+        }
+
         List<MenuInfo> menuInfos = menus.stream()
                 .map(this::convertToMenuInfo)
                 .collect(Collectors.toList());
@@ -90,9 +97,11 @@ public class MenuService implements UserMenuUseCase {
     @Override
     public GetMenuImageListResult getMenuImageList(GetMenuImageListCommand command) {
         List<MenuImageInfo> images = getMenuImages(command.getMenuId());
+        Menu menu = menuRepositoryPort.findById(command.getMenuId());
+        String altText = menu != null ? menu.getKorName() : "";
         return GetMenuImageListResult.builder()
                 .menuImages(images)
-                .altText("")
+                .altText(altText)
                 .build();
     }
 

@@ -40,6 +40,21 @@ export async function updateUserProfile(params: UpdateProfileParams): Promise<Us
   return res.json();
 }
 
+export async function changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+  const res = await fetch(`${getApiBase()}/user/password/change`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (res.status === 401) throw new Error('로그인이 필요합니다.');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.message || '비밀번호 변경에 실패했습니다.');
+  }
+  return res.json();
+}
+
 export async function uploadProfileImage(file: File): Promise<{ profileImageUrl: string }> {
   const form = new FormData();
   form.append('file', file);

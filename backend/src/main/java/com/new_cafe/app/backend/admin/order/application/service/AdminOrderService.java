@@ -1,6 +1,9 @@
 package com.new_cafe.app.backend.admin.order.application.service;
 
 import com.new_cafe.app.backend.admin.order.application.port.in.AdminOrderUseCase;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserCouponJpaRepository;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampEntity;
+import com.new_cafe.app.backend.coupon.adapter.out.jpa.UserStampJpaRepository;
 import com.new_cafe.app.backend.menu.application.port.out.MenuRepositoryPort;
 import com.new_cafe.app.backend.menu.model.Menu;
 import com.new_cafe.app.backend.order.application.port.out.OrderRepositoryPort;
@@ -23,21 +26,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class AdminOrderService implements AdminOrderUseCase {
 
+    private static final Set<String> STAMP_CATEGORY_NAMES = Set.of("커피", "라떼", "스무디", "에이드", "티");
+
     private final OrderRepositoryPort orderRepositoryPort;
     private final VisitorLogJpaRepository visitorLogJpaRepository;
     private final MenuRepositoryPort menuRepositoryPort;
+    private final UserStampJpaRepository userStampJpaRepository;
+    private final UserCouponJpaRepository userCouponJpaRepository;
 
     public AdminOrderService(OrderRepositoryPort orderRepositoryPort,
                              VisitorLogJpaRepository visitorLogJpaRepository,
-                             MenuRepositoryPort menuRepositoryPort) {
+                             MenuRepositoryPort menuRepositoryPort,
+                             UserStampJpaRepository userStampJpaRepository,
+                             UserCouponJpaRepository userCouponJpaRepository) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.visitorLogJpaRepository = visitorLogJpaRepository;
         this.menuRepositoryPort = menuRepositoryPort;
+        this.userStampJpaRepository = userStampJpaRepository;
+        this.userCouponJpaRepository = userCouponJpaRepository;
     }
 
     @Override
@@ -112,8 +124,41 @@ public class AdminOrderService implements AdminOrderUseCase {
         if ("CANCELLED".equals(order.getStatus())) {
             throw new IllegalArgumentException("취소된 주문은 상태를 변경할 수 없습니다.");
         }
-        order.setStatus(status != null ? status.toUpperCase() : order.getStatus());
+        String newStatus = status != null ? status.toUpperCase() : order.getStatus();
+        if ("CANCELLED".equals(newStatus) && "PAID".equals(order.getStatus())) {
+            rollbackStampAndCoupon(order);
+        }
+        order.setStatus(newStatus);
         return orderRepositoryPort.save(order);
+    }
+
+    private void rollbackStampAndCoupon(Order order) {
+        Long userId = order.getUserId();
+        if (userId == null) return;
+
+        int stampsToRefund = 0;
+        for (OrderItem item : order.getItems()) {
+            Menu menu = menuRepositoryPort.findById(item.getMenuId());
+            if (menu != null && menu.getCategory() != null
+                    && STAMP_CATEGORY_NAMES.contains(menu.getCategory().getName())) {
+                stampsToRefund += (item.getQuantity() != null ? item.getQuantity() : 1);
+            }
+        }
+        if (stampsToRefund > 0) {
+            Optional<UserStampEntity> stampOpt = userStampJpaRepository.findByUserId(userId);
+            stampOpt.ifPresent(stamp -> {
+                int current = stamp.getStampCount() != null ? stamp.getStampCount() : 0;
+                stamp.setStampCount(Math.max(0, current - stampsToRefund));
+                userStampJpaRepository.save(stamp);
+            });
+        }
+
+        if (order.getAppliedUserCouponId() != null) {
+            userCouponJpaRepository.findById(order.getAppliedUserCouponId()).ifPresent(uc -> {
+                uc.setUsedAt(null);
+                userCouponJpaRepository.save(uc);
+            });
+        }
     }
 
     @Override

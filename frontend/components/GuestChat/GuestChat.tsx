@@ -215,6 +215,15 @@ export default function GuestChat() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
   const handleResizeStart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     const startX = e.clientX;
@@ -446,10 +455,20 @@ export default function GuestChat() {
       )}
 
       {open && (
-        <div
-          className={`${styles.panel} ${isMobileView ? styles.panelMobile : ''}`}
-          style={isMobileView ? undefined : { width: panelSize.width, height: panelSize.height }}
-        >
+        <>
+          <button
+            type="button"
+            className={styles.panelBackdrop}
+            aria-label="채팅 닫기 (뒤로)"
+            onClick={() => setOpen(false)}
+          />
+          <div
+            className={`${styles.panel} ${isMobileView ? styles.panelMobile : ''}`}
+            style={isMobileView ? undefined : { width: panelSize.width, height: panelSize.height }}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="댕댕이 챗봇"
+          >
           <div className={styles.panelHeader}>
             <Image src={CHATBOT_IMAGE.header} alt="" width={28} height={28} className={styles.panelTitleIcon} aria-hidden />
             <span className={styles.panelTitle}>댕댕이 도우미</span>
@@ -737,6 +756,7 @@ export default function GuestChat() {
             </div>
           )}
         </div>
+        </>
       )}
     </>
   );

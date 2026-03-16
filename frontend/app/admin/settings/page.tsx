@@ -3,14 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUIStore } from '@/stores/uiStore';
 import { fetchAdminSettings, updateAdminSettings, type AdminSettingsDto } from '@/services/adminSettingsService';
+import AddressField from '@/components/AddressField/AddressField';
+import { validateAddress, validateAddressDetail } from '@/lib/addressValidation';
 import styles from './page.module.css';
-
-type DaumPostcodeData = { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string };
 
 export default function AdminSettingsPage() {
   const { setTitle } = useUIStore();
   const [settings, setSettings] = useState<AdminSettingsDto | null>(null);
   const [addressDetail, setAddressDetail] = useState('');
+  const [addressError, setAddressError] = useState<string | null>(null);
+  const [addressDetailError, setAddressDetailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -36,6 +38,13 @@ export default function AdminSettingsPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!settings) return;
+    setAddressError(null);
+    setAddressDetailError(null);
+    const addrErr = validateAddress(settings.address ?? '', { required: false });
+    const detailErr = validateAddressDetail(addressDetail);
+    if (addrErr) setAddressError(addrErr);
+    if (detailErr) setAddressDetailError(detailErr);
+    if (addrErr || detailErr) return;
     setSaving(true);
     setMessage(null);
     try {
@@ -50,27 +59,6 @@ export default function AdminSettingsPage() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const openAddressSearch = () => {
-    const onComplete = (data: DaumPostcodeData) => {
-      let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-      if (data.buildingName) full += ` ${data.buildingName}`;
-      updateField('address', full);
-    };
-    const w = typeof window !== 'undefined' ? window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } } : null;
-    if (w?.daum?.Postcode) {
-      new w.daum.Postcode({ oncomplete: onComplete }).open();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    script.async = true;
-    script.onload = () => {
-      const ww = window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } };
-      if (ww.daum?.Postcode) new ww.daum.Postcode({ oncomplete: onComplete }).open();
-    };
-    document.body.appendChild(script);
   };
 
   const updateField = (key: keyof AdminSettingsDto, value: string) => {
@@ -148,26 +136,17 @@ export default function AdminSettingsPage() {
             <label className={styles.label} htmlFor="address">
               주소
             </label>
-            <div className={styles.addressRow}>
-              <input
-                id="address"
-                type="text"
-                className={styles.input}
-                value={settings.address ?? ''}
-                onChange={(e) => updateField('address', e.target.value)}
-                placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
-              />
-              <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
-                주소 검색
-              </button>
-            </div>
-            <input
-              id="addressDetail"
-              type="text"
-              className={`${styles.input} ${styles.addressDetailInput}`}
-              value={addressDetail}
-              onChange={(e) => setAddressDetail(e.target.value)}
-              placeholder="상세주소 (동, 호수 등)"
+            <AddressField
+              address={settings.address ?? ''}
+              addressDetail={addressDetail}
+              onAddressChange={(v) => updateField('address', v)}
+              onAddressDetailChange={setAddressDetail}
+              error={addressError}
+              addressDetailError={addressDetailError}
+              showDetail={true}
+              disabled={saving}
+              id="address"
+              detailId="addressDetail"
             />
           </div>
           <h4 className={styles.subSectionTitle}>사업자 정보</h4>

@@ -12,6 +12,7 @@ import { getUserProfile, getUserCoupons, type UserProfileDto, type UserCouponDto
 import type { CartItemDto } from '@/services/cartService';
 import CheckoutLayout from '@/components/CheckoutLayout/CheckoutLayout';
 import CartItemOptionModal from '@/app/cart/_components/CartItemOptionModal';
+import AddressField from '@/components/AddressField/AddressField';
 import { menuImageUrl } from '@/utils/menuImageUrl';
 import styles from './page.module.css';
 
@@ -232,13 +233,12 @@ export default function OrderPage() {
                     </div>
                     <div className={styles.fieldRow}>
                       <label className={styles.fieldLabel} htmlFor="order-address">주소</label>
-                      <input
+                      <AddressField
+                        address={orderAddress}
+                        onAddressChange={setOrderAddress}
+                        showDetail={false}
                         id="order-address"
-                        type="text"
-                        className={styles.input}
-                        value={orderAddress}
-                        onChange={(e) => setOrderAddress(e.target.value)}
-                        placeholder="주소 입력"
+                        addressPlaceholder="주소 검색 버튼으로 검색하거나 입력하세요"
                       />
                     </div>
                     <div className={styles.fieldRow}>

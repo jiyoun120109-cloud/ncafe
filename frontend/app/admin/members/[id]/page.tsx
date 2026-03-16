@@ -13,6 +13,8 @@ import {
   updateAdminMemberRole,
   type AdminMemberDetailWithActivityDto,
 } from '@/services/adminMemberService';
+import AddressField from '@/components/AddressField/AddressField';
+import { validateAddress } from '@/lib/addressValidation';
 import styles from './page.module.css';
 
 const ROLE_OPTIONS = [
@@ -109,9 +111,17 @@ export default function AdminMemberDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const [addressError, setAddressError] = useState<string | null>(null);
+
   const handleSaveAll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (id == null || isNaN(id)) return;
+    const addrErr = validateAddress(profileAddress, { required: false });
+    if (addrErr) {
+      setAddressError(addrErr);
+      return;
+    }
+    setAddressError(null);
     setSaving(true);
     setMessage(null);
     try {
@@ -334,13 +344,15 @@ export default function AdminMemberDetailPage() {
             <div className={styles.formRow}>
               <label className={styles.label}>
                 <span>주소</span>
-                <input
-                  type="text"
-                  value={profileAddress}
-                  onChange={(e) => setProfileAddress(e.target.value)}
-                  className={styles.input}
-                  placeholder="주소"
+                <AddressField
+                  address={profileAddress}
+                  onAddressChange={(v) => {
+                    setProfileAddress(v);
+                    setAddressError(null);
+                  }}
+                  error={addressError}
                   disabled={saving}
+                  showDetail={false}
                 />
               </label>
             </div>

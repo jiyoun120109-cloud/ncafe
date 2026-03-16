@@ -6,6 +6,8 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { User, Lock, Eye, EyeOff, UserCircle, Phone, AtSign, Mail, Calendar, MapPin, X } from 'lucide-react';
 import { signupApi, checkUsernameApi } from '@/services/authService';
+import AddressField from '@/components/AddressField/AddressField';
+import { validateAddress, validateAddressDetail } from '@/lib/addressValidation';
 import styles from './SignupForm.module.css';
 
 const TERMS_OF_SERVICE = `제1조 (목적)
@@ -114,27 +116,6 @@ export default function SignupForm({ onError }: SignupFormProps) {
     const password = watch('password');
     const username = watch('username');
 
-    const openAddressSearch = () => {
-        type DaumPostcodeData = { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string };
-        const onComplete = (data: DaumPostcodeData) => {
-            let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-            if (data.buildingName) full += ` ${data.buildingName}`;
-            setValue('address', full);
-        };
-        if (typeof window !== 'undefined' && (window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } }).daum?.Postcode) {
-            new (window as unknown as { daum: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } }).daum.Postcode({ oncomplete: onComplete }).open();
-            return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-        script.async = true;
-        script.onload = () => {
-            const w = window as unknown as { daum?: { Postcode: new (o: { oncomplete: (d: DaumPostcodeData) => void }) => { open: () => void } } };
-            if (w.daum?.Postcode) new w.daum.Postcode({ oncomplete: onComplete }).open();
-        };
-        document.body.appendChild(script);
-    };
-
     const handleCheckUsername = async () => {
         const value = (username || '').trim();
         if (!value) {
@@ -168,6 +149,16 @@ export default function SignupForm({ onError }: SignupFormProps) {
         }
         if (!agreeTerms || !agreePrivacy) {
             onError('이용약관 및 개인정보 수집 동의에 모두 체크해주세요.');
+            return;
+        }
+        const addrErr = validateAddress(data.address, { required: false });
+        if (addrErr) {
+            setError('address', { message: addrErr });
+            return;
+        }
+        const detailErr = validateAddressDetail(data.addressDetail);
+        if (detailErr) {
+            setError('addressDetail', { message: detailErr });
             return;
         }
 
@@ -428,33 +419,18 @@ export default function SignupForm({ onError }: SignupFormProps) {
                     <label htmlFor="address" className={styles.label}>
                         주소 <span className={styles.optional}>(선택)</span>
                     </label>
-                    <div className={styles.addressRow}>
-                        <div className={styles.inputWrapper}>
-                            <MapPin className={styles.inputIcon} />
-                            <input
-                                id="address"
-                                type="text"
-                                className={`${styles.input} ${errors.address ? styles.inputError : ''}`}
-                                placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
-                                autoComplete="street-address"
-                                {...register('address')}
-                            />
-                        </div>
-                        <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
-                            주소 검색
-                        </button>
-                    </div>
-                    <input
-                        id="addressDetail"
-                        type="text"
-                        className={`${styles.input} ${styles.addressDetailInput} ${errors.addressDetail ? styles.inputError : ''}`}
-                        placeholder="상세주소 (동, 호수 등)"
-                        autoComplete="address-line2"
-                        {...register('addressDetail')}
+                    <AddressField
+                        address={watch('address') ?? ''}
+                        addressDetail={watch('addressDetail') ?? ''}
+                        onAddressChange={(v) => setValue('address', v, { shouldValidate: true })}
+                        onAddressDetailChange={(v) => setValue('addressDetail', v, { shouldValidate: true })}
+                        error={errors.address?.message ?? null}
+                        addressDetailError={errors.addressDetail?.message ?? null}
+                        showDetail={true}
+                        id="address"
+                        detailId="addressDetail"
+                        addressPlaceholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
                     />
-                    {errors.address && (
-                        <span className={styles.fieldError}>{errors.address.message}</span>
-                    )}
                 </div>
 
                 <div className={styles.fieldGroup}>

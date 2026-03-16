@@ -12,6 +12,7 @@ import {
   getUserProfile,
   updateUserProfile,
   uploadProfileImage,
+  changePassword,
   redeemCouponCode,
   type StampsDto,
   type UserCouponDto,
@@ -19,6 +20,8 @@ import {
 } from '@/services/userService';
 import { getApiBase } from '@/services/api';
 import { menuImageUrl } from '@/utils/menuImageUrl';
+import AddressField from '@/components/AddressField/AddressField';
+import { validateAddress, validateAddressDetail } from '@/lib/addressValidation';
 import type { OrderDto } from '@/services/orderService';
 import { getFavorites, type FavoriteDto } from '@/services/favoriteService';
 import { getMyInquiries, deleteInquiry, type InquiryDto } from '@/services/inquiryService';
@@ -85,12 +88,6 @@ function isValidBirthDate(value: string): boolean {
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
-declare global {
-  interface Window {
-    daum?: { Postcode: new (options: { oncomplete: (data: { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string }) => void }) => { open: () => void } };
-  }
-}
-
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -131,6 +128,12 @@ function UserPageContent() {
   const [orderDateRange, setOrderDateRange] = useState(() => getOrderMonthRange(1));
   const [orderSortRecent, setOrderSortRecent] = useState(true);
   const [orderPage, setOrderPage] = useState(1);
+  const [passwordCurrent, setPasswordCurrent] = useState('');
+  const [passwordNew, setPasswordNew] = useState('');
+  const [passwordNewConfirm, setPasswordNewConfirm] = useState('');
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordChanging, setPasswordChanging] = useState(false);
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -263,6 +266,10 @@ function UserPageContent() {
     else if (phoneVal.length < 10 || phoneVal.length > 11 || !phoneVal.startsWith('01')) err.phone = '올바른 휴대폰 번호를 입력해주세요. (010으로 시작, 10~11자리 숫자)';
     const nickVal = form.displayNickname.trim();
     if (nickVal && (nickVal.length < 2 || nickVal.length > 20 || !NICKNAME_REGEX.test(nickVal))) err.displayNickname = '닉네임은 영문, 한글, 숫자, _ 만 사용 가능합니다. (2~20자)';
+    const addrErr = validateAddress(form.address, { required: false });
+    if (addrErr) err.address = addrErr;
+    const detailErr = validateAddressDetail(form.addressDetail);
+    if (detailErr) err.addressDetail = detailErr;
     return err;
   };
 
@@ -300,25 +307,6 @@ function UserPageContent() {
     }
   };
 
-  const openAddressSearch = () => {
-    const onComplete = (data: { userSelectedType: string; roadAddress: string; jibunAddress: string; buildingName?: string }) => {
-      let full = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-      if (data.buildingName) full += ` ${data.buildingName}`;
-      setForm((f) => ({ ...f, address: full, addressDetail: f.addressDetail }));
-    };
-    if (typeof window !== 'undefined' && window.daum?.Postcode) {
-      new window.daum.Postcode({ oncomplete: onComplete }).open();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    script.async = true;
-    script.onload = () => {
-      if (window.daum?.Postcode) new window.daum.Postcode({ oncomplete: onComplete }).open();
-    };
-    document.body.appendChild(script);
-  };
-
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
@@ -333,6 +321,40 @@ function UserPageContent() {
     } finally {
       setAvatarUploading(false);
       e.target.value = '';
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(null);
+    if (!passwordCurrent.trim()) {
+      setPasswordError('현재 비밀번호를 입력해주세요.');
+      return;
+    }
+    if (passwordNew.length < 6) {
+      setPasswordError('새 비밀번호는 6자 이상이어야 합니다.');
+      return;
+    }
+    if (!/.*[0-9].*/.test(passwordNew) || !/.*[a-zA-Z].*/.test(passwordNew)) {
+      setPasswordError('새 비밀번호는 영문과 숫자를 모두 포함해야 합니다.');
+      return;
+    }
+    if (passwordNew !== passwordNewConfirm) {
+      setPasswordError('새 비밀번호 확인이 일치하지 않습니다.');
+      return;
+    }
+    setPasswordChanging(true);
+    try {
+      await changePassword(passwordCurrent, passwordNew);
+      setPasswordSuccess('비밀번호가 변경되었습니다.');
+      setPasswordCurrent('');
+      setPasswordNew('');
+      setPasswordNewConfirm('');
+    } catch (err) {
+      setPasswordError(err instanceof Error ? err.message : '비밀번호 변경에 실패했습니다.');
+    } finally {
+      setPasswordChanging(false);
     }
   };
 
@@ -363,8 +385,6 @@ function UserPageContent() {
       setCouponRedeeming(false);
     }
   };
-
-  if (!isAuthenticated) return null;
 
   const TAB_LIST: { id: Tab; icon: React.ReactNode; label: string }[] = [
     { id: 'orders', icon: <Package size={22} />, label: '주문내역' },
@@ -420,6 +440,8 @@ function UserPageContent() {
   const orderCountCancelled = orders.filter((o) => o.status === 'CANCELLED').length;
 
   const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
+
+  if (!isAuthenticated) return null;
 
   return (
     <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요." mainClassName={styles.userPageMain}>
@@ -591,26 +613,18 @@ function UserPageContent() {
                       </div>
                       <div className={styles.formRow}>
                         <label htmlFor="profile-address">주소</label>
-                        <div className={styles.addressRow}>
-                          <input
-                            id="profile-address"
-                            type="text"
-                            value={form.address}
-                            onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
-                            placeholder="주소 검색 버튼으로 검색 후 선택하면 여기에 입력됩니다"
-                            className={styles.addressInput}
-                          />
-                          <button type="button" className={styles.addressSearchBtn} onClick={openAddressSearch}>
-                            주소 검색
-                          </button>
-                        </div>
-                        <input
-                          id="profile-addressDetail"
-                          type="text"
-                          value={form.addressDetail}
-                          onChange={(e) => setForm((f) => ({ ...f, addressDetail: e.target.value }))}
-                          placeholder="상세주소 (동, 호수 등)"
-                          className={styles.addressDetailInput}
+                        <AddressField
+                          address={form.address}
+                          addressDetail={form.addressDetail}
+                          onAddressChange={(v) => { setForm((f) => ({ ...f, address: v })); setFormErrors((prev) => ({ ...prev, address: '' })); }}
+                          onAddressDetailChange={(v) => { setForm((f) => ({ ...f, addressDetail: v })); setFormErrors((prev) => ({ ...prev, addressDetail: '' })); }}
+                          error={formErrors.address || null}
+                          addressDetailError={formErrors.addressDetail || null}
+                          showDetail={true}
+                          disabled={saving}
+                          id="profile-address"
+                          detailId="profile-addressDetail"
+                          className={styles.addressFieldWrap}
                         />
                       </div>
                       <div className={styles.formRow}>
@@ -630,10 +644,60 @@ function UserPageContent() {
                       <li><span>닉네임</span><span>{profile.displayNickname || '-'}</span></li>
                       <li><span>이메일</span><span>{profile.email || '-'}</span></li>
                       <li><span>생년월일</span><span>{profile.birthDate || '-'}</span></li>
-<li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
+                    <li><span>핸드폰</span><span>{profile.phone || '-'}</span></li>
                     <li><span>주소</span><span>{profile.address || '-'}</span></li>
                     <li><span>권한</span><span>{profile.role}</span></li>
                     </ul>
+                  )}
+                  {profile && (
+                    <div className={styles.passwordChangeWrap}>
+                      <h3 className={styles.passwordChangeTitle}>비밀번호 변경</h3>
+                      <form onSubmit={handleChangePassword} className={styles.passwordChangeForm}>
+                        <div className={styles.formRow}>
+                          <label htmlFor="user-current-password">현재 비밀번호</label>
+                          <input
+                            id="user-current-password"
+                            type="password"
+                            value={passwordCurrent}
+                            onChange={(e) => { setPasswordCurrent(e.target.value); setPasswordError(null); }}
+                            placeholder="현재 비밀번호"
+                            autoComplete="current-password"
+                            className={passwordError ? styles.inputError : ''}
+                          />
+                        </div>
+                        <div className={styles.formRow}>
+                          <label htmlFor="user-new-password">새 비밀번호</label>
+                          <input
+                            id="user-new-password"
+                            type="password"
+                            value={passwordNew}
+                            onChange={(e) => { setPasswordNew(e.target.value); setPasswordError(null); }}
+                            placeholder="6자 이상, 영문·숫자 포함"
+                            autoComplete="new-password"
+                            className={passwordError ? styles.inputError : ''}
+                          />
+                        </div>
+                        <div className={styles.formRow}>
+                          <label htmlFor="user-new-password-confirm">새 비밀번호 확인</label>
+                          <input
+                            id="user-new-password-confirm"
+                            type="password"
+                            value={passwordNewConfirm}
+                            onChange={(e) => { setPasswordNewConfirm(e.target.value); setPasswordError(null); }}
+                            placeholder="새 비밀번호 다시 입력"
+                            autoComplete="new-password"
+                            className={passwordError ? styles.inputError : ''}
+                          />
+                        </div>
+                        {passwordError && <p className={styles.fieldError}>{passwordError}</p>}
+                        {passwordSuccess && <p className={styles.passwordSuccess}>{passwordSuccess}</p>}
+                        <div className={styles.saveBtnWrap}>
+                          <button type="submit" className={styles.saveBtn} disabled={passwordChanging}>
+                            {passwordChanging ? '변경 중...' : '비밀번호 변경'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
                   )}
                 </>
               ) : null}

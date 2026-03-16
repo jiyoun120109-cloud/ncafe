@@ -37,6 +37,15 @@
   flex-shrink: 0;
 }
 
+.panelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 997;
+  background: transparent;
+  border: none;
+  cursor: default;
+}
+
 .panel {
   position: fixed;
   bottom: 5rem;

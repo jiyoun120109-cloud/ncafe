@@ -634,6 +634,63 @@
   margin-top: 0.25rem;
 }
 
+/* 비밀번호 변경 블록 */
+.passwordChangeWrap {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.passwordChangeTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.75);
+  margin: 0 0 1rem 0;
+}
+
+.passwordChangeForm .formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.passwordChangeForm .formRow label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.passwordChangeForm .formRow input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.passwordChangeForm .formRow input:focus {
+  outline: none;
+  border-color: var(--color-primary-500, #3E2723);
+  box-shadow: 0 0 0 2px rgba(139, 90, 43, 0.15);
+}
+
+.passwordChangeForm .formRow input.inputError {
+  border-color: var(--color-error, #dc2626);
+}
+
+.passwordChangeForm .fieldError {
+  font-size: 0.8rem;
+  color: var(--color-error, #dc2626);
+  margin-bottom: 0.5rem;
+}
+
+.passwordSuccess {
+  font-size: 0.9rem;
+  color: var(--color-success, #16a34a);
+  margin-bottom: 0.5rem;
+}
+
 .readOnly {
   font-size: 0.95rem;
   color: rgba(0, 0, 0, 0.6);
