@@ -18,14 +18,14 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #fff;
-  background: var(--color-primary-600, #8b5a2b);
+  background: var(--color-primary-600, #3E2723);
   border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .addBtn:hover {
-  background: var(--color-primary-700, #6d4520);
+  background: var(--color-primary-700, #2d1c19);
 }
 
 .formRow {
@@ -136,7 +136,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #fff;
-  background: var(--color-primary-600, #8b5a2b);
+  background: var(--color-primary-600, #3E2723);
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -145,7 +145,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: var(--color-primary-700, #6d4520);
+  background: var(--color-primary-700, #2d1c19);
 }
 
 .submitBtn:disabled {

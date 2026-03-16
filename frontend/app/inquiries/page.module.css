@@ -41,14 +41,14 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary-500, #8b5a2b);
+  border-color: var(--color-primary-500, #e5a23b);
 }
 
 .searchBtn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
-  background: var(--color-primary-600, #8b5a2b);
+  background: var(--color-primary-600, #FFB342);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -56,14 +56,14 @@
 }
 
 .searchBtn:hover {
-  background: var(--color-primary-700, #6d4520);
+  background: var(--color-primary-700, #e5a23b);
 }
 
 .typeBadge {
   font-size: 0.72rem;
   padding: 0.2rem 0.5rem;
-  background: rgba(139, 90, 43, 0.1);
-  color: var(--color-primary-700, #6d4520);
+  background: rgba(255, 179, 66, 0.1);
+  color: var(--color-primary-700, #e5a23b);
   border-radius: 4px;
   font-weight: 500;
 }
@@ -103,7 +103,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #fff;
-  background: var(--color-primary-600, #8b5a2b);
+  background: var(--color-primary-600, #FFB342);
   border: none;
   border-radius: 6px;
   text-decoration: none;
@@ -111,7 +111,7 @@
 }
 
 .writeBtn:hover {
-  background: var(--color-primary-700, #6f4a31);
+  background: var(--color-primary-700, #e5a23b);
 }
 
 /* 관리자 테이블 스타일 참고 */

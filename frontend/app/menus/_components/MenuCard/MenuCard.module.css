@@ -135,7 +135,7 @@
 }
 
 .favoriteBtn:focus-visible {
-    outline: 2px solid var(--color-primary-600, #8b5a2b);
+    outline: 2px solid var(--color-primary-600, #FFB342);
     outline-offset: 2px;
 }
 
@@ -259,8 +259,8 @@
 }
 
 .cartBtn:hover:not(:disabled) {
-    background: var(--color-primary-600, #8b5a2b);
-    border-color: var(--color-primary-600, #8b5a2b);
+    background: var(--color-primary-600, #FFB342);
+    border-color: var(--color-primary-600, #FFB342);
     color: #fff;
 }
 

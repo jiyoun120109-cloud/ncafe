@@ -36,8 +36,8 @@
 .tab:hover { color: rgba(0, 0, 0, 0.72); }
 
 .tab.active {
-    color: #1c1917;
-    border-bottom-color: #1c1917;
+    color: #3E2723;
+    border-bottom-color: #3E2723;
 }
 
 .count {
@@ -70,7 +70,7 @@
 }
 
 .addCategoryBtn:hover {
-    background: #1c1917;
-    border-color: #1c1917;
+    background: #3E2723;
+    border-color: #3E2723;
     color: #fff;
 }
