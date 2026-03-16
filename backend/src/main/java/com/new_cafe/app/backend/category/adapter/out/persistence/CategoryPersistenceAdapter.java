@@ -76,9 +76,10 @@ public class CategoryPersistenceAdapter implements CategoryRepositoryPort {
     public void updateDisplayOrder(List<Long> categoryIdsInOrder) {
         if (categoryIdsInOrder == null || categoryIdsInOrder.isEmpty()) return;
         for (int i = 0; i < categoryIdsInOrder.size(); i++) {
+            final int order = i;
             Long id = categoryIdsInOrder.get(i);
             categoryJpaRepository.findById(id).ifPresent(e -> {
-                e.setDisplayOrder(i);
+                e.setDisplayOrder(order);
                 e.setUpdatedAt(LocalDateTime.now());
                 categoryJpaRepository.save(e);
             });
