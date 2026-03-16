@@ -21,8 +21,11 @@ export function useUserMenuDetailImages(menuId: string | null) {
 
     useEffect(() => {
         if (!menuId) return;
+        const numericId = Number.parseInt(menuId, 10);
+        if (!Number.isFinite(numericId) || numericId <= 0) return;
+        const finalId = String(numericId);
         let cancelled = false;
-        fetch(`${getApiBase()}/menus/${menuId}/menu-images`)
+        fetch(`${getApiBase()}/menus/${finalId}/menu-images`)
             .then((res) => res.ok ? res.json() : Promise.reject(new Error('Failed to load images')))
             .then((data: ResponseDto) => {
                 if (!cancelled) {

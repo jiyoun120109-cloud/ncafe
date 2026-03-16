@@ -27,8 +27,16 @@ export function useUserMenuDetail(id: string | null) {
             setLoading(false);
             return;
         }
+        const numericId = Number.parseInt(id, 10);
+        if (!Number.isFinite(numericId) || numericId <= 0) {
+            setLoading(false);
+            setError('잘못된 메뉴 ID입니다.');
+            setMenu(null);
+            return;
+        }
+        const finalId = String(numericId);
         let cancelled = false;
-        fetch(`${getApiBase()}/menus/${id}`)
+        fetch(`${getApiBase()}/menus/${finalId}`)
             .then((res) => {
                 if (!res.ok) throw new Error('메뉴를 불러오는데 실패했습니다.');
                 return res.json();
