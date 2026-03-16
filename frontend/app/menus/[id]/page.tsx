@@ -5,11 +5,11 @@ import MenuDetailInfo from './_components/MenuDetailInfo/MenuDetailInfo';
 import styles from './page.module.css';
 
 interface PageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function UserMenuDetailPage({ params }: PageProps) {
-    const rawId = params.id;
+    const { id: rawId } = await params;
     // URL 세그먼트에 "4:1" 같은 값이 들어와도 항상 숫자 ID만 사용
     const numericId = Number.parseInt(rawId, 10);
     const id = Number.isNaN(numericId) ? rawId : String(numericId);

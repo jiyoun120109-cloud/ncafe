@@ -115,21 +115,23 @@ export default function NewMenuPage() {
 
     return (
         <main className={styles.container}>
-            <div className={styles.pageHeader}>
-                <p className={styles.pageLabel}>Menu Management</p>
-                <h2 className={styles.pageTitle}>새 메뉴 등록</h2>
-            </div>
-            <div className={styles.divider} />
-            <Link href="/admin/menus" className={styles.backBtn}>
-                <ChevronLeft size={14} />
-                <span>목록으로</span>
-            </Link>
-            <div className={styles.formCard}>
-                <MenuForm
-                    categories={categories}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCancel}
-                />
+            <div className={styles.pageInner}>
+                <div className={styles.pageHeader}>
+                    <p className={styles.pageLabel}>Menu Management</p>
+                    <h2 className={styles.pageTitle}>새 메뉴 등록</h2>
+                </div>
+                <Link href="/admin/menus" className={styles.backBtn}>
+                    <ChevronLeft size={14} />
+                    <span>목록으로</span>
+                </Link>
+                <div className={styles.divider} />
+                <div className={styles.formCard}>
+                    <MenuForm
+                        categories={categories}
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                    />
+                </div>
             </div>
         </main>
     );

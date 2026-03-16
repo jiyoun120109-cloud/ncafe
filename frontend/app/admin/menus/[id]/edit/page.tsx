@@ -196,33 +196,37 @@ export default function EditMenuPage() {
     if (fetchError || !menu) {
         return (
             <main className={styles.container}>
-                <p className={styles.error}>{fetchError ?? '메뉴를 찾을 수 없습니다.'}</p>
-                <Link href="/admin/menus" className={styles.backBtn}>
-                    <ChevronLeft size={14} />
-                    <span>목록으로</span>
-                </Link>
+                <div className={styles.pageInner}>
+                    <p className={styles.error}>{fetchError ?? '메뉴를 찾을 수 없습니다.'}</p>
+                    <Link href="/admin/menus" className={styles.backBtn}>
+                        <ChevronLeft size={14} />
+                        <span>목록으로</span>
+                    </Link>
+                </div>
             </main>
         );
     }
 
     return (
         <main className={styles.container}>
-            <div className={styles.pageHeader}>
-                <p className={styles.pageLabel}>Menu Management</p>
-                <h2 className={styles.pageTitle}>메뉴 수정</h2>
-            </div>
-            <div className={styles.divider} />
-            <Link href={`/admin/menus/${id}`} className={styles.backBtn}>
-                <ChevronLeft size={14} />
-                <span>상세로 돌아가기</span>
-            </Link>
-            <div className={styles.formCard}>
-                <MenuForm
-                    initialData={menu}
-                    categories={categories}
-                    onSubmit={handleSubmit}
-                    onCancel={handleCancel}
-                />
+            <div className={styles.pageInner}>
+                <div className={styles.pageHeader}>
+                    <p className={styles.pageLabel}>Menu Management</p>
+                    <h2 className={styles.pageTitle}>메뉴 수정</h2>
+                </div>
+                <Link href={`/admin/menus/${id}`} className={styles.backBtn}>
+                    <ChevronLeft size={14} />
+                    <span>상세로 돌아가기</span>
+                </Link>
+                <div className={styles.divider} />
+                <div className={styles.formCard}>
+                    <MenuForm
+                        initialData={menu}
+                        categories={categories}
+                        onSubmit={handleSubmit}
+                        onCancel={handleCancel}
+                    />
+                </div>
             </div>
         </main>
     );

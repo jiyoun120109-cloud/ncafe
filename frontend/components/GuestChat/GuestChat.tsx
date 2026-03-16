@@ -2,11 +2,18 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { CircleUser, X, Send, GripHorizontal, Smile, ExternalLink, ShoppingCart, Search } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import type { ChatTool } from '@/app/api/chat/route';
 import styles from './GuestChat.module.css';
+
+/** public 폴더 기준 챗봇 이미지 경로 */
+const CHATBOT_IMAGE = {
+  main: '/images/chat/chatbot-main.png',   // FAB·메시지 목록 봇 아바타
+  header: '/images/chat/chatbot-header.png', // 패널 상단 헤더
+};
 
 const PANEL_MIN_WIDTH = 280;
 const PANEL_MAX_WIDTH = 600;
@@ -432,7 +439,9 @@ export default function GuestChat() {
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? '채팅 닫기' : '댕댕이 챗봇 열기'}
         >
-          {open ? <X size={24} className={styles.fabCloseIcon} /> : <span className={styles.fabEmoji} aria-hidden>🐶</span>}
+          {open ? <X size={24} className={styles.fabCloseIcon} /> : (
+            <Image src={CHATBOT_IMAGE.main} alt="" width={32} height={32} className={styles.fabImg} aria-hidden />
+          )}
         </button>
       )}
 
@@ -442,7 +451,7 @@ export default function GuestChat() {
           style={isMobileView ? undefined : { width: panelSize.width, height: panelSize.height }}
         >
           <div className={styles.panelHeader}>
-            <span className={styles.panelTitleIcon} aria-hidden>🐶</span>
+            <Image src={CHATBOT_IMAGE.header} alt="" width={28} height={28} className={styles.panelTitleIcon} aria-hidden />
             <span className={styles.panelTitle}>댕댕이 도우미</span>
             <span className={styles.panelBadge}>채팅</span>
             {isMobileView && (
@@ -463,7 +472,9 @@ export default function GuestChat() {
                 className={m.role === 'user' ? styles.msgRowUser : styles.msgRowBot}
               >
                 {m.role === 'bot' && (
-                  <span className={styles.avatar} title="댕댕이">🐶</span>
+                  <span className={styles.avatar} title="댕댕이">
+                    <Image src={CHATBOT_IMAGE.main} alt="" width={32} height={32} className={styles.avatarImg} />
+                  </span>
                 )}
                 <div className={m.role === 'user' ? styles.msgUser : styles.msgBot}>
                   {m.role === 'bot' && sending && m.text === '' && m.id === messages[messages.length - 1]?.id ? (
@@ -634,7 +645,9 @@ export default function GuestChat() {
                 messages[messages.length - 1].role !== 'bot' ||
                 messages[messages.length - 1].text !== '') && (
               <div className={styles.msgRowBot}>
-                <span className={styles.avatar} title="댕댕이">🐶</span>
+                <span className={styles.avatar} title="댕댕이">
+                  <Image src={CHATBOT_IMAGE.main} alt="" width={32} height={32} className={styles.avatarImg} />
+                </span>
                 <div className={styles.msgBot}>
                   <div className={styles.msgBubbleLoadingWrap}>
                     <span className={`${styles.msgBubble} ${styles.msgBubbleLoading}`}>{loadingMessage}</span>

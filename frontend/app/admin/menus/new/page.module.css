@@ -1,9 +1,15 @@
 .container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 1.5rem;
     padding: 0 0.5rem;
+}
+
+.pageInner {
+    width: 66.666%;
+    max-width: 66.666%;
+    margin-left: 0;
 }
 
 .pageHeader {
@@ -49,8 +55,8 @@
 .backBtn:hover { color: #1c1917; }
 
 .formCard {
-    width: 66.666%;
-    max-width: 66.666%;
+    width: 100%;
+    max-width: 100%;
     background: #fff;
     padding: 2rem;
     border-radius: 8px;
