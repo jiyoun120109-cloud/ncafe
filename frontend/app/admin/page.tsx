@@ -79,9 +79,10 @@ export default function AdminDashboardPage() {
     const loadPendingAndPaid = useCallback(() => {
         setDetailError(null);
         setDetailLoading(true);
+        const today = todayISO();
         Promise.all([
-            fetchAdminOrders(0, 100, { status: 'PENDING' }),
-            fetchAdminOrders(0, 100, { status: 'PAID' }),
+            fetchAdminOrders(0, 100, { status: 'PENDING', fromDate: today, toDate: today }),
+            fetchAdminOrders(0, 100, { status: 'PAID', fromDate: today, toDate: today }),
         ])
             .then(([pendingRes, paidRes]) => {
                 setDetailOrdersPending(pendingRes.content ?? []);
@@ -133,7 +134,7 @@ export default function AdminDashboardPage() {
     const statCards: { label: string; value: string; sub: string; alert?: boolean; detail: DetailType }[] = [
         { label: '오늘 주문', value: String(ordersToday), sub: orderDiffText, detail: null },
         { label: '오늘 매출', value: `₩${revenueToday.toLocaleString()}`, sub: revenueDiffText, detail: 'revenue_today' },
-        { label: '결제대기/결제완료', value: `${pendingCount}/${paidCount}`, sub: '주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending_paid' },
+        { label: '결제대기/결제완료', value: `${pendingCount}/${paidCount}`, sub: '오늘 기준 · 주문 관리에서 확인', alert: pendingCount > 0, detail: 'pending_paid' },
         { label: '방문자 수', value: visitorCardValue.toLocaleString(), sub: visitorCardSub, detail: 'visitors' },
     ];
 

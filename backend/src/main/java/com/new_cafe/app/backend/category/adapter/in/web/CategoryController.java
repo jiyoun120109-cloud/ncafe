@@ -52,16 +52,15 @@ public class CategoryController {
         return CategoryResponseDto.builder()
                 .id(result.getId())
                 .name(result.getName())
+                .icon(result.getIcon())
                 .build();
     }
 
-    /**
-     * CategoryInfo를 CategoryResponseDto로 변환
-     */
     private CategoryResponseDto convertToDto(CategoryInfo categoryInfo) {
         return CategoryResponseDto.builder()
                 .id(categoryInfo.getId())
                 .name(categoryInfo.getName())
+                .icon(categoryInfo.getIcon())
                 .build();
     }
 }

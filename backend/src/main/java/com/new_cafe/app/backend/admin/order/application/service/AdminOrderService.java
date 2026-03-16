@@ -138,8 +138,8 @@ public class AdminOrderService implements AdminOrderUseCase {
         long revenueYesterday = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID",
                 yesterday.atStartOfDay(), yesterday.atTime(LocalTime.MAX));
 
-        long pendingCount = orderRepositoryPort.countByStatus("PENDING");
-        long paidCount = orderRepositoryPort.countByStatus("PAID");
+        long pendingCount = orderRepositoryPort.countByStatusAndCreatedAtBetween("PENDING", from, to);
+        long paidCount = orderRepositoryPort.countByStatusAndCreatedAtBetween("PAID", from, to);
         long cancelledCount = orderRepositoryPort.countByStatus("CANCELLED");
         long visitorCountToday = visitorLogJpaRepository.countByVisitedAtBetween(from, target.plusDays(1).atStartOfDay());
 
@@ -162,18 +162,18 @@ public class AdminOrderService implements AdminOrderUseCase {
         List<Map<String, Object>> result = new ArrayList<>();
 
         if ("week".equalsIgnoreCase(period)) {
-            // Last 4 weeks: each point = 7 days
+            // Last 4 weeks: oldest first (과거 → 최근), 일간/월간과 동일한 순서
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("M/d");
-            for (int i = 3; i >= 0; i--) {
-                LocalDate weekStart = today.minusDays(7 * (4 - i));
-                LocalDate weekEndExclusive = today.minusDays(7 * (3 - i));
-                LocalDateTime from = weekStart.atStartOfDay();
-                LocalDateTime to = (i == 3 ? today.plusDays(1) : weekEndExclusive).atStartOfDay();
+            for (int i = 0; i <= 3; i++) {
+                LocalDate rangeStart = (i == 3) ? today.minusDays(6) : today.minusDays(7 * (4 - i));
+                LocalDate rangeEnd = rangeStart.plusDays(6);
+                LocalDateTime from = rangeStart.atStartOfDay();
+                LocalDateTime to = rangeEnd.plusDays(1).atStartOfDay();
                 long orderCount = orderRepositoryPort.countByCreatedAtBetween(from, to);
                 long revenue = orderRepositoryPort.sumTotalAmountByStatusAndCreatedAtBetween("PAID", from, to);
                 long visitorCount = visitorLogJpaRepository.countByVisitedAtBetween(from, to);
                 Map<String, Object> point = new HashMap<>();
-                point.put("label", weekStart.format(fmt) + "~" + (i == 3 ? today : weekEndExclusive.minusDays(1)).format(fmt));
+                point.put("label", rangeStart.format(fmt) + "~" + rangeEnd.format(fmt));
                 point.put("orderCount", orderCount);
                 point.put("revenue", revenue);
                 point.put("visitorCount", visitorCount);

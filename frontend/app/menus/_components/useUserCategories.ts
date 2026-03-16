@@ -38,8 +38,8 @@ export function useUserCategories() {
                     return {
                         id,
                         name,
-                        icon: c.icon ?? '',
-                        sortOrder: c.sortOrder ?? 0,
+                        icon: (c.icon != null && c.icon !== '') ? String(c.icon) : '',
+                        sortOrder: typeof c.sortOrder === 'number' ? c.sortOrder : 0,
                         menuCount: counts[name] ?? 0,
                     };
                 });

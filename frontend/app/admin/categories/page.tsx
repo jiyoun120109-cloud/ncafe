@@ -33,8 +33,8 @@ export default function AdminCategoriesPage() {
             <CategoryManage
                 categories={categories}
                 loading={loading}
-                onCreate={async (name, icon, description) => createCategory(name, icon, description)}
-                onUpdate={(id, name, icon, description) => updateCategory(id, name, icon, description)}
+                onCreate={async (name, icon) => createCategory(name, icon)}
+                onUpdate={(id, name, icon) => updateCategory(id, name, icon)}
                 onDelete={deleteCategory}
                 onUploadIcon={uploadCategoryIcon}
             />

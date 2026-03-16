@@ -22,8 +22,8 @@ const EMOJI_QUICK = ['☕', '🍵', '🥤', '🍰', '🥐', '🍩', '🥪', '�
 interface CategoryManageProps {
     categories: AdminCategoryDto[];
     loading: boolean;
-    onCreate: (name: string, icon?: string | null, description?: string | null) => Promise<unknown>;
-    onUpdate: (id: number, name: string, icon?: string | null, description?: string | null) => Promise<void>;
+    onCreate: (name: string, icon?: string | null) => Promise<unknown>;
+    onUpdate: (id: number, name: string, icon?: string | null) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
     onUploadIcon?: (file: File) => Promise<{ url: string; filename: string }>;
 }
@@ -41,10 +41,8 @@ export default function CategoryManage({
     const [editingId, setEditingId] = useState<number | null>(null);
     const [addName, setAddName] = useState('');
     const [addIcon, setAddIcon] = useState('');
-    const [addDescription, setAddDescription] = useState('');
     const [editName, setEditName] = useState('');
     const [editIcon, setEditIcon] = useState('');
-    const [editDescription, setEditDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [uploadingIcon, setUploadingIcon] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -54,7 +52,6 @@ export default function CategoryManage({
     const openAdd = () => {
         setAddName('');
         setAddIcon('');
-        setAddDescription('');
         setError(null);
         setAddModalOpen(true);
     };
@@ -63,7 +60,6 @@ export default function CategoryManage({
         setEditingId(cat.id);
         setEditName(cat.name);
         setEditIcon(cat.icon ?? '');
-        setEditDescription(cat.description ?? '');
         setError(null);
         setEditModalOpen(true);
     };
@@ -72,7 +68,6 @@ export default function CategoryManage({
         setAddModalOpen(false);
         setAddName('');
         setAddIcon('');
-        setAddDescription('');
         setError(null);
     };
 
@@ -81,7 +76,6 @@ export default function CategoryManage({
         setEditingId(null);
         setEditName('');
         setEditIcon('');
-        setEditDescription('');
         setError(null);
     };
 
@@ -95,7 +89,7 @@ export default function CategoryManage({
         setSubmitting(true);
         setError(null);
         try {
-            await onCreate(trimmed, addIcon.trim() || null, addDescription.trim() || null);
+            await onCreate(trimmed, addIcon.trim() || null);
             closeAddModal();
         } catch (err) {
             setError(err instanceof Error ? err.message : '저장에 실패했습니다.');
@@ -114,7 +108,7 @@ export default function CategoryManage({
         setSubmitting(true);
         setError(null);
         try {
-            await onUpdate(editingId, trimmed, editIcon.trim() || null, editDescription.trim() || null);
+            await onUpdate(editingId, trimmed, editIcon.trim() || null);
             closeEditModal();
         } catch (err) {
             setError(err instanceof Error ? err.message : '저장에 실패했습니다.');
@@ -183,7 +177,6 @@ export default function CategoryManage({
                                 <col className={styles.colOrder} />
                                 <col className={styles.colIcon} />
                                 <col className={styles.colName} />
-                                <col className={styles.colDesc} />
                                 <col className={styles.colActions} />
                             </colgroup>
                             <thead>
@@ -191,7 +184,6 @@ export default function CategoryManage({
                                     <th className={styles.th}>순서</th>
                                     <th className={styles.th}>아이콘</th>
                                     <th className={styles.th}>이름</th>
-                                    <th className={styles.th}>설명</th>
                                     <th className={`${styles.th} ${styles.thActions}`}>관리</th>
                                 </tr>
                             </thead>
@@ -212,11 +204,6 @@ export default function CategoryManage({
                                         </td>
                                         <td className={styles.td}>
                                             <span className={styles.nameCell}>{cat.name}</span>
-                                        </td>
-                                        <td className={styles.td}>
-                                            <span className={styles.descCell} title={cat.description ?? undefined}>
-                                                {cat.description?.trim() || '—'}
-                                            </span>
                                         </td>
                                         <td className={`${styles.td} ${styles.actionsCell}`}>
                                             <div className={styles.actions}>
@@ -308,17 +295,6 @@ export default function CategoryManage({
                                     disabled={submitting}
                                 />
                             </div>
-                            <div className={styles.formRow}>
-                                <label className={styles.label}>설명 (목록에 표시)</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    value={addDescription}
-                                    onChange={(e) => setAddDescription(e.target.value)}
-                                    placeholder="예: 에스프레소 기반 음료"
-                                    rows={2}
-                                    disabled={submitting}
-                                />
-                            </div>
                             {error && <p className={styles.formError}>{error}</p>}
                             <div className={styles.modalActions}>
                                 <button type="button" className={styles.cancelBtn} onClick={closeAddModal} disabled={submitting}>
@@ -392,17 +368,6 @@ export default function CategoryManage({
                                     value={editIcon}
                                     onChange={(e) => setEditIcon(e.target.value)}
                                     placeholder="예: ☕ 또는 업로드 후 URL 자동 입력"
-                                    disabled={submitting}
-                                />
-                            </div>
-                            <div className={styles.formRow}>
-                                <label className={styles.label}>설명 (목록에 표시)</label>
-                                <textarea
-                                    className={styles.textarea}
-                                    value={editDescription}
-                                    onChange={(e) => setEditDescription(e.target.value)}
-                                    placeholder="예: 에스프레소 기반 음료"
-                                    rows={2}
                                     disabled={submitting}
                                 />
                             </div>
