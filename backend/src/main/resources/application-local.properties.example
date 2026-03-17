@@ -1,10 +1,29 @@
-# 로컬 전용 — 이 파일을 application-local.properties 로 복사한 뒤 값을 채우고
-# 실행 시 --spring.profiles.active=local 로 사용. application-local.properties 는 .gitignore 됨.
+# 로컬 메일 설정 예시
+# 이 파일을 복사해 application-local.properties 로 저장한 뒤 값을 채우세요.
+# application-local.properties 는 .gitignore 되어 있어 비밀번호를 안전하게 보관할 수 있습니다.
 
-# JWT 서명 키 (32자 이상)
-jwt.secret=
+# ========== SMTP 공통 (환경변수 대신 여기 적어도 됨) ==========
+# spring.mail.host=        # SMTP 서버 주소
+# spring.mail.port=587     # 587(TLS) 또는 465(SSL)
+# spring.mail.username=    # 로그인 이메일
+# spring.mail.password=    # 비밀번호 또는 앱 비밀번호
+# app.mail.from=           # 발신 주소 (비우면 username 사용)
 
-# DB (로컬 PostgreSQL 등)
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
+# ========== Gmail ==========
+# 1. Google 계정 > 보안 > 2단계 인증 사용
+# 2. 앱 비밀번호 생성 후 아래에 입력
+# spring.mail.host=smtp.gmail.com
+# spring.mail.port=587
+# spring.mail.username=your@gmail.com
+# spring.mail.password=xxxx xxxx xxxx xxxx
+# app.mail.from=your@gmail.com
+
+# ========== Naver ==========
+# spring.mail.host=smtp.naver.com
+# spring.mail.port=587
+# spring.mail.username=your@naver.com
+# spring.mail.password=비밀번호
+# app.mail.from=your@naver.com
+
+# ========== AWS SES / SendGrid 등 ==========
+# 해당 서비스 문서의 SMTP 호스트·포트·인증 정보를 넣으면 됩니다.

@@ -2,6 +2,7 @@ package com.new_cafe.app.backend.admin.member.application.service;
 
 import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.*;
 import com.new_cafe.app.backend.admin.member.application.port.in.AdminMemberUseCase;
+import com.new_cafe.app.backend.admin.member.application.port.out.SendPasswordResetEmailPort;
 import com.new_cafe.app.backend.admin.notice.application.port.out.CreateNotificationPort;
 import com.new_cafe.app.backend.auth.application.port.out.LoginLogRepositoryPort;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
@@ -41,6 +42,7 @@ public class AdminMemberService implements AdminMemberUseCase {
     private final FavoriteRepositoryPort favoriteRepositoryPort;
     private final MenuRepositoryPort menuRepositoryPort;
     private final CreateNotificationPort createNotificationPort;
+    private final SendPasswordResetEmailPort sendPasswordResetEmailPort;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AdminMemberService(MemberRepositoryPort memberRepositoryPort,
@@ -49,7 +51,8 @@ public class AdminMemberService implements AdminMemberUseCase {
                               LoginLogRepositoryPort loginLogRepositoryPort,
                               FavoriteRepositoryPort favoriteRepositoryPort,
                               MenuRepositoryPort menuRepositoryPort,
-                              CreateNotificationPort createNotificationPort) {
+                              CreateNotificationPort createNotificationPort,
+                              SendPasswordResetEmailPort sendPasswordResetEmailPort) {
         this.memberRepositoryPort = memberRepositoryPort;
         this.orderRepositoryPort = orderRepositoryPort;
         this.inquiryRepositoryPort = inquiryRepositoryPort;
@@ -57,6 +60,7 @@ public class AdminMemberService implements AdminMemberUseCase {
         this.favoriteRepositoryPort = favoriteRepositoryPort;
         this.menuRepositoryPort = menuRepositoryPort;
         this.createNotificationPort = createNotificationPort;
+        this.sendPasswordResetEmailPort = sendPasswordResetEmailPort;
     }
 
     @Override
@@ -176,6 +180,9 @@ public class AdminMemberService implements AdminMemberUseCase {
                 "비밀번호가 초기화되었습니다",
                 "관리자에 의해 비밀번호가 초기화되었습니다. 새 비밀번호로 로그인해 주세요."
             );
+            String displayName = member.getDisplayNickname() != null && !member.getDisplayNickname().isBlank()
+                ? member.getDisplayNickname() : member.getName();
+            sendPasswordResetEmailPort.send(member.getEmail(), displayName, newPassword);
         }
         return member;
     }
