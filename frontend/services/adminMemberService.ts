@@ -153,12 +153,16 @@ export async function updateAdminMemberProfile(
   return res.json();
 }
 
-export async function resetAdminMemberPassword(id: number, newPassword: string): Promise<AdminMemberDetailDto> {
+export async function resetAdminMemberPassword(
+  id: number,
+  newPassword: string,
+  sendNotification?: boolean
+): Promise<AdminMemberDetailDto> {
   const res = await fetch(`${getApiBase()}/admin/members/${id}/reset-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ newPassword }),
+    body: JSON.stringify({ newPassword, sendNotification: !!sendNotification }),
   });
   if (!res.ok) throw new Error('비밀번호 초기화에 실패했습니다.');
   return res.json();

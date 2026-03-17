@@ -39,9 +39,10 @@ public interface AdminMemberUseCase {
     Member updateMemberProfile(Long id, String displayNickname, String name, String email, String phone, String address);
 
     /**
-     * 비밀번호 초기화 (관리자 설정)
+     * 비밀번호 초기화 (관리자 설정).
+     * sendNotification이 true이면 해당 회원에게 비밀번호 초기화 알림 전송.
      */
-    Member resetPassword(Long id, String newPassword);
+    Member resetPassword(Long id, String newPassword, Boolean sendNotification);
 
     /**
      * 계정 상태 변경 (ACTIVE, INACTIVE, SUSPENDED, WITHDRAWN)

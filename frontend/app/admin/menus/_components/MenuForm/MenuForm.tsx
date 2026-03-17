@@ -253,9 +253,20 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                     <Input
                         label="가격 (원) *"
                         type="number"
-                        {...register('price', { required: '가격은 필수입니다.', min: 0 })}
+                        {...register('price', {
+                            setValueAs: (v) => (v === '' || v == null ? NaN : Number(v)),
+                            validate: (v) => {
+                                if (v === undefined || v === null || (typeof v === 'number' && Number.isNaN(v))) return '가격은 필수입니다.';
+                                const n = Number(v);
+                                if (!Number.isFinite(n)) return '가격에는 숫자를 입력해주세요.';
+                                if (n < 0) return '가격은 0원 이상이어야 합니다.';
+                                if (n > 99999999) return '가격은 99,999,999원 이하여야 합니다.';
+                                if (!Number.isInteger(n)) return '가격은 정수로 입력해주세요.';
+                                return true;
+                            },
+                        })}
                         placeholder="0"
-                        error={errors.price ? '가격을 정확히 입력해주세요.' : undefined}
+                        error={errors.price?.message as string}
                         fullWidth
                     />
 
@@ -439,8 +450,19 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                     <Input
                         label="열량 (kcal)"
                         type="number"
-                        {...register('productInfo.calorieKcal', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })}
+                        {...register('productInfo.calorieKcal', {
+                            setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)),
+                            validate: (v) => {
+                                if (v === '' || v == null || v === undefined) return true;
+                                const n = Number(v);
+                                if (Number.isNaN(n)) return '열량에는 숫자를 입력해주세요.';
+                                if (n < 0) return '열량은 0 이상이어야 합니다.';
+                                if (n > 10000) return '열량은 10,000 kcal 이하여야 합니다.';
+                                return true;
+                            },
+                        })}
                         placeholder="예: 180"
+                        error={errors.productInfo?.calorieKcal?.message as string}
                         fullWidth
                     />
                 </div>

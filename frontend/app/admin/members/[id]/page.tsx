@@ -71,6 +71,7 @@ export default function AdminMemberDetailPage() {
   const [statusInput, setStatusInput] = useState<string>('ACTIVE');
   const [newPassword, setNewPassword] = useState('');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState(false);
 
   useEffect(() => {
     setTitle('회원 관리');
@@ -156,18 +157,25 @@ export default function AdminMemberDetailPage() {
     }
   };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
+  const handleResetPasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (id == null || isNaN(id) || newPassword.length < 6) {
       setMessage('비밀번호는 6자 이상 입력해주세요.');
       setMessageType('error');
       return;
     }
+    setMessage(null);
+    setShowResetConfirmModal(true);
+  };
+
+  const handleConfirmResetWithNotification = async () => {
+    if (id == null || isNaN(id) || newPassword.length < 6) return;
     setSaving(true);
+    setShowResetConfirmModal(false);
     setMessage(null);
     try {
-      await resetAdminMemberPassword(id, newPassword);
-      setMessage('비밀번호가 초기화되었습니다.');
+      await resetAdminMemberPassword(id, newPassword, true);
+      setMessage('비밀번호가 초기화되었고, 해당 회원에게 알림을 보냈습니다.');
       setMessageType('success');
       setNewPassword('');
       setShowPasswordForm(false);
@@ -427,7 +435,7 @@ export default function AdminMemberDetailPage() {
               비밀번호 초기화
             </button>
           ) : (
-            <form onSubmit={handleResetPassword} className={styles.form}>
+            <form onSubmit={handleResetPasswordSubmit} className={styles.form}>
               <div className={styles.formRow}>
                 <label className={styles.label}>
                   <span>새 비밀번호 (6자 이상)</span>
@@ -575,6 +583,35 @@ export default function AdminMemberDetailPage() {
           ← 회원 목록
         </Link>
       </div>
+
+      {showResetConfirmModal && (
+        <div className={styles.resetConfirmOverlay} role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title">
+          <div className={styles.resetConfirmModal}>
+            <h3 id="reset-confirm-title" className={styles.resetConfirmTitle}>알림 전송 확인</h3>
+            <p className={styles.resetConfirmMessage}>
+              비밀번호를 초기화하고 해당 회원에게 알림을 보낼까요?
+            </p>
+            <div className={styles.resetConfirmActions}>
+              <button
+                type="button"
+                className={styles.resetConfirmCancel}
+                onClick={() => setShowResetConfirmModal(false)}
+                disabled={saving}
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                className={styles.resetConfirmSubmit}
+                onClick={handleConfirmResetWithNotification}
+                disabled={saving}
+              >
+                전달
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

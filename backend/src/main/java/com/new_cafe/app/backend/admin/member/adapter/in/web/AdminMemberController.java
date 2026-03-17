@@ -111,7 +111,7 @@ public class AdminMemberController {
         if (!isAdmin(authorization)) return ResponseEntity.status(403).build();
         if (request == null || request.getNewPassword() == null) return ResponseEntity.badRequest().build();
         try {
-            Member updated = adminMemberUseCase.resetPassword(id, request.getNewPassword());
+            Member updated = adminMemberUseCase.resetPassword(id, request.getNewPassword(), request.getSendNotification());
             return ResponseEntity.ok(MemberDetailResponseDto.from(updated));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

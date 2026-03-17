@@ -2,6 +2,7 @@ package com.new_cafe.app.backend.admin.member.application.service;
 
 import com.new_cafe.app.backend.admin.member.adapter.in.web.dto.*;
 import com.new_cafe.app.backend.admin.member.application.port.in.AdminMemberUseCase;
+import com.new_cafe.app.backend.admin.notice.application.port.out.CreateNotificationPort;
 import com.new_cafe.app.backend.auth.application.port.out.LoginLogRepositoryPort;
 import com.new_cafe.app.backend.auth.application.port.out.MemberRepositoryPort;
 import com.new_cafe.app.backend.auth.model.LoginLogRecord;
@@ -39,6 +40,7 @@ public class AdminMemberService implements AdminMemberUseCase {
     private final LoginLogRepositoryPort loginLogRepositoryPort;
     private final FavoriteRepositoryPort favoriteRepositoryPort;
     private final MenuRepositoryPort menuRepositoryPort;
+    private final CreateNotificationPort createNotificationPort;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AdminMemberService(MemberRepositoryPort memberRepositoryPort,
@@ -46,13 +48,15 @@ public class AdminMemberService implements AdminMemberUseCase {
                               InquiryRepositoryPort inquiryRepositoryPort,
                               LoginLogRepositoryPort loginLogRepositoryPort,
                               FavoriteRepositoryPort favoriteRepositoryPort,
-                              MenuRepositoryPort menuRepositoryPort) {
+                              MenuRepositoryPort menuRepositoryPort,
+                              CreateNotificationPort createNotificationPort) {
         this.memberRepositoryPort = memberRepositoryPort;
         this.orderRepositoryPort = orderRepositoryPort;
         this.inquiryRepositoryPort = inquiryRepositoryPort;
         this.loginLogRepositoryPort = loginLogRepositoryPort;
         this.favoriteRepositoryPort = favoriteRepositoryPort;
         this.menuRepositoryPort = menuRepositoryPort;
+        this.createNotificationPort = createNotificationPort;
     }
 
     @Override
@@ -155,7 +159,7 @@ public class AdminMemberService implements AdminMemberUseCase {
 
     @Override
     @Transactional
-    public Member resetPassword(Long id, String newPassword) {
+    public Member resetPassword(Long id, String newPassword, Boolean sendNotification) {
         Member member = memberRepositoryPort.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
         if (newPassword == null || newPassword.length() < 6) {
@@ -163,7 +167,17 @@ public class AdminMemberService implements AdminMemberUseCase {
         }
         member.setPassword(passwordEncoder.encode(newPassword));
         member.setPasswordChangedAt(java.time.LocalDateTime.now());
-        return memberRepositoryPort.save(member);
+        member = memberRepositoryPort.save(member);
+        if (Boolean.TRUE.equals(sendNotification)) {
+            createNotificationPort.create(
+                member.getId(),
+                "PASSWORD_RESET",
+                null,
+                "비밀번호가 초기화되었습니다",
+                "관리자에 의해 비밀번호가 초기화되었습니다. 새 비밀번호로 로그인해 주세요."
+            );
+        }
+        return member;
     }
 
     @Override
