@@ -66,11 +66,15 @@ def resolve_tools(tools: list[dict]) -> tuple[list[dict], list[dict]]:
 
         if name == "add_to_cart":
             menu_name = args.get("menuName") or ""
+            found = None
             if menu_name:
                 found = backend_client.find_menu_by_name(menu_name)
                 if found:
                     args["menuId"] = found.get("id")
                     args["menuName"] = found.get("korName") or found.get("engName") or found.get("name") or menu_name
+            # 커피 카테고리만 옵션(온도·디카페인·원두) 위젯 표시, 나머지는 수량만
+            category_name = (found.get("categoryName") or "").strip() if found else ""
+            args["isCoffee"] = category_name == "커피"
             # 수량·온도 정규화 (프론트 전달용)
             try:
                 args["quantity"] = max(1, int(args.get("quantity") or 1))

@@ -180,21 +180,20 @@ export default function GuestChat() {
   } => ({ temperature: 'HOT', decaf: false, beanOption: '', quantity: 1 });
 
   const handleAddToCartWithSelection = useCallback(
-    async (messageId: string, toolIndex: number, menuId: number, menuName: string) => {
+    async (messageId: string, toolIndex: number, menuId: number, menuName: string, isCoffee: boolean) => {
       if (addingCartId !== null) return;
       const key = getCartSelectionKey(messageId, toolIndex);
       const sel = cartSelections[key] ?? defaultCartSelection();
       setAddingCartId(menuId);
       try {
-        await addItem(menuId, sel.quantity, {
-          temperature: sel.temperature,
-          decaf: sel.decaf,
-          beanOption: sel.beanOption || undefined,
-        });
-        const tempLabel = sel.temperature === 'ICED' ? '아이스' : 'HOT';
-        const beanLabel = sel.beanOption ? ` (${sel.beanOption} 원두)` : '';
-        const decafLabel = sel.decaf ? ' 디카페인' : '';
-        const summary = `${menuName} ${tempLabel} ${sel.quantity}잔${beanLabel}${decafLabel} 담았어요! 🛒`;
+        const options = isCoffee
+          ? { temperature: sel.temperature, decaf: sel.decaf, beanOption: sel.beanOption || undefined }
+          : {};
+        await addItem(menuId, sel.quantity, options);
+        const tempLabel = isCoffee ? (sel.temperature === 'ICED' ? '아이스' : 'HOT') : '';
+        const beanLabel = isCoffee && sel.beanOption ? ` (${sel.beanOption} 원두)` : '';
+        const decafLabel = isCoffee && sel.decaf ? ' 디카페인' : '';
+        const summary = `${menuName}${tempLabel ? ` ${tempLabel}` : ''} ${sel.quantity}잔${beanLabel}${decafLabel} 담았어요! 🛒`;
         setMessages((prev) => [
           ...prev,
           { id: `b-${Date.now()}`, role: 'bot', text: summary, at: new Date() },
@@ -545,6 +544,7 @@ export default function GuestChat() {
                       if (tool.name === 'add_to_cart' && typeof tool.args.menuId === 'number') {
                         const menuId = tool.args.menuId as number;
                         const menuName = (tool.args.menuName as string) || '메뉴';
+                        const isCoffee = tool.args.isCoffee === true;
                         const cartKey = getCartSelectionKey(m.id, i);
                         const sel = cartSelections[cartKey] ?? defaultCartSelection();
                         const setSel = (patch: Partial<typeof sel>) =>
@@ -552,58 +552,67 @@ export default function GuestChat() {
                         const isAdding = addingCartId === menuId;
                         return (
                           <div key={`cart-${i}`} className={styles.cartOptionBlock}>
-                            <p className={styles.cartOptionHint}>
-                              아래에서 온도·디카페인·원두·수량을 선택한 뒤 담기 버튼을 눌러 주세요.
+                            <p className={styles.cartOptionProductName} aria-label={`${menuName} 옵션 선택`}>
+                              {menuName}
                             </p>
-                            <div className={styles.cartOptionRow}>
-                              <span className={styles.cartOptionLabel}>온도</span>
-                              <div className={styles.cartOptionBtns}>
-                                {(['HOT', 'ICED'] as const).map((t) => (
-                                  <button
-                                    key={t}
-                                    type="button"
-                                    className={`${styles.cartOptionBtn} ${sel.temperature === t ? styles.cartOptionBtnActive : ''}`}
-                                    onClick={() => setSel({ temperature: t })}
-                                  >
-                                    {t === 'ICED' ? '아이스' : 'HOT'}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                            <div className={styles.cartOptionRow}>
-                              <span className={styles.cartOptionLabel}>디카페인</span>
-                              <div className={styles.cartOptionBtns}>
-                                <button
-                                  type="button"
-                                  className={`${styles.cartOptionBtn} ${!sel.decaf ? styles.cartOptionBtnActive : ''}`}
-                                  onClick={() => setSel({ decaf: false })}
-                                >
-                                  일반
-                                </button>
-                                <button
-                                  type="button"
-                                  className={`${styles.cartOptionBtn} ${sel.decaf ? styles.cartOptionBtnActive : ''}`}
-                                  onClick={() => setSel({ decaf: true })}
-                                >
-                                  디카페인
-                                </button>
-                              </div>
-                            </div>
-                            <div className={styles.cartOptionRow}>
-                              <span className={styles.cartOptionLabel}>원두</span>
-                              <div className={styles.cartOptionBtns}>
-                                {BEAN_OPTIONS.map((b) => (
-                                  <button
-                                    key={b.value || 'default'}
-                                    type="button"
-                                    className={`${styles.cartOptionBtn} ${sel.beanOption === b.value ? styles.cartOptionBtnActive : ''}`}
-                                    onClick={() => setSel({ beanOption: b.value })}
-                                  >
-                                    {b.label}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                            <p className={styles.cartOptionHint}>
+                              {isCoffee
+                                ? '아래에서 온도·디카페인·원두·수량을 선택한 뒤 담기 버튼을 눌러 주세요.'
+                                : '아래에서 수량을 선택한 뒤 담기 버튼을 눌러 주세요.'}
+                            </p>
+                            {isCoffee && (
+                              <>
+                                <div className={styles.cartOptionRow}>
+                                  <span className={styles.cartOptionLabel}>온도</span>
+                                  <div className={styles.cartOptionBtns}>
+                                    {(['HOT', 'ICED'] as const).map((t) => (
+                                      <button
+                                        key={t}
+                                        type="button"
+                                        className={`${styles.cartOptionBtn} ${sel.temperature === t ? styles.cartOptionBtnActive : ''}`}
+                                        onClick={() => setSel({ temperature: t })}
+                                      >
+                                        {t === 'ICED' ? '아이스' : 'HOT'}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className={styles.cartOptionRow}>
+                                  <span className={styles.cartOptionLabel}>디카페인</span>
+                                  <div className={styles.cartOptionBtns}>
+                                    <button
+                                      type="button"
+                                      className={`${styles.cartOptionBtn} ${!sel.decaf ? styles.cartOptionBtnActive : ''}`}
+                                      onClick={() => setSel({ decaf: false })}
+                                    >
+                                      일반
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={`${styles.cartOptionBtn} ${sel.decaf ? styles.cartOptionBtnActive : ''}`}
+                                      onClick={() => setSel({ decaf: true })}
+                                    >
+                                      디카페인
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className={styles.cartOptionRow}>
+                                  <span className={styles.cartOptionLabel}>원두</span>
+                                  <div className={styles.cartOptionBtns}>
+                                    {BEAN_OPTIONS.map((b) => (
+                                      <button
+                                        key={b.value || 'default'}
+                                        type="button"
+                                        className={`${styles.cartOptionBtn} ${sel.beanOption === b.value ? styles.cartOptionBtnActive : ''}`}
+                                        onClick={() => setSel({ beanOption: b.value })}
+                                      >
+                                        {b.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                </div>
+                              </>
+                            )}
                             <div className={styles.cartOptionRow}>
                               <span className={styles.cartOptionLabel}>수량</span>
                               <div className={styles.cartQuantityWrap}>
@@ -629,7 +638,7 @@ export default function GuestChat() {
                             <button
                               type="button"
                               className={styles.cartSubmitBtn}
-                              onClick={() => handleAddToCartWithSelection(m.id, i, menuId, menuName)}
+                              onClick={() => handleAddToCartWithSelection(m.id, i, menuId, menuName, isCoffee)}
                               disabled={isAdding}
                             >
                               <ShoppingCart size={14} />
