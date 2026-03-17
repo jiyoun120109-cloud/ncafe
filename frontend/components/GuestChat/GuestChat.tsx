@@ -110,6 +110,15 @@ function getLoadingMessage(userText: string): string {
   return DEFAULT_LOADING[Math.floor(Math.random() * DEFAULT_LOADING.length)];
 }
 
+/** 봇 메시지 가독성: 문장 단위 줄바꿈 (마침표·느낌표·물음표 뒤 공백을 줄바꿈으로) */
+function formatBotMessageText(text: string): string {
+  if (!text || !text.trim()) return text;
+  return text
+    .replace(/([.!?])\s+/g, '$1\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 /** 항상 스트리밍 사용. 스트림 안에 content / tools / action 이 함께 오면 각각 처리함 */
 function shouldUseStream(_userText: string): boolean {
   return true;
@@ -505,11 +514,14 @@ export default function GuestChat() {
                     </div>
                   ) : (
                     <span className={styles.msgBubble}>
-                      {m.text || (m.tools && m.tools.length > 0
-                        ? (m.tools.some((t) => t.name === 'navigate_to_page')
-                          ? '바로 데려다줄게요! 아래 버튼을 눌러 이동해요 🐾'
-                          : '원하는 걸 골라주세요~ 아래에서 눌러 주세요 🐶')
-                        : '')}
+                      {formatBotMessageText(
+                        m.text ||
+                          (m.tools && m.tools.length > 0
+                            ? m.tools.some((t) => t.name === 'navigate_to_page')
+                              ? '바로 데려다줄게요! 아래 버튼을 눌러 이동해요 🐾'
+                              : '원하는 걸 골라주세요~ 아래에서 옵션을 선택한 뒤 담기 버튼을 눌러 주세요 🐶'
+                            : '답을 찾지 못했어요. 메뉴·영업시간·장바구니는 아래 버튼으로 이용해 보세요.')
+                      )}
                     </span>
                   )}
                 {m.role === 'bot' && m.tools && m.tools.length > 0 && (

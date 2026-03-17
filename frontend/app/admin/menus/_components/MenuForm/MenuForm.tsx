@@ -453,9 +453,9 @@ export default function MenuForm({ initialData, categories, onSubmit, onCancel }
                         {...register('productInfo.calorieKcal', {
                             setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)),
                             validate: (v) => {
-                                if (v === '' || v == null || v === undefined) return true;
+                                if (v === undefined || v === null || (typeof v === 'number' && Number.isNaN(v))) return true;
                                 const n = Number(v);
-                                if (Number.isNaN(n)) return '열량에는 숫자를 입력해주세요.';
+                                if (!Number.isFinite(n)) return '열량에는 숫자를 입력해주세요.';
                                 if (n < 0) return '열량은 0 이상이어야 합니다.';
                                 if (n > 10000) return '열량은 10,000 kcal 이하여야 합니다.';
                                 return true;

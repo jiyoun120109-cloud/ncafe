@@ -369,10 +369,67 @@ export async function POST(req: NextRequest) {
           : {}),
       }));
 
-    // 스트리밍: Agent에 http 모듈로 요청해 SSE 스트림 그대로 전달 (undici 버퍼링 방지)
-    if (body.stream && AGENT_SERVER_URL && messages.length > 0) {
-      const payload = JSON.stringify({ messages: toAgentMessages(messages), stream: true });
-      const stream = await requestStreamFromAgent(payload);
+    // 스트리밍: 장바구니 담기/메뉴 검색은 BFF에서 먼저 처리해 tools를 확실히 전달 (옵션 위젯 노출)
+    if (body.stream && messages.length > 0) {
+      const detected = detectTools(lastUserContent);
+      const hasCartOrSearch = detected.some((t) => t.name === 'add_to_cart' || t.name === 'search_menu');
+      if (hasCartOrSearch) {
+        const run = await runTools(detected, lastUserContent);
+        const hasResolvedCart = run.tools.some((t) => t.name === 'add_to_cart' && typeof t.args.menuId === 'number');
+        const hasSearchResults = (run.searchResults?.length ?? 0) > 0;
+        if (hasResolvedCart || hasSearchResults) {
+          const stream = new ReadableStream<Uint8Array>({
+            start(controller) {
+              const enc = new TextEncoder();
+              const content = run.reply?.trim() || (hasResolvedCart ? '아래에서 온도·옵션을 선택한 뒤 담기 버튼을 눌러 주세요.' : '아래에서 선택해 주세요.');
+              const data = JSON.stringify({
+                content,
+                tools: run.tools,
+                ...(run.searchResults?.length ? { searchResults: run.searchResults } : {}),
+              });
+              controller.enqueue(enc.encode(`data: ${data}\n\n`));
+              controller.enqueue(enc.encode('data: [DONE]\n\n'));
+              controller.close();
+            },
+          });
+          return new NextResponse(stream, {
+            headers: {
+              'Content-Type': 'text/event-stream',
+              'Cache-Control': 'no-cache, no-transform',
+              Connection: 'keep-alive',
+              'X-Accel-Buffering': 'no',
+            },
+          });
+        }
+      }
+      if (AGENT_SERVER_URL) {
+        const payload = JSON.stringify({ messages: toAgentMessages(messages), stream: true });
+        const stream = await requestStreamFromAgent(payload);
+        return new NextResponse(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache, no-transform',
+            Connection: 'keep-alive',
+            'X-Accel-Buffering': 'no',
+          },
+        });
+      }
+      // stream 요청인데 Agent 없음: BFF에서 도구만 처리해 한 번에 스트림으로 전달
+      const detectedTools = detectTools(lastUserContent);
+      const run = detectedTools.length > 0 ? await runTools(detectedTools, lastUserContent) : { reply: getDummyReply(lastUserContent), tools: [] as ChatTool[], searchResults: undefined as MenuItemForChat[] | undefined };
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          const enc = new TextEncoder();
+          const data = JSON.stringify({
+            content: run.reply || getDummyReply(lastUserContent),
+            tools: run.tools,
+            ...(run.searchResults?.length ? { searchResults: run.searchResults } : {}),
+          });
+          controller.enqueue(enc.encode(`data: ${data}\n\n`));
+          controller.enqueue(enc.encode('data: [DONE]\n\n'));
+          controller.close();
+        },
+      });
       return new NextResponse(stream, {
         headers: {
           'Content-Type': 'text/event-stream',

@@ -7,8 +7,8 @@
 }
 
 .pageInner {
-    width: 66.666%;
-    max-width: 66.666%;
+    width: 90%;
+    max-width: 960px;
     margin-left: auto;
     margin-right: auto;
 }
