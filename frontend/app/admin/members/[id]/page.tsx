@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useUIStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authStore';
+import { getMeApi } from '@/services/authService';
 import {
   fetchAdminMember,
   updateAdminMemberProfile,
@@ -52,6 +54,7 @@ function formatDateTime(iso: string | null | undefined): string {
 export default function AdminMemberDetailPage() {
   const params = useParams();
   const { setTitle } = useUIStore();
+  const { user: currentUser, setUser } = useAuthStore();
   const id = params?.id ? Number(params.id) : null;
   const [data, setData] = useState<AdminMemberDetailWithActivityDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,6 +91,13 @@ export default function AdminMemberDetailPage() {
         setStatusInput(m.status ?? 'ACTIVE');
       })
       .catch(() => setData(null));
+  };
+
+  /** 수정한 회원이 현재 로그인 사용자이면 헤더(역할·이름 등) 반영을 위해 세션 재조회 */
+  const refreshCurrentUserIfMe = () => {
+    if (id == null || currentUser == null) return;
+    if (Number(currentUser.id) !== Number(id)) return;
+    getMeApi().then((me) => { if (me) setUser(me); });
   };
 
   useEffect(() => {
@@ -137,6 +147,7 @@ export default function AdminMemberDetailPage() {
       setMessage('프로필·상태·역할이 저장되었습니다.');
       setMessageType('success');
       refresh();
+      refreshCurrentUserIfMe();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '저장에 실패했습니다.');
       setMessageType('error');
@@ -161,6 +172,7 @@ export default function AdminMemberDetailPage() {
       setNewPassword('');
       setShowPasswordForm(false);
       refresh();
+      refreshCurrentUserIfMe();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '비밀번호 초기화에 실패했습니다.');
       setMessageType('error');
@@ -178,6 +190,7 @@ export default function AdminMemberDetailPage() {
       setMessage('계정 잠금이 해제되었습니다.');
       setMessageType('success');
       refresh();
+      refreshCurrentUserIfMe();
     } catch (e) {
       setMessage(e instanceof Error ? e.message : '잠금 해제에 실패했습니다.');
       setMessageType('error');
