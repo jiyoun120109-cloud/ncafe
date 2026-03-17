@@ -91,7 +91,7 @@ function isValidBirthDate(value: string): boolean {
 function UserPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, isAuthenticated, setUser, setProfileImageUrl, profileImageUrl: storeProfileImageUrl } = useAuthStore();
+  const { user, isAuthenticated, sessionChecked, setUser, setProfileImageUrl, profileImageUrl: storeProfileImageUrl } = useAuthStore();
   const { addItem } = useCart();
   const [tab, setTab] = useState<Tab | null>(() => getInitialTab(searchParams));
   const [orders, setOrders] = useState<OrderDto[]>([]);
@@ -141,6 +141,7 @@ function UserPageContent() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (!sessionChecked) return;
     if (!isAuthenticated) {
       router.replace(`/login?returnUrl=${encodeURIComponent('/user')}`);
       return;
@@ -160,7 +161,7 @@ function UserPageContent() {
       }
     };
     load();
-  }, [isAuthenticated, router]);
+  }, [sessionChecked, isAuthenticated, router]);
 
   useEffect(() => {
     if (!isAuthenticated || tab !== 'favorites') return;
@@ -441,6 +442,13 @@ function UserPageContent() {
 
   const needsInitialLoad = tab !== null && loading && ['orders', 'coupons'].includes(tab);
 
+  if (!sessionChecked) {
+    return (
+      <PageWithHero title="마이페이지" subtitle="주문 내역, 찜, 문의, 알림을 확인하세요." mainClassName={styles.userPageMain}>
+        <div className={styles.loading}>불러오는 중...</div>
+      </PageWithHero>
+    );
+  }
   if (!isAuthenticated) return null;
 
   return (

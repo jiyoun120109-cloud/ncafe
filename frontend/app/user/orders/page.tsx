@@ -10,15 +10,16 @@ import { useAuthStore } from '@/stores/authStore';
  */
 export default function UserOrdersRedirectPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, sessionChecked } = useAuthStore();
 
   useEffect(() => {
+    if (!sessionChecked) return;
     if (!isAuthenticated) {
       router.replace(`/login?returnUrl=${encodeURIComponent('/user?tab=orders')}`);
       return;
     }
     router.replace('/user?tab=orders');
-  }, [isAuthenticated, router]);
+  }, [sessionChecked, isAuthenticated, router]);
 
   return (
     <div style={{ padding: '2rem', textAlign: 'center', color: 'rgba(0,0,0,0.6)' }}>

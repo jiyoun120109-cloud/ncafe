@@ -20,7 +20,7 @@ export default function SiteHeader() {
   const [myPageOpen, setMyPageOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const { totalQuantity } = useCart();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, sessionChecked } = useAuthStore();
   const { siteName } = useSiteSettings();
   const brandMark = siteName?.charAt(0) || 'N';
   const brandText = siteName?.slice(1) || 'Cafe';
@@ -28,12 +28,12 @@ export default function SiteHeader() {
   const isMenus = pathname === '/menus' || pathname.startsWith('/menus/');
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!sessionChecked || !isAuthenticated) {
       setUnreadCount(0);
       return;
     }
     getUnreadNotificationCount().then(setUnreadCount).catch(() => setUnreadCount(0));
-  }, [isAuthenticated, pathname]);
+  }, [sessionChecked, isAuthenticated, pathname]);
   /** 랜딩(/)이 아닌 페이지에서는 배경이 밝으므로 헤더를 항상 밝은 스타일로 표시 */
   const isLightPage = pathname !== '/';
 

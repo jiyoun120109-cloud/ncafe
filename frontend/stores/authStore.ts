@@ -12,11 +12,14 @@ interface AuthState {
     /** 헤더 등에서 표시할 프로필 이미지 URL (상대 경로). 프로필 조회/업로드 시 갱신 */
     profileImageUrl: string | null;
     isAuthenticated: boolean;
+    /** 세션 확인(getMeApi) 완료 여부. false면 아직 확인 전이므로 리다이렉트/로딩 판단 보류 */
+    sessionChecked: boolean;
     isLoading: boolean;
 
     setUser: (user: AuthUser) => void;
     setProfileImageUrl: (url: string | null) => void;
     clearUser: () => void;
+    setSessionChecked: (checked: boolean) => void;
     setLoading: (loading: boolean) => void;
 }
 
@@ -31,10 +34,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
     user: null,
     profileImageUrl: null,
     isAuthenticated: false,
+    sessionChecked: false,
     isLoading: false,
 
-    setUser: (user) => set({ user, isAuthenticated: true }),
+    setUser: (user) => set({ user, isAuthenticated: true, sessionChecked: true }),
     setProfileImageUrl: (url) => set({ profileImageUrl: url }),
-    clearUser: () => set({ user: null, profileImageUrl: null, isAuthenticated: false }),
+    clearUser: () => set({ user: null, profileImageUrl: null, isAuthenticated: false, sessionChecked: true }),
+    setSessionChecked: (checked) => set({ sessionChecked: checked }),
     setLoading: (loading) => set({ isLoading: loading }),
 }));

@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
-import { getMeApi, logoutApi } from '@/services/authService';
+import { logoutApi } from '@/services/authService';
 import { getUserProfile } from '@/services/userService';
 import { getApiBase } from '@/services/api';
 import { clearCartSessionId } from '@/services/cartService';
@@ -28,20 +28,7 @@ type HeaderAuthProps = {
  */
 export default function HeaderAuth({ loginLinkClassName = '', authClassName = '', compact = false, wrapperClassName = '' }: HeaderAuthProps) {
     const router = useRouter();
-    const { user, profileImageUrl, setUser, setProfileImageUrl, clearUser } = useAuthStore();
-    const [checked, setChecked] = useState(false);
-
-    useEffect(() => {
-        let cancelled = false;
-        async function load() {
-            const u = await getMeApi();
-            if (cancelled) return;
-            if (u) setUser(u);
-            setChecked(true);
-        }
-        load();
-        return () => { cancelled = true; };
-    }, [setUser]);
+    const { user, profileImageUrl, sessionChecked, setProfileImageUrl, clearUser } = useAuthStore();
 
     useEffect(() => {
         if (!user) return;
@@ -59,7 +46,7 @@ export default function HeaderAuth({ loginLinkClassName = '', authClassName = ''
         router.refresh();
     };
 
-    if (!checked) {
+    if (!sessionChecked) {
         return (
             <span className={`${styles.placeholder} ${authClassName}`.trim()}>...</span>
         );

@@ -19,7 +19,7 @@ const INQUIRY_TYPE_LABELS: Record<string, string> = {
 
 export default function InquiriesPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, sessionChecked } = useAuthStore();
   const [list, setList] = useState<InquiryDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,6 +29,7 @@ export default function InquiriesPage() {
   const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
+    if (!sessionChecked) return;
     if (!isAuthenticated) {
       router.replace(`/login?returnUrl=${encodeURIComponent('/inquiries')}`);
       return;
@@ -37,7 +38,7 @@ export default function InquiriesPage() {
       .then(setList)
       .catch(() => setList([]))
       .finally(() => setLoading(false));
-  }, [isAuthenticated, router]);
+  }, [sessionChecked, isAuthenticated, router]);
 
   const filtered = useMemo(() => {
     let result = list;
@@ -71,6 +72,7 @@ export default function InquiriesPage() {
     setPreview(null);
   }, []);
 
+  if (!sessionChecked) return <PageWithHero title="1:1 문의" wideMain><div className={styles.loading}>불러오는 중...</div></PageWithHero>;
   if (!isAuthenticated) return null;
 
   const adminReplies = preview?.replies?.filter((r) => r.parentReplyId == null) ?? [];

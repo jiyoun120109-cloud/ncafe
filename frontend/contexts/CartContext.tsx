@@ -31,7 +31,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [items, setItems] = useState<CartItemDto[]>([]);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [loading, setLoading] = useState(true);
-    const { user, isAuthenticated } = useAuthStore();
+    const { user, isAuthenticated, sessionChecked } = useAuthStore();
 
     const refresh = useCallback(async () => {
         try {
@@ -47,10 +47,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // 초기 로드 + 로그인/로그아웃·다른 사용자 전환 시 장바구니 갱신 (백엔드가 JWT userId 기준으로 장바구니 반환)
+    // 세션 확인 후 로그인/로그아웃·다른 사용자 전환 시 장바구니 갱신 (백엔드가 JWT userId 기준으로 장바구니 반환)
     useEffect(() => {
+        if (!sessionChecked) return;
         refresh();
-    }, [refresh, user?.id, isAuthenticated]);
+    }, [sessionChecked, refresh, user?.id, isAuthenticated]);
 
     const addItem = useCallback(async (menuId: number, quantity: number = 1, options?: CartItemOptions) => {
         await addCartItemApi(menuId, quantity, options);

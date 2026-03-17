@@ -18,7 +18,7 @@ const INQUIRY_TYPES = [
 
 export default function NewInquiryPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, sessionChecked } = useAuthStore();
   const [inquiryType, setInquiryType] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -30,6 +30,7 @@ export default function NewInquiryPage() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  if (!sessionChecked) return <div className={styles.page}><p>불러오는 중...</p></div>;
   if (!isAuthenticated) {
     router.replace(`/login?returnUrl=${encodeURIComponent('/inquiries/new')}`);
     return null;

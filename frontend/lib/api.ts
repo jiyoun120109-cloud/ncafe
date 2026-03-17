@@ -17,18 +17,20 @@ export async function fetchAPI<T = unknown>(endpoint: string, options?: RequestI
     });
 
     if (!res.ok) {
-        if (res.status === 401 && typeof window !== 'undefined') {
+        let bodyMessage: string | undefined;
+        try {
+            const body = await res.json();
+            bodyMessage = body?.message;
+        } catch { /* no json body */ }
+
+        if (res.status === 401 && typeof window !== 'undefined' && endpoint !== '/auth/login') {
             const currentPath = window.location.pathname;
             window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
             return undefined as T;
         }
 
-        const error = new Error(`API Error: ${res.status}`) as Error & { status: number };
+        const error = new Error(bodyMessage || `API Error: ${res.status}`) as Error & { status: number };
         error.status = res.status;
-        try {
-            const body = await res.json();
-            error.message = body.message || error.message;
-        } catch { /* no json body */ }
         throw error;
     }
 

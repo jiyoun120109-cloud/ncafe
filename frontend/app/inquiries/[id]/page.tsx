@@ -42,7 +42,7 @@ export default function InquiryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id ? Number(params.id) : null;
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, sessionChecked, user } = useAuthStore();
   const [inquiry, setInquiry] = useState<InquiryDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [addingFor, setAddingFor] = useState<number | null>(null);
@@ -197,6 +197,7 @@ export default function InquiryDetailPage() {
     }
   };
 
+  if (!sessionChecked) return <main className={styles.main}><div className={styles.loading}>불러오는 중...</div></main>;
   if (!isAuthenticated) return null;
   if (loading) return <main className={styles.main}><div className={styles.loading}>불러오는 중...</div></main>;
   if (!inquiry) return <main className={styles.main}><p className={styles.errorText}>문의를 찾을 수 없습니다.</p><Link href="/inquiries" className={styles.backLinkText}>← 이전으로</Link></main>;

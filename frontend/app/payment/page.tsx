@@ -110,7 +110,7 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   const orderId = orderIdParam ? parseInt(orderIdParam, 10) : null;
 
   const { clearAll } = useCart();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, sessionChecked } = useAuthStore();
   const [order, setOrder] = useState<OrderDto | null>(null);
   const [completedOrder, setCompletedOrder] = useState<OrderDto | null>(null);
   const [coupons, setCoupons] = useState<UserCouponDto[]>([]);
@@ -172,14 +172,14 @@ function PaymentContent({ tossLoaded }: { tossLoaded: boolean }) {
   }, [orderId, order, userCouponIdFromUrl]);
 
   useEffect(() => {
-    if (isAuthenticated && orderId && !complete) {
+    if (sessionChecked && isAuthenticated && orderId && !complete) {
       getUserCoupons()
         .then((list) => setCoupons(list.filter((c) => !c.usedAt)))
         .catch(() => setCoupons([]));
     } else {
       setCoupons([]);
     }
-  }, [isAuthenticated, orderId, complete]);
+  }, [sessionChecked, isAuthenticated, orderId, complete]);
 
   const handleApplyCoupon = async (userCouponId: number) => {
     if (!orderId || isNaN(orderId)) return;

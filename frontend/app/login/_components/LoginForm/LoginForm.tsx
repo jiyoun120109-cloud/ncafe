@@ -47,9 +47,10 @@ export default function LoginForm({ onError, returnUrl = '' }: LoginFormProps) {
                 router.push('/');
             }
         } catch (err) {
-            const message = err instanceof Error
-                ? err.message
-                : '서버와 연결할 수 없습니다. 잠시 후 다시 시도해주세요.';
+            const raw = err instanceof Error ? err.message : '';
+            const message = raw && !raw.startsWith('API Error:')
+                ? raw
+                : '아이디 또는 비밀번호를 확인해주세요.';
             onError(message);
         } finally {
             setIsLoading(false);

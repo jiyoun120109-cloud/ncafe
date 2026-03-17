@@ -30,7 +30,7 @@ function toOrderItems(items: CartItemDto[]): OrderItemInput[] {
 export default function OrderPage() {
   const router = useRouter();
   const { items, loading: cartLoading, updateQuantity, updateItemOptions, removeItem } = useCart();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, sessionChecked } = useAuthStore();
   const [profile, setProfile] = useState<UserProfileDto | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [coupons, setCoupons] = useState<UserCouponDto[]>([]);
@@ -46,7 +46,7 @@ export default function OrderPage() {
   const [optionModalItem, setOptionModalItem] = useState<CartItemDto | null>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!sessionChecked || !isAuthenticated) return;
     setProfileLoading(true);
     getUserProfile()
       .then((p) => {
@@ -56,14 +56,14 @@ export default function OrderPage() {
       })
       .catch(() => setProfile(null))
       .finally(() => setProfileLoading(false));
-  }, [isAuthenticated]);
+  }, [sessionChecked, isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!sessionChecked || !isAuthenticated) return;
     getUserCoupons()
       .then((list) => setCoupons(list.filter((c) => !c.usedAt)))
       .catch(() => setCoupons([]));
-  }, [isAuthenticated]);
+  }, [sessionChecked, isAuthenticated]);
 
   const totalPrice = items.reduce(
     (sum, it) => sum + (it.menuPrice + (it.optionExtraPrice ?? 0)) * it.quantity,
