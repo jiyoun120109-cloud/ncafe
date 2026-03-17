@@ -7,12 +7,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+/**
+ * SMTP 사용 시에만 등록. app.mail.send-enabled=true 이고 JavaMailSender 빈이 있을 때만 활성화.
+ * 미설정/비활성 시 NoOpSendPasswordResetEmailPort 사용.
+ */
 @Component
 @ConditionalOnBean(JavaMailSender.class)
+@ConditionalOnProperty(name = "app.mail.send-enabled", havingValue = "true")
 public class SendPasswordResetEmailAdapter implements SendPasswordResetEmailPort {
 
     private static final Logger log = LoggerFactory.getLogger(SendPasswordResetEmailAdapter.class);

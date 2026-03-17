@@ -14,9 +14,10 @@ SMTP를 설정하지 않으면 **알림만** 동작하고 이메일은 발송되
 | 로그인 이메일 | `SPRING_MAIL_USERNAME` | `spring.mail.username` | SMTP 로그인용 이메일 |
 | 비밀번호 | `SPRING_MAIL_PASSWORD` | `spring.mail.password` | 비밀번호 또는 **앱 비밀번호** |
 | 발신 주소 | `APP_MAIL_FROM` | `app.mail.from` | (선택) 비우면 username 사용 |
+| 이메일 발송 사용 | `APP_MAIL_SEND_ENABLED` | `app.mail.send-enabled` | **true** 로 설정 시에만 실제 발송 (미설정 시 알림만) |
 
-- 위 값을 **전부 비우면** → 이메일 발송 없음, 알림·비밀번호 초기화는 정상 동작
-- **한 번이라도 채우면** → 해당 설정으로 이메일 발송 시도
+- 위 SMTP 항목을 채우고 **app.mail.send-enabled=true** 로 두면 이메일 발송
+- 비우거나 send-enabled 를 쓰지 않으면 이메일 발송 없음, 알림·비밀번호 초기화는 정상 동작
 
 ---
 
@@ -29,6 +30,7 @@ SMTP를 설정하지 않으면 **알림만** 동작하고 이메일은 발송되
 
 **Gmail**
 ```properties
+app.mail.send-enabled=true
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
 spring.mail.username=your@gmail.com
@@ -39,6 +41,7 @@ app.mail.from=your@gmail.com
 
 **Naver**
 ```properties
+app.mail.send-enabled=true
 spring.mail.host=smtp.naver.com
 spring.mail.port=587
 spring.mail.username=your@naver.com
@@ -55,6 +58,7 @@ app.mail.from=your@naver.com
 ## 3. 서버 / Docker에서 설정 (환경변수)
 
 ```bash
+APP_MAIL_SEND_ENABLED=true
 SPRING_MAIL_HOST=smtp.gmail.com
 SPRING_MAIL_PORT=587
 SPRING_MAIL_USERNAME=your@gmail.com
@@ -63,6 +67,8 @@ APP_MAIL_FROM=your@gmail.com
 ```
 
 docker-compose 사용 시 `environment:` 또는 `.env` 파일에 위 변수를 넣으면 됩니다.
+
+**prod 프로필 사용 시:** `application-prod.properties` 에서 `MailSenderAutoConfiguration` exclude 한 줄을 제거한 뒤 위 환경변수를 설정해야 이메일이 발송됩니다. (exclude 유지 시 메일 미사용으로 JavaMailSender가 생성되지 않아 기동이 안정적입니다.)
 
 ---
 
